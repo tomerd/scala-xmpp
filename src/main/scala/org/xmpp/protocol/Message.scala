@@ -35,15 +35,11 @@ package org.xmpp
 			
 			final def reply(body:String):Message = reply(this.subject, body)
 			
-			final def reply(subject:String, body:String):Message = reply(this.from, subject, body, this.thread)
-			
-			final def reply(subject:String, body:String, thread:String):Message = reply(this.from, subject, body, thread)
-			
+			final def reply(subject:String, body:String):Message = reply(this.from, subject, body)
+						
 			final def reply(to:JID, body:String):Message = reply(to, this.subject, body)
 			
-			final def reply(to:JID, subject:String, body:String):Message = reply(to, subject, body, this.thread)
-							
-			final def reply(to:JID, subject:String, body:String, thread:String):Message = Message.construct(this.id, to, this.to, this.kind, subject, body, thread)
+			final def reply(to:JID, subject:String, body:String):Message = Message.construct(this.id, to, this.to, this.kind, subject, body, this.thread)
 		}
 		
 		final object MessageTypeEnumeration extends Enumeration
