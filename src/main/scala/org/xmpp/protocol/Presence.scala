@@ -6,7 +6,7 @@ package org.xmpp
 		
 		class Presence(literal:Node) extends Stanza[Presence](literal)
 		{
-			val typeResolver = PresenceTypeEnumeration
+			val TypeEnumeration = PresenceTypeEnumeration
 			
 			final def available:Boolean = PresenceTypeEnumeration.Available == this.kind
 			

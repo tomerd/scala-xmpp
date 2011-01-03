@@ -45,14 +45,14 @@ package org.xmpp
 		abstract class Stanza[T <: Stanza[T]](literal:Node) extends XmlLiteral(literal)
 		{			
 			def this(other:T) = this(other.xml)
-						
-			type TypeResolver = { def withName(string:String):Any }
-			val typeResolver:TypeResolver
+					
+			val TypeEnumeration:Enumeration
 			
 			private var _id:Option[String] = None
 			private var _to:Option[JID] = None
 			private var _from:Option[JID] = None
-			private var _kind:Option[Any] = None
+			private var _kind:Option[TypeEnumeration.Value] = None
+			private var _language:Option[String] = None
 			
 			final def id:String = 
 			{
@@ -93,35 +93,47 @@ package org.xmpp
 				}
 			}
 			
-			// TODO: should not be any
-			final def kind:Any = 
+			final def kind:TypeEnumeration.Value = 
 			{
 				_kind match
 				{
 					case None =>
-					{
-						val t = typeResolver.withName((this.xml \ "@type").text)
-						_kind = Some(t)
+					{						
+						_kind = Some(TypeEnumeration.withName((this.xml \ "@type").text))
 						return _kind.get
 					}
 					case Some(kind) => kind
 				}
-			}				
-				
+			}		
 			
-			// TODO, test this
-			final def error:Error = new Error((this.xml \ "@error")(0))
+			final def language:String =
+			{
+				_language match
+				{
+					case None =>
+					{		
+						// TODO: find a better way to query this prefixed attribute with no namespace, this does not work: (this.xml \ "@lang").text
+						val t = this.xml.attributes.find((attribute) => "lang" == attribute.key)
+						_language = Some(t.get.value.text)
+						return _language.get
+					}
+					case Some(language) => language
+				}				
+				
+			}
+							
+			final def error:Option[Error] = 
+			{
+				(this.xml \ "error").length match
+				{
+					case 0 => None
+					case _ => Some(new Error((this.xml \ "@error")(0)))
+				}			
+			}
 
 			// FIXME
 			final def copy():T = StanzaFactory.create(this.xml).asInstanceOf[T]
 		}
 		
-		object StanzaTypeEnumeration extends Enumeration
-		{
-			type value = Value
-			
-			val Unknown = Value("unknonw")
-			val Error = Value("error")
-		}
 	}
 }

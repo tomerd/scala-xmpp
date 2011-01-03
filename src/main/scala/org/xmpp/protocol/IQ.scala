@@ -6,7 +6,7 @@ package org.xmpp
 			
 		class IQ(literal:Node) extends Stanza[IQ](literal)
 		{
-			val typeResolver = IQTypeEnumeration
+			val TypeEnumeration = IQTypeEnumeration
 		}
 				
 		final object IQTypeEnumeration extends Enumeration

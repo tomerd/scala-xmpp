@@ -18,24 +18,9 @@ package org.xmpp
 			
 			final def xml:Node = literal
 		}
-		
-		// TODO: should convert all the packet library to native scala
-		//import org.xmpp.packet._
 	
 		object Protocol
-		{
-			/*
-			// TODO: should convert all the packet library to native scala
-			implicit def packet2Stanza(packet:Packet):Stanza = new SimpleStanza(packet.toString)
-			implicit def packet2String(packet:Packet):String = packet.toString
-			
-			implicit def string2Stanza(xml:String):Stanza = new SimpleStanza(xml)
-			implicit def node2Stanza(xml:Node):Stanza = new SimpleStanza(xml)
-						
-			implicit def stanza2String(stanza:Stanza):String = stanza.toString
-			implicit def stanza2Node(stanza:Stanza):Node = stanza.toXml
-			*/
-			
+		{			
 			implicit def wrapper2node(wrapper:XmlWrapper):Node = wrapper.xml
 			implicit def wrapper2string(wrapper:XmlWrapper):String = wrapper.toString
 			
@@ -44,6 +29,9 @@ package org.xmpp
 			
 			implicit def node2String(xml:Node):String = xml.toString
 			implicit def string2node(xml:String):Node = XML.loadString(xml)
+			
+			implicit def jid2string(jid:JID):String = jid.toString
+			implicit def string2jid(string:String) = JID(string)
 		}
 	}
 }
