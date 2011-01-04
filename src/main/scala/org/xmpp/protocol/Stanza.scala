@@ -3,12 +3,13 @@ package org.xmpp
 	package protocol
 	{
 		import scala.xml._
-		
-		object StanzaFactory
+				
+		final object Stanza
 		{
 			// TODO: once XmppComponent removes all dependencies from dom4j need to remove this as well
 			// TODO: find a better way to do this			
-			def create(element:org.dom4j.Element):Stanza[_] =
+			//def create(element:org.dom4j.Element):Stanza[_] =
+			def apply(element:org.dom4j.Element):Stanza[_] =
 			{
 				import java.io._
 				import org.dom4j.io._
@@ -16,18 +17,20 @@ package org.xmpp
 				val buffer:StringWriter = new StringWriter()
 				val writer:XMLWriter = new XMLWriter(buffer, OutputFormat.createPrettyPrint())
 				writer.write(element)
-				return create(buffer.toString)
+				return Stanza(buffer.toString)
 			}
 			
-			def create(xml:String):Stanza[_] = create(XML.loadString(xml))
+			//def create(xml:String):Stanza[_] = create(XML.loadString(xml))
+			def apply(xml:String):Stanza[_] = Stanza(XML.loadString(xml))
 						
-			def create(xml:Node):Stanza[_] =
+			//def create(xml:Node):Stanza[_] =
+			def apply(xml:Node):Stanza[_] = 
 			{
-				xml.label match
+				xml.label.toLowerCase match
 				{
-					case "message" => new Message(xml)
-					case "presence" => new Presence(xml)
-					case "iq" =>
+					case Message.TAG => new Message(xml)
+					case Presence.TAG => new Presence(xml)
+					case IQ.TAG =>
 					{
 						// FIXME
 						// TODO: test this
@@ -42,7 +45,7 @@ package org.xmpp
 			}
 		}
 		
-		abstract class Stanza[T <: Stanza[T]](literal:Node) extends XmlLiteral(literal)
+		abstract class Stanza[T <: Stanza[T]](xml:Node) extends XmlLiteral(xml)
 		{			
 			def this(other:T) = this(other.xml)
 					
@@ -53,17 +56,14 @@ package org.xmpp
 			private var _from:Option[JID] = None
 			private var _kind:Option[TypeEnumeration.Value] = None
 			private var _language:Option[String] = None
+			private var _error:Option[Error] = None
 			
 			final def id:String = 
 			{
 				_id match
 				{
-					case None =>
-					{
-						_id = Some((this.xml \ "@id").text)
-						return _id.get
-					}
-					case Some(id) => id
+					case Some(id) => id	
+					case None => _id = Some((this.xml \ "@id").text); _id.get
 				}
 			}
 			
@@ -71,12 +71,8 @@ package org.xmpp
 			{
 				_to match
 				{
-					case None =>
-					{
-						_to = Some(JID((this.xml \ "@to").text))
-						return _to.get
-					}
-					case Some(jid) => jid
+					case Some(jid) => jid	
+					case None => _to = Some(JID((this.xml \ "@to").text)); _to.get
 				}
 			}
 			
@@ -84,12 +80,8 @@ package org.xmpp
 			{
 				_from match
 				{
-					case None =>
-					{
-						_from = Some(JID((this.xml \ "@from").text))
-						return _from.get
-					}
 					case Some(jid) => jid
+					case None => _from = Some(JID((this.xml \ "@from").text)); _from.get
 				}
 			}
 			
@@ -97,12 +89,8 @@ package org.xmpp
 			{
 				_kind match
 				{
-					case None =>
-					{						
-						_kind = Some(TypeEnumeration.withName((this.xml \ "@type").text))
-						return _kind.get
-					}
 					case Some(kind) => kind
+					case None => _kind = Some(TypeEnumeration.withName((this.xml \ "@type").text)); _kind.get
 				}
 			}		
 			
@@ -110,6 +98,7 @@ package org.xmpp
 			{
 				_language match
 				{
+					case Some(language) => language
 					case None =>
 					{		
 						// TODO: find a better way to query this prefixed attribute with no namespace, this does not work: (this.xml \ "@lang").text
@@ -117,22 +106,27 @@ package org.xmpp
 						_language = Some(t.get.value.text)
 						return _language.get
 					}
-					case Some(language) => language
-				}				
-				
+				}								
 			}
 							
 			final def error:Option[Error] = 
 			{
-				(this.xml \ "error").length match
+				_error match
 				{
-					case 0 => None
-					case _ => Some(new Error((this.xml \ "@error")(0)))
-				}			
+					case Some(error) => Some(error)
+					case None =>
+					{
+						(this.xml \ "error").length match
+						{
+							case 0 => None
+							case _ => _error = Some(Error((this.xml \ "@error")(0))); _error
+						}			
+					}
+				}
 			}
 
-			// FIXME
-			final def copy():T = StanzaFactory.create(this.xml).asInstanceOf[T]
+			// test this
+			final def copy():T = Stanza(this.xml).asInstanceOf[T]
 		}
 		
 	}

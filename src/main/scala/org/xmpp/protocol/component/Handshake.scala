@@ -7,17 +7,18 @@ package org.xmpp
 		import java.security.MessageDigest
 		
 		import org.xmpp.protocol._
-		
-		private object HandshakeHelper
+				
+		final object Handshake
 		{
-			val digest = MessageDigest.getInstance("SHA-1")
-		}
-		
-		case class Handshake(connectionId:String, secret:String) extends XmlWrapper
-		{
-			def xml = <handshake>{ handshakeKey }</handshake>
+			private val digest = MessageDigest.getInstance("SHA-1")
 			
-			private def handshakeKey:String =
+			def apply(connectionId:String, secret:String):Handshake =
+			{
+				val key = createHandshakeKey(connectionId, secret)
+				return new Handshake(<handshake>{ key }</handshake>)
+			}
+			
+			private def createHandshakeKey(connectionId:String, secret:String):String =
 			{				
 				def bytes2Hex(bytes:Array[Byte]):String = 
 				{
@@ -26,10 +27,12 @@ package org.xmpp
 					return bytes.map(cvtByte( _ )).mkString
 				}
 				
-				val key = this.connectionId + this.secret
-				HandshakeHelper.digest.update(key.getBytes("UTF-8"))
-				return bytes2Hex(HandshakeHelper.digest.digest)
-			}
+				val key = connectionId + secret
+				Handshake.digest.update(key.getBytes("UTF-8"))
+				return bytes2Hex(Handshake.digest.digest)
+			}			
 		}
+		
+		final class Handshake(literal:Node) extends XmlLiteral(literal)
 	}
 }

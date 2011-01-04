@@ -2,7 +2,7 @@ package org.xmpp
 {
 	package protocol
 	{
-		object JID
+		final object JID
 		{
 			def apply(string:String):JID =
 			{
@@ -14,7 +14,7 @@ package org.xmpp
 			}
 		}
 		
-		case class JID(node:String, domain:String, resource:String)
+		final case class JID(node:String, domain:String, resource:String)
 		{
 			private var _display:Option[String] = None
 			

@@ -279,11 +279,7 @@ package org.xmpp
 				while (_active) 
 				{
 					val element = reader.parseDocument.getRootElement
-					if (null != element)
-					{
-						val stanza = StanzaFactory.create(element) 
-						stanzaHandler(stanza)
-					}
+					if (null != element) stanzaHandler(Stanza(element))					
 				}				
 			}
 			

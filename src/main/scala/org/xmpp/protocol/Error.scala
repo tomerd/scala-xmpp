@@ -2,88 +2,147 @@ package org.xmpp
 {
 	package protocol
 	{
+		import scala.collection._
 		import scala.xml._
 		
+		import org.xmpp.protocol.Protocol._
+				
 		final object Error
 		{
-			val ERROR_NAMESPACE:String = "urn:ietf:params:xml:ns:xmpp-stanzas"
+			val NAMESPACE:String = "urn:ietf:params:xml:ns:xmpp-stanzas"
+				
+			def apply(xml:Node) = new Error(xml)	
+				
+			def apply(condition:ErrorCondition.Value/*, otherConditions:Option[Seq[String]]*/, description:Option[String]):Error =
+			{
+				import org.xmpp.protocol.ErrorCondition._
+				// TODO: test this
+				val children = mutable.ListBuffer[Node]()
+				children += Elem(null, condition.toString, new UnprefixedAttribute("xmlns", Text(NAMESPACE), Null), TopScope)
+				//if (!otherConditions.isEmpty) otherConditions.foreach( condition => { children += Elem(null, condition.toString, Null, TopScope) } )
+				if (!description.isEmpty) children += <text xmlns={ NAMESPACE } xml:lang="en">{ description.get }</text>
+				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.kind.toString), Null)
+							
+				return new Error(Elem(null, "error", attributes, TopScope, children:_*))
+			}
 		}
 		
 		// TODO: test this
-		final class Error(literal:Node)
-		{
-			def xml:Node = literal
+		final class Error(xml:Node) extends XmlLiteral(xml)
+		{			
+			private var _kind:Option[ErrorType.Value] = None
+			private var _condition:Option[ErrorCondition.Value] = None
+			private var _description:Option[String] = None
+			//private var _otherConditions:Option[Seq[String]] = None
 			
-			def kind:ErrorType.Value = ErrorType.withName((this.xml \ "@type").text)
-			
-			def condition:XmppError = 
+			def kind:ErrorType.Value = 
 			{
-				// TODO: test this
-				xml.child.find((child) => child.namespace.equals(Error.ERROR_NAMESPACE) && !child.label.equals("text")) match
+				_kind match
 				{
-					case Some(node) => 
-					{
-						XmppError.fromString(node.label) match
-						{
-							case Some(error) => error
-							case None => new Unknown
-						}
-					}
-					case None =>
-					{
-						XmppError.fromCode((this.xml \ "@code").text.toInt) match
-						{
-							case Some(error) => error
-							case None => new Unknown
-						}
-					}
+					case Some(kind) => kind
+					case None => _kind = Some(ErrorType.withName((this.xml \ "@type").text)); _kind.get
 				}
 			}
 			
-			def text:String = (this.xml \ "text").text
-		}
-		
-		// TODO: test this
-		object XmppError
-		{
-			val ALL = List[XmppError]() //BadRequest,Conflict,NotImplemented,Forbidden,Gone,InternalServerError,NotFound,BadJid,NotAcceptable,NotAllowed,NotAuthorized,PaymentRequired,RecipientUnavailable,Redirect,RegistrationRequired,RemoteServerNotFound,RemoteServerTimeout,ResourceConstraint,ServiceUnavailable,SubscriptionRequired,UndefinedCondition,UnexpectedRequest)
+			def condition:ErrorCondition.Value = 
+			{
+				_condition match
+				{
+					case Some(condition) => condition
+					case None => 
+					{				
+						// TODO: test this
+						_condition = xml.child.find((child) => child.namespace.equals(Error.NAMESPACE) && !child.label.equals("text")) match
+						{
+							case Some(node) => 
+							{
+								ErrorCondition.fromString(node.label) match
+								{
+									case Some(error) => Some(error)
+									case None => Some(ErrorCondition.Unknown)
+								}
+							}
+							case None =>
+							{
+								ErrorCondition.fromLegacyCode((this.xml \ "@code").text.toInt) match
+								{
+									case Some(error) => Some(error)
+									case None => Some(ErrorCondition.Unknown)
+								}
+							}
+						}
+						return _condition.get
+					}
+				}
+			}
+					
+			def description:String =
+			{
+				_description match
+				{
+					case Some(description) => description
+					case None => _description = Some((this.xml \ "text").text); _description.get
+				}				
+			}
 			
-			def fromString(string:String):Option[XmppError] = ALL.find((error) => error.name.equals(string.toLowerCase))
-			def fromCode(code:Int):Option[XmppError] = ALL.find((error) => error.code.equals(code))
+			/*
+			def otherConditions:Seq[String] =
+			{
+				_otherConditions match
+				{
+					case Some(description) => description
+					case None => 
+					{
+						val conditions = mutable.ListBuffer[String]()			
+						xml.child.filter((child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label })
+						_otherConditions = Some(conditions)
+						return _otherConditions.get
+					}
+				}				
+			}
+			*/			
 		}
-		
-		// TODO: test this
-		// TODO: validate this covers the entire spec correctly
-		class XmppError(val name:String, val code:Int, val action:ErrorType.Value)		
-		case class Unknown extends XmppError("unknown", 0, ErrorType.Cancel)
-		case class BadRequest extends XmppError("bad-request", 400, ErrorType.Modify)
-		case class Conflict extends XmppError("conflict", 409, ErrorType.Cancel)
-		case class NotImplemented extends XmppError("feature-not-implemented", 501, ErrorType.Cancel)
-		case class Forbidden extends XmppError("forbidden", 403, ErrorType.Auth)
-		case class Gone extends XmppError("gone", 302, ErrorType.Modify)
-		case class InternalServerError extends XmppError("internal-server-error", 500, ErrorType.Wait)
-		case class NotFound extends XmppError("item-not-found", 404, ErrorType.Cancel)
-		case class BadJid extends XmppError("jid-malformed", 400, ErrorType.Modify)
-		case class NotAcceptable extends XmppError("not-acceptable", 406, ErrorType.Modify)
-		case class NotAllowed extends XmppError("not-allowed", 405, ErrorType.Cancel)
-		case class NotAuthorized extends XmppError("not-authorized", 401, ErrorType.Auth)
-		case class PaymentRequired extends XmppError("payment-required", 402, ErrorType.Auth)
-		case class RecipientUnavailable extends XmppError("recipient-unavailable", 404, ErrorType.Wait)
-		case class Redirect extends XmppError("redirect", 302, ErrorType.Modify)
-		case class RegistrationRequired extends XmppError("registration-required", 407, ErrorType.Auth)
-		case class RemoteServerNotFound extends XmppError("remote_server_not_found", 404, ErrorType.Cancel)
-		case class RemoteServerTimeout extends XmppError("remote-server-timeout", 504, ErrorType.Wait)		
-		case class ResourceConstraint extends XmppError("resource-constraint", 500, ErrorType.Wait)
-		case class ServiceUnavailable extends XmppError("service-unavailable", 503, ErrorType.Cancel)
-		case class SubscriptionRequired extends XmppError("subscription-required", 407, ErrorType.Auth)		
-		case class UndefinedCondition extends XmppError("undefined-condition", 500, ErrorType.Cancel) // default behavior is not by specification
-		case class UnexpectedRequest extends XmppError("unexpected-request", 400, ErrorType.Wait)
-		
-		object ErrorType extends Enumeration
+
+		final object ErrorCondition extends Enumeration
+		{
+			type condition = Value
+			
+			val BadRequest = Condition("bad-request", ErrorType.Modify, 400)
+			val Conflict = Condition("conflict", ErrorType.Cancel, 409)
+			val NotImplemented = Condition("feature-not-implemented", ErrorType.Cancel, 501)
+			val Forbidden = Condition("forbidden", ErrorType.Auth, 403)
+			val Gone = Condition("gone", ErrorType.Modify, 302)
+			val InternalServerError = Condition("internal-server-error", ErrorType.Wait, 500)
+			val NotFound = Condition("item-not-found", ErrorType.Cancel, 404)
+			val BadJid = Condition("jid-malformed", ErrorType.Modify, 400)
+			val NotAcceptable = Condition("not-acceptable", ErrorType.Modify, 406)
+			val NotAllowed = Condition("not-allowed", ErrorType.Cancel, 405)
+			val NotAuthorized = Condition("not-authorized", ErrorType.Auth, 401)
+			val PaymentRequired = Condition("payment-required", ErrorType.Auth, 402)
+			val RecipientUnavailable = Condition("recipient-unavailable", ErrorType.Wait, 404)
+			val Redirect = Condition("redirect", ErrorType.Modify, 302)
+			val RegistrationRequired = Condition("registration-required", ErrorType.Auth, 407)
+			val RemoteServerNotFound = Condition("remote_server_not_found", ErrorType.Cancel, 404)
+			val RemoteServerTimeout = Condition("remote-server-timeout", ErrorType.Wait, 504)		
+			val ResourceConstraint = Condition("resource-constraint", ErrorType.Wait, 500)
+			val ServiceUnavailable = Condition("service-unavailable", ErrorType.Cancel, 503)
+			val SubscriptionRequired = Condition("subscription-required", ErrorType.Auth, 407)		
+			val UndefinedCondition = Condition("undefined-condition", ErrorType.Cancel, 500) // default behavior is not by specification
+			val UnexpectedRequest = Condition("unexpected-request", ErrorType.Wait, 400)			
+			val Unknown = Condition("unknown", ErrorType.Cancel, 0) // internal use, outside of spec!
+			
+			def fromString(string:String):Option[ErrorCondition.Value] = values.find((value) => value.name.equals(string.toLowerCase))
+			def fromLegacyCode(code:Int):Option[ErrorCondition.Value] = values.find((value) => value.legacyCode.equals(code))
+			
+			case class Condition(name:String, val kind:ErrorType.Value, val legacyCode:Int) extends Val(name)
+			
+			implicit def valueToCondition(value:Value):Condition = value.asInstanceOf[Condition]
+		}
+				
+		final object ErrorType extends Enumeration
 		{
 			type action = Value
 
-			val Unknown = Value("unknonw")
 			val Cancel = Value("cancel")
 			val Continue = Value("continue")
 			val Modify = Value("modify")
