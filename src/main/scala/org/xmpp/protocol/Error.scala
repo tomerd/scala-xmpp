@@ -22,8 +22,11 @@ package org.xmpp
 				if (!otherConditions.isEmpty) otherConditions.foreach( condition => { children += Elem(null, condition.toString, Null, TopScope) } )
 				if (!description.isEmpty) children += <text xmlns={ NAMESPACE } xml:lang="en">{ description.get }</text>
 				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.kind.toString), Null)
-							
-				return new Error(Elem(null, "error", attributes, TopScope, children:_*))
+						
+				val error = new Error(Elem(null, "error", attributes, TopScope, children:_*))
+				error.parse
+				
+				return error
 			}
 		}
 		

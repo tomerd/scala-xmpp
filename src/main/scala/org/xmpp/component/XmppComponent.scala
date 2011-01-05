@@ -116,8 +116,6 @@ package org.xmpp
 				// 
 
 				// keep alive
-				//keepAliveTask = new KeepAliveTask
-				//TaskEngine.getInstance.scheduleAtFixedRate(keepAliveTask, 15000, 30000)
 				//ScheduledJobsManager.registerJob("heartbeat", new HeartbeatJob(this.send, 60 * 1000))
 
 				// cleanup job
@@ -279,6 +277,7 @@ package org.xmpp
 				while (_active) 
 				{
 					val element = reader.parseDocument.getRootElement
+					println ("stanza arrived")
 					if (null != element) stanzaHandler(Stanza(element))					
 				}				
 			}
