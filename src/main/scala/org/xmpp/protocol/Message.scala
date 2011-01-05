@@ -11,32 +11,33 @@ package org.xmpp
 		{			
 			val TAG = "message"
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], body:Option[String]):Message = Message(id, to, from, kind, None, body)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], body:Option[String]):Message = Message(id, to, from, kind, None, body, None, None)
 				
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String]):Message = Message(id, to, from, kind, subject, body, None)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String]):Message = Message(id, to, from, kind, subject, body, None, None)
 					
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String], thread:Option[String]):Message =
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):Message =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!subject.isEmpty) children += <subject>{ subject.get }</subject>
 				if (!body.isEmpty) children += <body>{ body.get }</body>
 				if (!thread.isEmpty) children += <thread>{ thread.get }</thread>
-				var attributes:MetaData = Null
-				if (!id.isEmpty) attributes = attributes.append(new UnprefixedAttribute("id", Text(id.get), Null))
-				if (!to.isEmpty) attributes = attributes.append(new UnprefixedAttribute("to", Text(to.get), Null))
-				if (!from.isEmpty) attributes = attributes.append(new UnprefixedAttribute("from", Text(from.get), Null))
-				if (!kind.isEmpty) attributes = attributes.append(new UnprefixedAttribute("type", Text(kind.get.toString), Null))				
-				return new Message(Elem(null, TAG, attributes, TopScope, children:_*))
+				if (!extension.isEmpty) children += extension.get
+				var metadata:MetaData = Null
+				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
+				if (!kind.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(kind.get.toString), Null))				
+				return new Message(Elem(null, TAG, metadata, TopScope, children:_*))
 			}	
 											
 			def error(id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Message =
 			{
 				// TODO: test this
-				var attributes:MetaData = new UnprefixedAttribute("type", Text(MessageTypeEnumeration.Error.toString), Null)
-				if (!id.isEmpty) attributes = attributes.append(new UnprefixedAttribute("id", Text(id.get), Null))
-				if (!to.isEmpty) attributes = attributes.append(new UnprefixedAttribute("to", Text(to.get), Null))
-				if (!from.isEmpty) attributes = attributes.append(new UnprefixedAttribute("from", Text(from.get), Null))								
-				return new Message(Elem(null, TAG, attributes, TopScope, Error(errorCondition, errorDescription)))				
+				var metadata:MetaData = new UnprefixedAttribute("type", Text(MessageTypeEnumeration.Error.toString), Null)
+				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))								
+				return new Message(Elem(null, TAG, metadata, TopScope, Error(errorCondition, errorDescription)))				
 			}
 		}
 		
@@ -68,11 +69,11 @@ package org.xmpp
 				_thread = if (thread.isEmpty) None else Some(thread)				
 			}
 			
-			final def reply(body:String):Message = Message(this.id, this.from, this.to, this.kind, this.subject, Some(body), this.thread)
+			final def reply(body:String):Message = Message(this.id, this.from, this.to, this.kind, this.subject, Some(body), this.thread, None)
 			
-			final def reply(subject:String, body:String):Message = Message(this.id, this.from, this.to, this.kind, Some(subject), Some(body), this.thread)								
+			final def reply(subject:String, body:String):Message = Message(this.id, this.from, this.to, this.kind, Some(subject), Some(body), this.thread, None)								
 			
-			final def forward(to:JID):Message = Message(this.id, to, this.from, this.kind, this.subject, this.body, this.thread)
+			final def forward(to:JID):Message = Message(this.id, to, this.from, this.kind, this.subject, this.body, this.thread, None)
 			
 			final def error(condition:ErrorCondition.Value, description:Option[String]=None):Message = Message.error(this.id, this.from, this.to, condition, description)
 		}

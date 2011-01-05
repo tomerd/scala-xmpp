@@ -23,16 +23,15 @@ package org.xmpp
 				if (!description.isEmpty) children += <text xmlns={ NAMESPACE } xml:lang="en">{ description.get }</text>
 				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.kind.toString), Null)
 						
-				val error = new Error(Elem(null, "error", attributes, TopScope, children:_*))
-				error.parse
-				
-				return error
+				return new Error(Elem(null, "error", attributes, TopScope, children:_*))
 			}
 		}
 		
 		// TODO: test this
-		protected final class Error(xml:Node) extends XmlLiteral(xml)
+		protected final class Error(xml:Node) extends XmlWrapper(xml)
 		{	
+			parse
+			
 			// getters
 			private var _kind:Option[ErrorType.Value] = None
 			private def kind:Option[ErrorType.Value] = _kind
@@ -78,8 +77,7 @@ package org.xmpp
 				val conditions = mutable.ListBuffer[String]()			
 				xml.child.filter((child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label })
 				_otherConditions = if (conditions.isEmpty) None else Some(conditions)
-			}			
-		
+			}		
 		}
 
 		final object ErrorCondition extends Enumeration

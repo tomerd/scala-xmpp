@@ -45,7 +45,7 @@ package org.xmpp
 			}
 		}
 		
-		abstract class Stanza[T <: Stanza[T]](xml:Node) extends XmlLiteral(xml)
+		abstract class Stanza[T <: Stanza[T]](xml:Node) extends XmlWrapper(xml)
 		{				
 			def this(other:T) = this(other.xml)
 				

@@ -4,21 +4,11 @@ package org.xmpp
 	{
 		import scala.xml._
 
-		
-		abstract class XmlWrapper
-		{
-			def xml:Node
-			
+		abstract class XmlWrapper(val xml:Node)
+		{			
 			final override def toString = xml.toString			
 		}
-		
-		abstract class XmlLiteral(literal:Node) extends XmlWrapper
-		{
-			def this(xml:String) = this(XML.loadString(xml))
 			
-			final def xml:Node = literal
-		}
-	
 		object Protocol
 		{			
 			implicit def string2box(string:String):Option[String] = if ((null != string) && (!string.isEmpty)) Some(string) else None

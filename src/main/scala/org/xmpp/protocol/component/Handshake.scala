@@ -33,6 +33,6 @@ package org.xmpp
 			}			
 		}
 		
-		final class Handshake(literal:Node) extends XmlLiteral(literal)
+		final class Handshake(xml:Node) extends XmlWrapper(xml)
 	}
 }
