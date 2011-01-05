@@ -11,15 +11,15 @@ package org.xmpp
 		{
 			val NAMESPACE:String = "urn:ietf:params:xml:ns:xmpp-stanzas"
 				
-			def apply(xml:Node) = new Error(xml)	
+			def apply(xml:Node):Error = new Error(xml)	
 				
-			def apply(condition:ErrorCondition.Value/*, otherConditions:Option[Seq[String]]*/, description:Option[String]):Error =
+			def apply(condition:ErrorCondition.Value, description:Option[String]=None, otherConditions:Option[Seq[String]]=None):Error =
 			{
 				import org.xmpp.protocol.ErrorCondition._
 				// TODO: test this
 				val children = mutable.ListBuffer[Node]()
 				children += Elem(null, condition.toString, new UnprefixedAttribute("xmlns", Text(NAMESPACE), Null), TopScope)
-				//if (!otherConditions.isEmpty) otherConditions.foreach( condition => { children += Elem(null, condition.toString, Null, TopScope) } )
+				if (!otherConditions.isEmpty) otherConditions.foreach( condition => { children += Elem(null, condition.toString, Null, TopScope) } )
 				if (!description.isEmpty) children += <text xmlns={ NAMESPACE } xml:lang="en">{ description.get }</text>
 				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.kind.toString), Null)
 							
@@ -28,79 +28,55 @@ package org.xmpp
 		}
 		
 		// TODO: test this
-		final class Error(xml:Node) extends XmlLiteral(xml)
-		{			
+		protected final class Error(xml:Node) extends XmlLiteral(xml)
+		{	
+			// getters
 			private var _kind:Option[ErrorType.Value] = None
+			private def kind:Option[ErrorType.Value] = _kind
+			
 			private var _condition:Option[ErrorCondition.Value] = None
+			private def condition:Option[ErrorCondition.Value] = _condition
+			
 			private var _description:Option[String] = None
-			//private var _otherConditions:Option[Seq[String]] = None
+			private def description:Option[String] = _description
 			
-			def kind:ErrorType.Value = 
-			{
-				_kind match
-				{
-					case Some(kind) => kind
-					case None => _kind = Some(ErrorType.withName((this.xml \ "@type").text)); _kind.get
-				}
-			}
+			private var _otherConditions:Option[Seq[String]] = None
+			private def otherConditions:Option[Seq[String]] = _otherConditions
 			
-			def condition:ErrorCondition.Value = 
-			{
-				_condition match
+			// TODO: test this
+			protected def parse
+			{				
+				val kind = (this.xml \ "@type").text
+				_kind = if (kind.isEmpty) None else Some(ErrorType.withName(kind))
+				
+				_condition = xml.child.find((child) => child.namespace.equals(Error.NAMESPACE) && !child.label.equals("text")) match
 				{
-					case Some(condition) => condition
-					case None => 
-					{				
-						// TODO: test this
-						_condition = xml.child.find((child) => child.namespace.equals(Error.NAMESPACE) && !child.label.equals("text")) match
-						{
-							case Some(node) => 
-							{
-								ErrorCondition.fromString(node.label) match
-								{
-									case Some(error) => Some(error)
-									case None => Some(ErrorCondition.Unknown)
-								}
-							}
-							case None =>
-							{
-								ErrorCondition.fromLegacyCode((this.xml \ "@code").text.toInt) match
-								{
-									case Some(error) => Some(error)
-									case None => Some(ErrorCondition.Unknown)
-								}
-							}
-						}
-						return _condition.get
-					}
-				}
-			}
-					
-			def description:String =
-			{
-				_description match
-				{
-					case Some(description) => description
-					case None => _description = Some((this.xml \ "text").text); _description.get
-				}				
-			}
-			
-			/*
-			def otherConditions:Seq[String] =
-			{
-				_otherConditions match
-				{
-					case Some(description) => description
-					case None => 
+					case Some(node) => 
 					{
-						val conditions = mutable.ListBuffer[String]()			
-						xml.child.filter((child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label })
-						_otherConditions = Some(conditions)
-						return _otherConditions.get
+						ErrorCondition.fromString(node.label) match
+						{
+							case Some(error) => Some(error)
+							case None => None
+						}
 					}
-				}				
-			}
-			*/			
+					case None =>
+					{
+						ErrorCondition.fromLegacyCode((this.xml \ "@code").text.toInt) match
+						{
+							case Some(error) => Some(error)
+							case None => None
+						}
+					}
+				} 
+									
+				val description = (this.xml \ "text").text
+				_description = if (description.isEmpty) None else Some(description)
+				
+				val conditions = mutable.ListBuffer[String]()			
+				xml.child.filter((child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label })
+				_otherConditions = if (conditions.isEmpty) None else Some(conditions)
+			}			
+		
 		}
 
 		final object ErrorCondition extends Enumeration
