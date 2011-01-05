@@ -16,7 +16,7 @@ package org.xmpp
 			def apply(condition:ErrorCondition.Value, description:Option[String]=None, otherConditions:Option[Seq[String]]=None):Error =
 			{
 				import org.xmpp.protocol.ErrorCondition._
-				// TODO: test this
+
 				val children = mutable.ListBuffer[Node]()
 				children += Elem(null, condition.toString, new UnprefixedAttribute("xmlns", Text(NAMESPACE), Null), TopScope)
 				if (!otherConditions.isEmpty) otherConditions.foreach( condition => { children += Elem(null, condition.toString, Null, TopScope) } )
