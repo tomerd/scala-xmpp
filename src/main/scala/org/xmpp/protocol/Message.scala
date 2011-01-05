@@ -32,7 +32,6 @@ package org.xmpp
 											
 			def error(id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Message =
 			{
-				// TODO: test this
 				var metadata:MetaData = new UnprefixedAttribute("type", Text(MessageTypeEnumeration.Error.toString), Null)
 				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
 				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
