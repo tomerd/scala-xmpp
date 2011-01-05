@@ -11,28 +11,24 @@ package org.xmpp
 		{
 			val TAG = "iq"
 				
-			def apply(id:String, to:JID, from:JID, kind:IQTypeEnumeration.Value):IQ =
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[IQTypeEnumeration.Value]):IQ =
 			{
-				val children = mutable.ListBuffer[Node]()
-				//if ((null != subject) && (!subject.isEmpty)) children += <subject>{ subject }</subject>
-				//if ((null != body) && (!body.isEmpty)) children += <body>{ body }</body>
-				//if ((null != thread) && (!thread.isEmpty)) children += <thread>{ thread }</thread>
-				var attributes:MetaData = new UnprefixedAttribute("id", Text(id), Null)
-				attributes = attributes.append(new UnprefixedAttribute("to", Text(to), Null))
-				attributes = attributes.append(new UnprefixedAttribute("from", Text(from), Null))
-				attributes = attributes.append(new UnprefixedAttribute("type", Text(kind.toString), Null))				
+				val children = mutable.ListBuffer[Node]() // TODO, remove? not required
+				var attributes:MetaData = Null
+				if (!id.isEmpty) attributes = attributes.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) attributes = attributes.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) attributes = attributes.append(new UnprefixedAttribute("from", Text(from.get), Null))
+				if (!kind.isEmpty) attributes = attributes.append(new UnprefixedAttribute("type", Text(kind.get.toString), Null))				
 				return new IQ(Elem(null, TAG, attributes, TopScope, children:_*))
 			}	
-			
-			def error(id:String, to:JID, from:JID, errorCondition:ErrorCondition.Value):IQ = error(id, to, from, errorCondition, None)
-			
-			def error(id:String, to:JID, from:JID, errorCondition:ErrorCondition.Value, errorDescription:Option[String]):IQ =
+						
+			def error(id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):IQ =
 			{
 				// TODO: test this
-				var attributes:MetaData = new UnprefixedAttribute("id", Text(id), Null)
-				attributes = attributes.append(new UnprefixedAttribute("to", Text(to), Null))
-				attributes = attributes.append(new UnprefixedAttribute("from", Text(from), Null))
-				attributes = attributes.append(new UnprefixedAttribute("type", Text(MessageTypeEnumeration.Error.toString), Null))				
+				var attributes:MetaData = new UnprefixedAttribute("type", Text(IQTypeEnumeration.Error.toString), Null)
+				if (!id.isEmpty) attributes = attributes.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) attributes = attributes.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) attributes = attributes.append(new UnprefixedAttribute("from", Text(from.get), Null))		
 				return new IQ(Elem(null, TAG, attributes, TopScope, Error(errorCondition, errorDescription)))				
 			}			
 		}		
@@ -40,15 +36,15 @@ package org.xmpp
 		class IQ(xml:Node) extends Stanza[IQ](xml)
 		{
 			val TypeEnumeration = IQTypeEnumeration
-			
-			
-			final def error(condition:ErrorCondition.Value, description:Option[String]=None) = Message.error(this.id, this.from, this.to, condition, description)
+						
+			final def error(condition:ErrorCondition.Value, description:Option[String]=None):IQ = IQ.error(this.id, this.from, this.to, condition, description)
 		}
 				
 		final object IQTypeEnumeration extends Enumeration
 		{
 			type value = Value
 			
+			val Unknown = Value("unknown") // internal use
 			val Get = Value("get")
 			val Set = Value("set")
 			val Result = Value("result")

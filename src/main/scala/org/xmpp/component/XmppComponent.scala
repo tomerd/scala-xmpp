@@ -191,7 +191,7 @@ package org.xmpp
 	
 					_writer = new BufferedWriter(new OutputStreamWriter(_socket.getOutputStream, "UTF-8"))
 
-					// initialize communication
+					// start xmpp stream
 					send("<stream:stream xmlns=\"jabber:component:accept\" xmlns:stream=\"http://etherx.jabber.org/streams\" to=\"" + domain + "\">")										
 					val xpp:XmlPullParser = _reader.getXPPParser
 					var eventType:Int = xpp.getEventType
@@ -205,8 +205,7 @@ package org.xmpp
 					{
 						// FIXME
 						//val error = new StreamError(doc)
-						disconnect
-						//throw new Exception("handshake error: " + error) 
+						throw new Exception("handshake error") 
 					}
 										
 					// start a seperate thread to listen on server messages
@@ -232,13 +231,14 @@ package org.xmpp
 					
 					if (null != _socket)
 					{
+						// end xmpp stream
 						send("</stream:stream>")
 						_socket.close
 					}					
 				}
 				catch
 				{
-					case e:Exception => //log
+					case e:Exception => //TODO: do something intelligent here
 				}
 				finally
 				{

@@ -11,28 +11,29 @@ package org.xmpp
 		{
 			val TAG = "presence"
 				
-			def apply(id:String, to:JID, from:JID, kind:PresenceTypeEnumeration.Value, show:Option[Show.Value], status:Option[String], priority:Option[Int]):Presence =
+			def apply():Presence = apply(None, None, None, None, None, None, None)
+			
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[PresenceTypeEnumeration.Value], show:Option[Show.Value], status:Option[String], priority:Option[Int]):Presence =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!show.isEmpty) children += <show>{ show.get }</show>
 				if (!status.isEmpty) children += <status>{ status.get }</status>
 				if (!priority.isEmpty) children += <priority>{ priority.get }</priority>
-				var attributes:MetaData = new UnprefixedAttribute("id", Text(id), Null)
-				attributes = attributes.append(new UnprefixedAttribute("to", Text(to), Null))
-				attributes = attributes.append(new UnprefixedAttribute("from", Text(from), Null))
-				attributes = attributes.append(new UnprefixedAttribute("type", Text(kind.toString), Null))				
+				var attributes:MetaData = Null
+				if (!id.isEmpty) attributes = attributes.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) attributes = attributes.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) attributes = attributes.append(new UnprefixedAttribute("from", Text(from.get), Null))
+				if (!kind.isEmpty) attributes = attributes.append(new UnprefixedAttribute("type", Text(kind.get.toString), Null))				
 				return new Presence(Elem(null, TAG, attributes, TopScope, children:_*))
 			}
-			
-			def error(id:String, to:JID, from:JID, errorCondition:ErrorCondition.Value):Presence = error(id, to, from, errorCondition, None)
-			
-			def error(id:String, to:JID, from:JID, errorCondition:ErrorCondition.Value, errorDescription:Option[String]):Presence =
+						
+			def error(id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Presence =
 			{
 				// TODO: test this
-				var attributes:MetaData = new UnprefixedAttribute("id", Text(id), Null)
-				attributes = attributes.append(new UnprefixedAttribute("to", Text(to), Null))
-				attributes = attributes.append(new UnprefixedAttribute("from", Text(from), Null))
-				attributes = attributes.append(new UnprefixedAttribute("type", Text(MessageTypeEnumeration.Error.toString), Null))				
+				var attributes:MetaData = new UnprefixedAttribute("type", Text(PresenceTypeEnumeration.Error.toString), Null)
+				if (!id.isEmpty) attributes = attributes.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) attributes = attributes.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) attributes = attributes.append(new UnprefixedAttribute("from", Text(from.get), Null))		
 				return new Presence(Elem(null, TAG, attributes, TopScope, Error(errorCondition, errorDescription)))				
 			}			
 		}
@@ -41,46 +42,40 @@ package org.xmpp
 		{
 			val TypeEnumeration = PresenceTypeEnumeration
 			
+			// getters
 			private var _show:Option[Show.Value] = None
+			private def show:Option[Show.Value] = _show
+			
 			private var _status:Option[String] = None
+			private def status:Option[String] = _status
+			
 			private var _priority:Option[Int] = None
+			private def priority:Option[Int] = _priority
 			
 			final def available:Boolean = PresenceTypeEnumeration.Available == this.kind
 			
-			final  def show:Show.Value = 
+			override protected def parse
 			{
-				_show match
-				{
-					case Some(show) => show
-					case None => _show = Some(Show.withName((this.xml \ "show").text)); _show.get
-				}
+				super.parse
+				
+				val show = (this.xml \ "show").text
+				_show = if (show.isEmpty) None else Some(Show.withName(show))
+				
+				val status = (this.xml \ "status").text
+				_status = if (status.isEmpty) None else Some(status)
+				
+				val priority = (this.xml \ "priority").text
+				_priority = if (priority.isEmpty) None else Some(priority.toInt)				
 			}
 			
-			final def status:String = 
-			{
-				_status match
-				{
-					case Some(status) => status
-					case None => _status = Some((this.xml \ "status").text); _status.get
-				}				
-			}
-			
-			final def priority:Int = 
-			{
-				_priority match 
-				{
-					case Some(priority) => priority
-					case None => _priority = Some((this.xml \ "priority").text.toInt); _priority.get
-				}
-			}
-			
-			final def error(condition:ErrorCondition.Value, description:Option[String]=None) = Message.error(this.id, this.from, this.to, condition, description)
+			final def error(condition:ErrorCondition.Value, description:Option[String]=None):Presence = Presence.error(this.id, this.from, this.to, condition, description)
 		}
 		
 		final object PresenceTypeEnumeration extends Enumeration
 		{
 			type value = Value
 			
+			val Unknown = Value("unknown") // internal use
 			val Available = Value("") // TODO, check this
 			val Unavailable = Value("unavailable")
 			val Subscribe = Value("subscribe")
@@ -95,7 +90,7 @@ package org.xmpp
 		{
 			type Reason = Value
 			
-			val Unknown = Value("unknown")
+			val Unknown = Value("unknown") // internal use
 			val Chat = Value("chat")
 			val Away = Value("away")
 			val XA = Value("xa")

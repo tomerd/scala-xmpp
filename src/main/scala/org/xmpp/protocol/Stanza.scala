@@ -7,8 +7,7 @@ package org.xmpp
 		final object Stanza
 		{
 			// TODO: once XmppComponent removes all dependencies from dom4j need to remove this as well
-			// TODO: find a better way to do this			
-			//def create(element:org.dom4j.Element):Stanza[_] =
+			// TODO: find a better way to do this
 			def apply(element:org.dom4j.Element):Stanza[_] =
 			{
 				import java.io._
@@ -20,13 +19,11 @@ package org.xmpp
 				return Stanza(buffer.toString)
 			}
 			
-			//def create(xml:String):Stanza[_] = create(XML.loadString(xml))
 			def apply(xml:String):Stanza[_] = Stanza(XML.loadString(xml))
 						
-			//def create(xml:Node):Stanza[_] =
 			def apply(xml:Node):Stanza[_] = 
 			{
-				xml.label.toLowerCase match
+				val stanza = xml.label.toLowerCase match
 				{
 					case Message.TAG => new Message(xml)
 					case Presence.TAG => new Presence(xml)
@@ -41,92 +38,65 @@ package org.xmpp
 			            }
 					}
 					case _ => throw new Exception("unknown stanza: " + xml.label) 
-				}				
+				}	
+				
+				stanza.parse
+				return stanza
 			}
 		}
 		
 		abstract class Stanza[T <: Stanza[T]](xml:Node) extends XmlLiteral(xml)
-		{			
+		{				
 			def this(other:T) = this(other.xml)
-					
+				
 			val TypeEnumeration:Enumeration
 			
+			// getters			
 			private var _id:Option[String] = None
+			final def id:Option[String] = _id
+			
 			private var _to:Option[JID] = None
+			final def to:Option[JID] = _to
+			
 			private var _from:Option[JID] = None
+			final def from:Option[JID] = _from
+			
 			private var _kind:Option[TypeEnumeration.Value] = None
+			final def kind:Option[TypeEnumeration.Value] = _kind
+			
 			private var _language:Option[String] = None
+			final def language:Option[String] = _language
+			
 			private var _error:Option[Error] = None
-			
-			final def id:String = 
+			final def error:Option[Error] = _error
+						
+			protected def parse
 			{
-				_id match
+				val id = (this.xml \ "@id").text
+				_id = if (id.isEmpty) None else Some(id)
+
+				val to = (this.xml \ "@to").text
+				_to = if (to.isEmpty) None else Some(JID(to))
+
+				val from = (this.xml \ "@from").text
+				_from = if (from.isEmpty) None else Some(JID(from))
+				
+				val kind = (this.xml \ "@type").text
+				_kind = if (kind.isEmpty) None else Some(TypeEnumeration.withName(kind))
+
+				// TODO: find a better way to query this prefixed attribute with no namespace, this does not work: (this.xml \ "@lang").text
+				_language = this.xml.attributes.find((attribute) => "lang" == attribute.key) match
 				{
-					case Some(id) => id	
-					case None => _id = Some((this.xml \ "@id").text); _id.get
+					case Some(attribute) => if (attribute.value.text.isEmpty) None else Some(attribute.value.text)
+					case None => None
 				}
-			}
-			
-			final def to:JID = 
-			{
-				_to match
-				{
-					case Some(jid) => jid	
-					case None => _to = Some(JID((this.xml \ "@to").text)); _to.get
-				}
-			}
-			
-			final def from:JID = 
-			{
-				_from match
-				{
-					case Some(jid) => jid
-					case None => _from = Some(JID((this.xml \ "@from").text)); _from.get
-				}
-			}
-			
-			final def kind:TypeEnumeration.Value = 
-			{
-				_kind match
-				{
-					case Some(kind) => kind
-					case None => _kind = Some(TypeEnumeration.withName((this.xml \ "@type").text)); _kind.get
-				}
-			}		
-			
-			final def language:String =
-			{
-				_language match
-				{
-					case Some(language) => language
-					case None =>
-					{		
-						// TODO: find a better way to query this prefixed attribute with no namespace, this does not work: (this.xml \ "@lang").text
-						val t = this.xml.attributes.find((attribute) => "lang" == attribute.key)
-						_language = Some(t.get.value.text)
-						return _language.get
-					}
-				}								
-			}
-							
-			final def error:Option[Error] = 
-			{
-				_error match
-				{
-					case Some(error) => Some(error)
-					case None =>
-					{
-						(this.xml \ "error").length match
-						{
-							case 0 => None
-							case _ => _error = Some(Error((this.xml \ "@error")(0))); _error
-						}			
-					}
-				}
+
+				val errorNodes = (this.xml \ "error")
+				_error = if (0 == errorNodes.length) None else Some(Error(errorNodes(0)))				
 			}
 
 			// test this
-			final def copy():T = Stanza(this.xml).asInstanceOf[T]
+			final def copy():T = Stanza(this.xml).asInstanceOf[T]		
 		}
 		
 	}

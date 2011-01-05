@@ -11,32 +11,31 @@ package org.xmpp
 		{			
 			val TAG = "message"
 			
-			def apply(id:String, to:JID, from:JID, kind:MessageTypeEnumeration.Value, body:Option[String]):Message = Message(id, to, from, kind, None, body)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], body:Option[String]):Message = Message(id, to, from, kind, None, body)
 				
-			def apply(id:String, to:JID, from:JID, kind:MessageTypeEnumeration.Value, subject:Option[String], body:Option[String]):Message = Message(id, to, from, kind, subject, body, None)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String]):Message = Message(id, to, from, kind, subject, body, None)
 					
-			def apply(id:String, to:JID, from:JID, kind:MessageTypeEnumeration.Value, subject:Option[String], body:Option[String], thread:Option[String]):Message =
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String], thread:Option[String]):Message =
 			{
 				val children = mutable.ListBuffer[Node]()
-				if (subject.isEmpty) children += <subject>{ subject.get }</subject>
+				if (!subject.isEmpty) children += <subject>{ subject.get }</subject>
 				if (!body.isEmpty) children += <body>{ body.get }</body>
 				if (!thread.isEmpty) children += <thread>{ thread.get }</thread>
-				var attributes:MetaData = new UnprefixedAttribute("id", Text(id), Null)
-				attributes = attributes.append(new UnprefixedAttribute("to", Text(to), Null))
-				attributes = attributes.append(new UnprefixedAttribute("from", Text(from), Null))
-				attributes = attributes.append(new UnprefixedAttribute("type", Text(kind.toString), Null))				
+				var attributes:MetaData = Null
+				if (!id.isEmpty) attributes = attributes.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) attributes = attributes.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) attributes = attributes.append(new UnprefixedAttribute("from", Text(from.get), Null))
+				if (!kind.isEmpty) attributes = attributes.append(new UnprefixedAttribute("type", Text(kind.get.toString), Null))				
 				return new Message(Elem(null, TAG, attributes, TopScope, children:_*))
 			}	
-								
-			def error(id:String, to:JID, from:JID, errorCondition:ErrorCondition.Value):Message = error(id, to, from, errorCondition, None)
-			
-			def error(id:String, to:JID, from:JID, errorCondition:ErrorCondition.Value, errorDescription:Option[String]):Message =
+											
+			def error(id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Message =
 			{
 				// TODO: test this
-				var attributes:MetaData = new UnprefixedAttribute("id", Text(id), Null)
-				attributes = attributes.append(new UnprefixedAttribute("to", Text(to), Null))
-				attributes = attributes.append(new UnprefixedAttribute("from", Text(from), Null))
-				attributes = attributes.append(new UnprefixedAttribute("type", Text(MessageTypeEnumeration.Error.toString), Null))				
+				var attributes:MetaData = new UnprefixedAttribute("type", Text(MessageTypeEnumeration.Error.toString), Null)
+				if (!id.isEmpty) attributes = attributes.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) attributes = attributes.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) attributes = attributes.append(new UnprefixedAttribute("from", Text(from.get), Null))								
 				return new Message(Elem(null, TAG, attributes, TopScope, Error(errorCondition, errorDescription)))				
 			}
 		}
@@ -45,50 +44,44 @@ package org.xmpp
 		{			
 			val TypeEnumeration = MessageTypeEnumeration
 			
+			// getters
 			private var _subject:Option[String] = None
+			final def subject:Option[String] = _subject
+			
 			private var _body:Option[String] = None
+			final def body:Option[String] = _body
+			
 			private var _thread:Option[String] = None
+			final def thread:Option[String] = _thread
 			
-			final def subject:String =
+			override protected def parse
 			{
-				_subject match 
-				{
-					case Some(subject) => subject
-					case None => _subject = Some((this.xml \ "subject").text); _subject.get
-				}				
+				super.parse
+				
+				val subject = (this.xml \ "subject").text
+				_subject = if (subject.isEmpty) None else Some(subject)
+				
+				val body = (this.xml \ "body").text
+				_body = if (body.isEmpty) None else Some(body)
+				
+				val thread = (this.xml \ "thread").text
+				_thread = if (thread.isEmpty) None else Some(thread)				
 			}
 			
-			final def body:String =
-			{
-				_body match 
-				{
-					case Some(body) => body
-					case None => _body = Some((this.xml \ "body").text); _body.get
-				}				
-			}
+			final def reply(body:String):Message = Message(this.id, this.from, this.to, this.kind, this.subject, Some(body), this.thread)
 			
-			final def thread:String =
-			{
-				_thread match 
-				{
-					case Some(thread) => thread
-					case None => _thread = Some((this.xml \ "thread").text); _thread.get
-				}				
-			}
+			final def reply(subject:String, body:String):Message = Message(this.id, this.from, this.to, this.kind, Some(subject), Some(body), this.thread)								
 			
-			final def reply(body:String):Message = reply(this.subject, body)
+			final def forward(to:JID):Message = Message(this.id, to, this.from, this.kind, this.subject, this.body, this.thread)
 			
-			final def reply(subject:String, body:String):Message = Message(this.id, this.from, this.to, this.kind, Some(subject), Some(body), Some(this.thread))								
-			
-			final def forward(to:JID):Message = Message(this.id, to, this.from, this.kind, Some(subject), Some(body), Some(this.thread))
-			
-			final def error(condition:ErrorCondition.Value, description:Option[String]=None) = Message.error(this.id, this.from, this.to, condition, description)
+			final def error(condition:ErrorCondition.Value, description:Option[String]=None):Message = Message.error(this.id, this.from, this.to, condition, description)
 		}
 		
 		final object MessageTypeEnumeration extends Enumeration
 		{
 			type value = Value
 			
+			val Unknown = Value("unknown") // internal use
 			val Normal = Value("normal")
 			val Chat = Value("chat")
 			val GroupChat = Value("groupchat")

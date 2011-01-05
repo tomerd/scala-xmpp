@@ -21,6 +21,9 @@ package org.xmpp
 	
 		object Protocol
 		{			
+			implicit def string2box(string:String):Option[String] = if ((null != string) && (!string.isEmpty)) Some(string) else None
+			implicit def jid2box(jid:JID):Option[JID] = if (null != jid) Some(jid) else None
+			
 			implicit def wrapper2node(wrapper:XmlWrapper):Node = wrapper.xml
 			implicit def wrapper2string(wrapper:XmlWrapper):String = wrapper.toString
 			
