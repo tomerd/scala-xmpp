@@ -27,7 +27,6 @@ package org.xmpp
 			}
 		}
 		
-		// TODO: test this
 		protected final class Error(xml:Node) extends XmlWrapper(xml)
 		{	
 			parse
@@ -45,7 +44,6 @@ package org.xmpp
 			private var _otherConditions:Option[Seq[String]] = None
 			private def otherConditions:Option[Seq[String]] = _otherConditions
 			
-			// TODO: test this
 			protected def parse
 			{				
 				val kind = (this.xml \ "@type").text

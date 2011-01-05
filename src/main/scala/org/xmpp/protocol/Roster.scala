@@ -6,17 +6,45 @@ package org.xmpp
 		import scala.xml._
 		
 		import org.xmpp.protocol.Protocol._
-		
-		final object Roster
+
+		final object RosterQuery
 		{
+			def apply(id:Option[String], to:Option[JID], from:Option[JID]):RosterQuery = 
+			{
+				val children = mutable.ListBuffer[Node]()
+				children += Extension("query", "jabber:iq:roster")
+				var metadata:MetaData = Null
+				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
+				metadata.append(new UnprefixedAttribute("type", Text(IQTypeEnumeration.Get.toString), Null))								
+				return new RosterQuery(Elem(null, IQ.TAG, metadata, TopScope, children:_*))	
+			}
+		}
+		
+		final class RosterQuery(xml:Node) extends IQ(xml)
+		{
+			def result(items:Seq[RosterItem]):RosterResult = RosterResult(this.id, this.from, this.to, items)
+		}		
+		
+		final object RosterResult
+		{
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], items:Seq[RosterItem]):RosterResult = 
+			{
+				val children = mutable.ListBuffer[Node]()
+				items.foreach( item => children += item )
+				var metadata:MetaData = Null
+				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
+				metadata.append(new UnprefixedAttribute("type", Text(IQTypeEnumeration.Result.toString), Null))								
+				return new RosterResult(Elem(null, IQ.TAG, metadata, TopScope, children:_*))	
+			}
+		}
 			
+		final class RosterResult(xml:Node) extends IQ(xml)
+		{			
 		}
-		
-		final class Roster(xml:Node) extends IQ(xml)
-		{
-		
-		}
-		
 		
 		final object RosterItem
 		{

@@ -7,7 +7,7 @@ package org.xmpp
 
 		final object Extension
 		{
-			def apply(name:String, namespace:Option[String], attributes:Option[MetaData]):Extension =
+			def apply(name:String, namespace:Option[String], attributes:Option[MetaData]=None):Extension =
 			{
 				var metadata:MetaData = Null
 				if (!namespace.isEmpty) metadata = metadata.append(new UnprefixedAttribute("xmlns", Text(namespace.get), Null))
