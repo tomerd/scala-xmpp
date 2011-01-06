@@ -20,26 +20,19 @@ package org.xmpp
 				if (!status.isEmpty) children += <status>{ status.get }</status>
 				if (!priority.isEmpty) children += <priority>{ priority.get }</priority>
 				if (!extension.isEmpty) children += extension.get
-				var metadata:MetaData = Null
-				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
-				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
-				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
-				if (!kind.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(kind.get.toString), Null))				
-				return new Presence(Elem(null, TAG, metadata, TopScope, children:_*))
+					
+				val xml = Stanza.build(TAG, id, to, from, kind, Some(children))
+				return new Presence(xml)
 			}
-						
-			def error(id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Presence =
+			
+			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]=None):Presence =
 			{
-				// TODO: test this
-				var metadata:MetaData = new UnprefixedAttribute("type", Text(PresenceTypeEnumeration.Error.toString), Null)
-				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
-				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
-				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))		
-				return new Presence(Elem(null, TAG, metadata, TopScope, Error(errorCondition, errorDescription)))				
-			}			
+				val xml = Stanza.error(TAG, id, to, from, condition, description)
+				return new Presence(xml)
+			}
 		}
 		
-		class Presence(xml:Node) extends Stanza[Presence](xml)
+		class Presence(xml:Node) extends Stanza(xml)
 		{
 			val TypeEnumeration = PresenceTypeEnumeration
 			

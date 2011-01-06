@@ -141,11 +141,11 @@ package org.xmpp
 				_lastActive = System.currentTimeMillis
 			}
 					
-			protected def handleStanza(stanza:Stanza[_])
+			protected def handleStanza(stanza:Stanza)
 			
 		}
 		
-		private case class Connect(host:String, port:Int, timeout:Int, domain:String, secret:String, stanzaHandler:(Stanza[_]) => Unit)
+		private case class Connect(host:String, port:Int, timeout:Int, domain:String, secret:String, stanzaHandler:(Stanza) => Unit)
 		private case class Disconnect
 		private case class Send(content:String)
 		private case class Exit
@@ -176,7 +176,7 @@ package org.xmpp
 				}
 			}
 			
-			private def connect(host:String, port:Int, timeout:Int, domain:String, secret:String, stanzaHandler:(Stanza[_]) => Unit)
+			private def connect(host:String, port:Int, timeout:Int, domain:String, secret:String, stanzaHandler:(Stanza) => Unit)
 			{
 				try 
 				{
@@ -267,7 +267,7 @@ package org.xmpp
 			}
 		}
 		
-		private class ListenerThread(reader:XPPPacketReader, stanzaHandler:(Stanza[_]) => Unit) extends Thread
+		private class ListenerThread(reader:XPPPacketReader, stanzaHandler:(Stanza) => Unit) extends Thread
 		{
 			private var _active = true
 			

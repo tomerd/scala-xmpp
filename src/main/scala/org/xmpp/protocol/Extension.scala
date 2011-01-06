@@ -7,13 +7,14 @@ package org.xmpp
 
 		final object Extension
 		{
-			def apply(name:String, namespace:Option[String], attributes:Option[MetaData]=None):Extension =
+			def apply(name:String, namespace:Option[String], children:Option[Seq[Node]]=None):Extension =
 			{
-				var metadata:MetaData = Null
-				if (!namespace.isEmpty) metadata = metadata.append(new UnprefixedAttribute("xmlns", Text(namespace.get), Null))
-				if (!attributes.isEmpty) metadata =  metadata.append(attributes.get)
-				return new Extension(Elem(null, name, metadata, TopScope))				
+				val kids:Seq[Node] = if (!children.isEmpty) children.get else null
+				var metadata:MetaData = if (!namespace.isEmpty) new UnprefixedAttribute("xmlns", Text(namespace.get), Null) else Null
+				return Extension(Elem(null, name, metadata, TopScope, kids:_*))				
 			}
+			
+			def apply(xml:Node):Extension = new Extension(xml)
 		}
 		
 		class Extension(xml:Node) extends XmlWrapper(xml)

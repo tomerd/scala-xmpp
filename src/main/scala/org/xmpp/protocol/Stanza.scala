@@ -2,13 +2,16 @@ package org.xmpp
 {
 	package protocol
 	{
+		import scala.collection._
 		import scala.xml._
+		
+		import org.xmpp.protocol.Protocol._
 				
 		final object Stanza
 		{
 			// TODO: once XmppComponent removes all dependencies from dom4j need to remove this as well
 			// TODO: find a better way to do this
-			def apply(element:org.dom4j.Element):Stanza[_] =
+			def apply(element:org.dom4j.Element):Stanza =
 			{
 				import java.io._
 				import org.dom4j.io._
@@ -16,14 +19,14 @@ package org.xmpp
 				val buffer:StringWriter = new StringWriter()
 				val writer:XMLWriter = new XMLWriter(buffer, OutputFormat.createPrettyPrint())
 				writer.write(element)
-				return Stanza(buffer.toString)
+				return apply(buffer.toString)
 			}
 			
-			def apply(xml:String):Stanza[_] = Stanza(XML.loadString(xml))
-						
-			def apply(xml:Node):Stanza[_] = 
+			def apply(xml:String):Stanza= apply(XML.loadString(xml))
+									
+			def apply(xml:Node):Stanza = 
 			{
-				val stanza = xml.label.toLowerCase match
+				val stanza:Stanza = xml.label.toLowerCase match
 				{
 					case Message.TAG => new Message(xml)
 					case Presence.TAG => new Presence(xml)
@@ -43,12 +46,33 @@ package org.xmpp
 				stanza.parse
 				return stanza
 			}
+								
+			// TODO, find a better solution for the type attribute
+			def build(name:String, id:Option[String], to:Option[JID], from:Option[JID], kind:Option[Any], children:Option[Seq[Node]]=None):Node = 
+			{
+				val kids:Seq[Node] = if (!children.isEmpty) children.get else null
+				//if (!extension.isEmpty) children += extension.get
+				var metadata:MetaData = Null
+				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
+				if (!kind.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(kind.get.toString), Null))
+				
+				return Elem(null, name, metadata, TopScope, kids:_*)
+			}
+			
+			def error(name:String, id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Node =
+			{
+				var metadata:MetaData = new UnprefixedAttribute("type", Text(IQTypeEnumeration.Error.toString), Null)
+				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
+				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
+				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))		
+				return Elem(null, name, metadata, TopScope, Error(errorCondition, errorDescription))				
+			}			
 		}
 		
-		abstract class Stanza[T <: Stanza[T]](xml:Node) extends XmlWrapper(xml)
-		{				
-			def this(other:T) = this(other.xml)
-				
+		abstract class Stanza(xml:Node) extends XmlWrapper(xml)
+		{																		
 			val TypeEnumeration:Enumeration
 			
 			// getters			
@@ -94,9 +118,7 @@ package org.xmpp
 				val errorNodes = (this.xml \ "error")
 				_error = if (0 == errorNodes.length) None else Some(Error(errorNodes(0)))				
 			}
-
-			// test this
-			final def copy():T = Stanza(this.xml).asInstanceOf[T]		
+	
 		}
 		
 	}

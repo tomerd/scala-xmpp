@@ -8,12 +8,12 @@ package org.xmpp
 		import org.xmpp.protocol.Protocol._
 		
 		final object Message
-		{			
+		{
 			val TAG = "message"
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], body:Option[String]):Message = Message(id, to, from, kind, None, body, None, None)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], body:Option[String]):Message = apply(id, to, from, kind, None, body, None, None)
 				
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String]):Message = Message(id, to, from, kind, subject, body, None, None)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String]):Message = apply(id, to, from, kind, subject, body, None, None)
 					
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):Message =
 			{
@@ -21,26 +21,20 @@ package org.xmpp
 				if (!subject.isEmpty) children += <subject>{ subject.get }</subject>
 				if (!body.isEmpty) children += <body>{ body.get }</body>
 				if (!thread.isEmpty) children += <thread>{ thread.get }</thread>
-				if (!extension.isEmpty) children += extension.get
-				var metadata:MetaData = Null
-				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
-				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
-				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
-				if (!kind.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(kind.get.toString), Null))				
-				return new Message(Elem(null, TAG, metadata, TopScope, children:_*))
+				if (!extension.isEmpty) children += extension.get	
+				
+				val xml = Stanza.build(TAG, id, to, from, kind, Some(children))
+				return new Message(xml)
 			}	
-											
-			def error(id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Message =
+			
+			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]=None):Message =
 			{
-				var metadata:MetaData = new UnprefixedAttribute("type", Text(MessageTypeEnumeration.Error.toString), Null)
-				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
-				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
-				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))								
-				return new Message(Elem(null, TAG, metadata, TopScope, Error(errorCondition, errorDescription)))				
+				val xml = Stanza.error(TAG, id, to, from, condition, description)
+				return new Message(xml)
 			}
 		}
 		
-		class Message(xml:Node) extends Stanza[Message](xml)
+		class Message(xml:Node) extends Stanza(xml)
 		{			
 			val TypeEnumeration = MessageTypeEnumeration
 			
