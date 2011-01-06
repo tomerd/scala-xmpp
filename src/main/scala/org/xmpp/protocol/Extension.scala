@@ -4,6 +4,8 @@ package org.xmpp
 	{
 		import scala.collection._
 		import scala.xml._
+		
+		import org.xmpp.protocol.Protocol._
 
 		final object Extension
 		{

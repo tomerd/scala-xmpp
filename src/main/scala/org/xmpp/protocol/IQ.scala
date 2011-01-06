@@ -15,16 +15,15 @@ package org.xmpp
 			
 			def apply(kind:Option[IQTypeEnumeration.Value]):IQ = apply(None, None, None, kind, None)
 			
-			def apply(kind:Option[IQTypeEnumeration.Value], extension:Option[Extension]):IQ = apply(None, None, None, kind, extension)
+			def apply(kind:Option[IQTypeEnumeration.Value], extensions:Option[Seq[Extension]]):IQ = apply(None, None, None, kind, extensions)
 						
-			def apply(id:Option[String], kind:Option[IQTypeEnumeration.Value], extension:Option[Extension]=None):IQ = apply(id, None, None, kind, extension)
+			def apply(id:Option[String], kind:Option[IQTypeEnumeration.Value], extensions:Option[Seq[Extension]]=None):IQ = apply(id, None, None, kind, extensions)
 				
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[IQTypeEnumeration.Value], extension:Option[Extension]):IQ =
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[IQTypeEnumeration.Value], extensions:Option[Seq[Extension]]):IQ =
 			{
-				val children = mutable.ListBuffer[Node]() 
-				if (!extension.isEmpty) children += extension.get
+				val children = if (!extensions.isEmpty) extensions.get else None
 				
-				val xml = Stanza.build(TAG, id, to, from, kind, Some(children))
+				val xml = Stanza.build(TAG, id, to, from, kind, extensions)
 				return new IQ(xml)
 			}	
 			

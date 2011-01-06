@@ -11,7 +11,7 @@ package org.xmpp
 		{
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):RosterQuery = 
 			{				
-				val xml = Stanza.build(IQ.TAG, id, to, from, Some(IQTypeEnumeration.Get.toString), Some(Extension("query", "jabber:iq:roster")))
+				val xml = Stanza.build(IQ.TAG, id, to, from, IQTypeEnumeration.Get.toString, Extension("query", "jabber:iq:roster"))
 				return new RosterQuery(xml)	
 			}
 		}
@@ -25,19 +25,31 @@ package org.xmpp
 		{
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], items:Seq[RosterItem]):RosterResult = 
 			{
-				val xml = Stanza.build(IQ.TAG, id, to, from, Some(IQTypeEnumeration.Result.toString), Some(Extension("query", "jabber:iq:roster", Some(items))))
+				val xml = Stanza.build(IQ.TAG, id, to, from, IQTypeEnumeration.Result.toString, Extension("query", "jabber:iq:roster", items))
 				return new RosterResult(xml)
 			}
 		}
 			
 		final class RosterResult(xml:Node) extends IQ(xml)
 		{
+			// getters
+			private var _items:Option[Seq[RosterItem]] = None
+			private def items:Option[Seq[RosterItem]] = _items
+			
+			override protected def parse
+			{
+				super.parse
+			
+				val itemsNodes = (this.xml \ "item")
+				_items = if (0 == itemsNodes.length) None else Some(itemsNodes.map( node => RosterItem(node) ))
+			}
+			
 		}
 		
 		final object RosterItem
 		{
 			val TAG = "item"
-			
+					
 			def apply(jid:Option[JID]):RosterItem = apply(jid, None, None, None, None)
 					
 			def apply(jid:Option[JID], name:Option[String]):RosterItem = apply(jid, name, None, None, None)
@@ -51,8 +63,10 @@ package org.xmpp
 				if (!name.isEmpty) metadata = metadata.append(new UnprefixedAttribute("name", Text(name.get), Null))
 				if (!subscrption.isEmpty) metadata = metadata.append(new UnprefixedAttribute("subscrption", Text(subscrption.get.toString), Null))
 				if (!ask.isEmpty) metadata = metadata.append(new UnprefixedAttribute("ask", Text(ask.get.toString), Null))
-				return new RosterItem(Elem(null, TAG, metadata, TopScope, children:_*))
+				return apply(Elem(null, TAG, metadata, TopScope, children:_*))
 			}
+			
+			def apply(xml:Node) = new RosterItem(xml)
 		}
 		
 		final class RosterItem(xml:Node) extends XmlWrapper(xml)
