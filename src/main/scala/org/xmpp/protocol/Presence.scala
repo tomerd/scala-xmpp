@@ -13,6 +13,8 @@ package org.xmpp
 				
 			def apply():Presence = apply(None, None, None, None, None, None, None, None)
 			
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[PresenceTypeEnumeration.Value], extensions:Option[Seq[Extension]]):Presence = apply(id, to, from, kind, None, None, None, extensions)
+						
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[PresenceTypeEnumeration.Value], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Presence =
 			{
 				val children = mutable.ListBuffer[Node]()

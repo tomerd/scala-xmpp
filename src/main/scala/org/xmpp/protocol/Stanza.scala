@@ -118,6 +118,24 @@ package org.xmpp
 				val errorNodes = (this.xml \ "error")
 				_error = if (0 == errorNodes.length) None else Some(Error(errorNodes(0)))				
 			}
+			
+			def getExtensionByName(name:String):Option[Extension] =
+			{
+				this.xml.child.find( child => name == child.label ) match
+				{
+					case None => None
+					case Some(node) => Some(Extension(node))
+				}
+			}
+			
+			def getExtensionByNamespace(name:String):Option[Extension] =
+			{
+				this.xml.child.find( child => name == child.namespace ) match
+				{
+					case None => None
+					case Some(node) => Some(Extension(node))
+				}
+			}
 	
 		}
 		

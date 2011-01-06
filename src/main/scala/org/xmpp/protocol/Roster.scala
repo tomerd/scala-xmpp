@@ -8,29 +8,25 @@ package org.xmpp
 		import org.xmpp.protocol.Protocol._
 
 		final object RosterQuery
-		{
-			def apply(id:Option[String], to:Option[JID], from:Option[JID]):RosterQuery = 
-			{				
-				val xml = Stanza.build(IQ.TAG, id, to, from, IQTypeEnumeration.Get.toString, Extension("query", "jabber:iq:roster"))
-				return new RosterQuery(xml)	
-			}
+		{			
+			def apply(id:Option[String], to:Option[JID], from:Option[JID]):RosterQuery = RosterQuery(IQGet(id, to, from, Option(List(Extension("query", "jabber:iq:roster")))))
+			
+			def apply(xml:Node) = new RosterQuery(xml)
 		}
 		
-		final class RosterQuery(xml:Node) extends IQ(xml)
+		final class RosterQuery(xml:Node) extends IQGet(xml)
 		{
 			def result(items:Seq[RosterItem]):RosterResult = RosterResult(this.id, this.from, this.to, items)
 		}
 		
 		final object RosterResult
 		{
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], items:Seq[RosterItem]):RosterResult = 
-			{
-				val xml = Stanza.build(IQ.TAG, id, to, from, IQTypeEnumeration.Result.toString, Extension("query", "jabber:iq:roster", items))
-				return new RosterResult(xml)
-			}
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], items:Seq[RosterItem]):RosterResult = RosterResult(IQResult(id, to, from, Some(List(Extension("query", "jabber:iq:roster", items)))))
+			
+			def apply(xml:Node) = new RosterResult(xml)
 		}
 			
-		final class RosterResult(xml:Node) extends IQ(xml)
+		final class RosterResult(xml:Node) extends IQResult(xml)
 		{
 			// getters
 			private var _items:Option[Seq[RosterItem]] = None
@@ -48,8 +44,6 @@ package org.xmpp
 		
 		final object RosterItem
 		{
-			val TAG = "item"
-					
 			def apply(jid:Option[JID]):RosterItem = apply(jid, None, None, None, None)
 					
 			def apply(jid:Option[JID], name:Option[String]):RosterItem = apply(jid, name, None, None, None)
@@ -63,13 +57,13 @@ package org.xmpp
 				if (!name.isEmpty) metadata = metadata.append(new UnprefixedAttribute("name", Text(name.get), Null))
 				if (!subscrption.isEmpty) metadata = metadata.append(new UnprefixedAttribute("subscrption", Text(subscrption.get.toString), Null))
 				if (!ask.isEmpty) metadata = metadata.append(new UnprefixedAttribute("ask", Text(ask.get.toString), Null))
-				return apply(Elem(null, TAG, metadata, TopScope, children:_*))
+				return RosterItem(IQItem(metadata, children))
 			}
 			
 			def apply(xml:Node) = new RosterItem(xml)
 		}
 		
-		final class RosterItem(xml:Node) extends XmlWrapper(xml)
+		final class RosterItem(xml:Node) extends IQItem(xml)
 		{
 			parse
 			
@@ -89,8 +83,10 @@ package org.xmpp
 			private var _groups:Option[Seq[String]] = None
 			private def groups:Option[Seq[String]] = _groups
 			
-			private def parse
+			override protected def parse
 			{
+				super.parse
+				
 				val jid = (this.xml \ "@jid").text
 				_jid = if (jid.isEmpty) None else Some(JID(jid))
 				

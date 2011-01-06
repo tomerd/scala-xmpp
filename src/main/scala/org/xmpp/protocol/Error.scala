@@ -28,9 +28,7 @@ package org.xmpp
 		}
 		
 		protected final class Error(xml:Node) extends XmlWrapper(xml)
-		{	
-			parse
-			
+		{				
 			// getters
 			private var _kind:Option[ErrorType.Value] = None
 			private def kind:Option[ErrorType.Value] = _kind
@@ -49,7 +47,7 @@ package org.xmpp
 				val kind = (this.xml \ "@type").text
 				_kind = if (kind.isEmpty) None else Some(ErrorType.withName(kind))
 				
-				_condition = xml.child.find((child) => child.namespace.equals(Error.NAMESPACE) && !child.label.equals("text")) match
+				_condition = this.xml.child.find((child) => (null != child.namespace) && child.namespace.equals(Error.NAMESPACE) && !child.label.equals("text")) match
 				{
 					case Some(node) => 
 					{
@@ -75,7 +73,9 @@ package org.xmpp
 				val conditions = mutable.ListBuffer[String]()			
 				xml.child.filter((child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label })
 				_otherConditions = if (conditions.isEmpty) None else Some(conditions)
-			}		
+			}
+			
+			parse			
 		}
 
 		final object ErrorCondition extends Enumeration
