@@ -21,8 +21,6 @@ package org.xmpp
 				
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[IQTypeEnumeration.Value], extensions:Option[Seq[Extension]]):IQ =
 			{
-				val children = if (!extensions.isEmpty) extensions.get else None
-				
 				val xml = Stanza.build(TAG, id, to, from, kind, extensions)
 				return new IQ(xml)
 			}	

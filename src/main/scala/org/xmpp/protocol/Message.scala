@@ -15,15 +15,15 @@ package org.xmpp
 				
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String]):Message = apply(id, to, from, kind, subject, body, None, None)
 					
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):Message =
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Message =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!subject.isEmpty) children += <subject>{ subject.get }</subject>
 				if (!body.isEmpty) children += <body>{ body.get }</body>
 				if (!thread.isEmpty) children += <thread>{ thread.get }</thread>
-				if (!extension.isEmpty) children += extension.get	
+				if (!extensions.isEmpty) children ++= extensions.get	
 				
-				val xml = Stanza.build(TAG, id, to, from, kind, Some(children))
+				val xml = Stanza.build(TAG, id, to, from, kind, children)
 				return new Message(xml)
 			}	
 			

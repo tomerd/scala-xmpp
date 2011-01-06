@@ -13,15 +13,15 @@ package org.xmpp
 				
 			def apply():Presence = apply(None, None, None, None, None, None, None, None)
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[PresenceTypeEnumeration.Value], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Presence =
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[PresenceTypeEnumeration.Value], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Presence =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!show.isEmpty) children += <show>{ show.get }</show>
 				if (!status.isEmpty) children += <status>{ status.get }</status>
 				if (!priority.isEmpty) children += <priority>{ priority.get }</priority>
-				if (!extension.isEmpty) children += extension.get
+				if (!extensions.isEmpty) children ++= extensions.get
 					
-				val xml = Stanza.build(TAG, id, to, from, kind, Some(children))
+				val xml = Stanza.build(TAG, id, to, from, kind, children)
 				return new Presence(xml)
 			}
 			
