@@ -8,7 +8,7 @@ package org.xmpp
 		
 		import org.xmpp.protocol._
 				
-		final object Handshake
+		object Handshake
 		{
 			private val digest = MessageDigest.getInstance("SHA-1")
 			
@@ -33,6 +33,6 @@ package org.xmpp
 			}			
 		}
 		
-		final class Handshake(xml:Node) extends XmlWrapper(xml)
+		class Handshake(xml:Node) extends XmlWrapper(xml)
 	}
 }

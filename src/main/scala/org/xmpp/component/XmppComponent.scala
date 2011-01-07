@@ -57,23 +57,23 @@ package org.xmpp
 			
 			// getters
 			private var _subdomain:String = _
-			final def subdomain:String = _subdomain
+			def subdomain:String = _subdomain
 			
 			private var _host:String = _
-			final def host:String = _host
+			def host:String = _host
 			
 			private var _port:Int = _
-			final def port:Int = _port
+			def port:Int = _port
 			
 			private var _secret:String = _
-			final def secret:String = _secret
+			def secret:String = _secret
 			
 			private var _timeout:Int = _
-			final def timeout:Int = _timeout
+			def timeout:Int = _timeout
 			
 			private var _handler:CommunicationHandler = _
 					
-			final def configure(subdomain:String, host:String, port:Int, secret:String, timeout:Int=0)
+			def configure(subdomain:String, host:String, port:Int, secret:String, timeout:Int=0)
 			{
 				_subdomain = subdomain
 				_host = host
@@ -97,12 +97,12 @@ package org.xmpp
 				require(this.timeout != 0)
 			}
 			
-			final def start
+			def start
 			{
 				start(this.subdomain, this.host, this.port, this.secret, this.timeout)
 			}
 			
-			final def start(subdomain:String, host:String, port:Int, secret:String, timeout:Int=0)
+			def start(subdomain:String, host:String, port:Int, secret:String, timeout:Int=0)
 			{
 				configure(subdomain, host, port, secret, timeout)
 				
@@ -128,14 +128,14 @@ package org.xmpp
 				// TODO: add hook for implementations
 			}
 			
-			final def shutdown
+			def shutdown
 			{
 				ScheduledJobsManager.stopAll
 				_handler ! Disconnect
 				// TODO: add hook for implementations
 			}
 			
-			final def send(content:String) 
+			def send(content:String) 
 			{
 				_handler ! Send(content)
 				_lastActive = System.currentTimeMillis
@@ -157,8 +157,8 @@ package org.xmpp
 			private var _writer:BufferedWriter = _
 			private var _listener:ListenerThread = _
 			//private var _connectionId:String = _
-			//final def connectionId:String = _connectionId
-			//final def connected:Boolean = null != _connectionId
+			//def connectionId:String = _connectionId
+			//def connected:Boolean = null != _connectionId
 						
 			start
 			

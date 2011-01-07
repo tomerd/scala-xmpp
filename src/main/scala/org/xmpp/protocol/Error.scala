@@ -7,12 +7,11 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 				
-		final object Error
+		object Error
 		{
+			val TAG = "error"				
 			val NAMESPACE:String = "urn:ietf:params:xml:ns:xmpp-stanzas"
-				
-			def apply(xml:Node):Error = new Error(xml)	
-				
+						
 			def apply(condition:ErrorCondition.Value, description:Option[String]=None, otherConditions:Option[Seq[String]]=None):Error =
 			{
 				import org.xmpp.protocol.ErrorCondition._
@@ -23,11 +22,13 @@ package org.xmpp
 				if (!description.isEmpty) children += <text xmlns={ NAMESPACE } xml:lang="en">{ description.get }</text>
 				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.kind.toString), Null)
 						
-				return new Error(Elem(null, "error", attributes, TopScope, children:_*))
+				return new Error(Elem(null, TAG, attributes, TopScope, children:_*))
 			}
+			
+			def apply(xml:Node):Error = new Error(xml)
 		}
 		
-		protected final class Error(xml:Node) extends XmlWrapper(xml)
+		protected class Error(xml:Node) extends XmlWrapper(xml)
 		{				
 			// getters
 			private var _kind:Option[ErrorType.Value] = None
@@ -42,12 +43,14 @@ package org.xmpp
 			private var _otherConditions:Option[Seq[String]] = None
 			private def otherConditions:Option[Seq[String]] = _otherConditions
 			
-			protected def parse
-			{				
+			override protected def parse
+			{		
+				super.parse
+				
 				val kind = (this.xml \ "@type").text
 				_kind = if (kind.isEmpty) None else Some(ErrorType.withName(kind))
 				
-				_condition = this.xml.child.find((child) => (null != child.namespace) && child.namespace.equals(Error.NAMESPACE) && !child.label.equals("text")) match
+				_condition = this.xml.child.find( (child) => Error.NAMESPACE == child.namespace && "text" != child.label ) match
 				{
 					case Some(node) => 
 					{
@@ -71,14 +74,12 @@ package org.xmpp
 				_description = if (description.isEmpty) None else Some(description)
 				
 				val conditions = mutable.ListBuffer[String]()			
-				xml.child.filter((child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label })
+				xml.child.filter( (child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label } )
 				_otherConditions = if (conditions.isEmpty) None else Some(conditions)
-			}
-			
-			parse			
+			}			
 		}
 
-		final object ErrorCondition extends Enumeration
+		object ErrorCondition extends Enumeration
 		{
 			type condition = Value
 			
@@ -114,7 +115,7 @@ package org.xmpp
 			implicit def valueToCondition(value:Value):Condition = value.asInstanceOf[Condition]
 		}
 				
-		final object ErrorType extends Enumeration
+		object ErrorType extends Enumeration
 		{
 			type action = Value
 

@@ -6,8 +6,8 @@ package org.xmpp
 		import scala.xml._
 		
 		import org.xmpp.protocol.Protocol._
-				
-		final object Stanza
+		
+		object Stanza
 		{
 			// TODO: once XmppComponent removes all dependencies from dom4j need to remove this as well
 			// TODO: find a better way to do this
@@ -24,7 +24,8 @@ package org.xmpp
 			
 			def apply(xml:String):Stanza= apply(XML.loadString(xml))
 									
-			def apply(xml:Node):Stanza = 
+			def apply(xml:Node):Stanza = StanzaFactory.create(xml)
+			/*
 			{
 				val stanza:Stanza = xml.label.toLowerCase match
 				{
@@ -44,10 +45,13 @@ package org.xmpp
 				}	
 				
 				stanza.parse
-				return stanza
+				return stanza			
 			}
+			*/
 								
-			// TODO, find a better solution for the type attribute
+			def build(name:String):Node = build(name, None, None, None, None)
+				
+			// TODO, find a better solution for the type attribute than Any
 			def build(name:String, id:Option[String], to:Option[JID], from:Option[JID], kind:Option[Any], children:Option[Seq[Node]]=None):Node = 
 			{
 				val kids:Seq[Node] = if (!children.isEmpty) children.get else null
@@ -63,7 +67,7 @@ package org.xmpp
 			
 			def error(name:String, id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Node =
 			{
-				var metadata:MetaData = new UnprefixedAttribute("type", Text(IQTypeEnumeration.Error.toString), Null)
+				var metadata:MetaData = new UnprefixedAttribute("type", Text("error"), Null)
 				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
 				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
 				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))		
@@ -77,25 +81,27 @@ package org.xmpp
 			
 			// getters			
 			private var _id:Option[String] = None
-			final def id:Option[String] = _id
+			def id:Option[String] = _id
 			
 			private var _to:Option[JID] = None
-			final def to:Option[JID] = _to
+			def to:Option[JID] = _to
 			
 			private var _from:Option[JID] = None
-			final def from:Option[JID] = _from
+			def from:Option[JID] = _from
 			
 			private var _kind:Option[TypeEnumeration.Value] = None
-			final def kind:Option[TypeEnumeration.Value] = _kind
+			def kind:Option[TypeEnumeration.Value] = _kind
 			
 			private var _language:Option[String] = None
-			final def language:Option[String] = _language
+			def language:Option[String] = _language
 			
 			private var _error:Option[Error] = None
-			final def error:Option[Error] = _error
+			def error:Option[Error] = _error
 						
-			protected def parse
+			override protected def parse
 			{
+				super.parse
+				
 				val id = (this.xml \ "@id").text
 				_id = if (id.isEmpty) None else Some(id)
 
@@ -116,7 +122,7 @@ package org.xmpp
 				}
 
 				val errorNodes = (this.xml \ "error")
-				_error = if (0 == errorNodes.length) None else Some(Error(errorNodes(0)))				
+				_error = if (0 == errorNodes.length) None else Some(new Error(errorNodes(0)))				
 			}
 			
 			def getExtensionByName(name:String):Option[Extension] =
@@ -124,7 +130,7 @@ package org.xmpp
 				this.xml.child.find( child => name == child.label ) match
 				{
 					case None => None
-					case Some(node) => Some(Extension(node))
+					case Some(node) => Some(new Extension(node))
 				}
 			}
 			
@@ -133,7 +139,7 @@ package org.xmpp
 				this.xml.child.find( child => name == child.namespace ) match
 				{
 					case None => None
-					case Some(node) => Some(Extension(node))
+					case Some(node) => Some(new Extension(node))
 				}
 			}
 	

@@ -6,8 +6,14 @@ package org.xmpp
 		import scala.xml._
 
 		abstract class XmlWrapper(val xml:Node)
-		{			
-			final override def toString = xml.toString			
+		{	
+			parse
+			
+			protected def parse
+			{				
+			}
+			
+			override def toString = xml.toString			
 		}
 			
 		object Protocol

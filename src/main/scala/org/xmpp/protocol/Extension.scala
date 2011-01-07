@@ -7,7 +7,7 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 
-		final object Extension
+		object Extension
 		{
 			def apply(name:String, namespace:Option[String], children:Option[Seq[Node]]=None):Extension =
 			{
@@ -34,15 +34,15 @@ package org.xmpp
 			private var _namespace:Option[String] = None
 			def namespace:Option[String] = _namespace
 			
-			private def parse
+			override protected def parse
 			{				
+				super.parse 
+				
 				_name = this.xml.label
 									
 				val namespace = this.xml.scope.uri
 				_namespace = if ((null != namespace) && !namespace.isEmpty) Some(namespace) else None
-			}
-			
-			parse			
+			}		
 		}
 	}
 }
