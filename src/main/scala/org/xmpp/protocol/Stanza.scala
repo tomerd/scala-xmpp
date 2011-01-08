@@ -60,7 +60,7 @@ package org.xmpp
 				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
 				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
 				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
-				if (null == kind && !kind.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(kind), Null))
+				if (null != kind && !kind.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(kind), Null))
 				
 				return Elem(null, name, metadata, TopScope, kids:_*)
 			}
