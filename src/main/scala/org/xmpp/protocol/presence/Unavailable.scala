@@ -10,16 +10,16 @@ package org.xmpp
 			
 		object Unavailable
 		{
-			def apply():Unavailable =
-			{
-				val xml = Stanza.build(Presence.TAG)
-				return new Unavailable(xml)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Unavailable =
+			{					
+				val xml = Presence.build(PresenceTypeEnumeration.Unavailable, id, to, from, None, None, None, None)
+				return apply(xml)
 			}
-			
+
 			def apply(xml:Node):Unavailable = new Unavailable(xml)
 		}
 		
-		class Unavailable(xml:Node) extends Presence(xml)
+		class Unavailable(xml:Node) extends Presence(xml, PresenceTypeEnumeration.Unavailable)
 		{
 		}
 	}

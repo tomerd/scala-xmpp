@@ -49,10 +49,10 @@ package org.xmpp
 			}
 			*/
 								
-			def build(name:String):Node = build(name, None, None, None, None)
+			def build(name:String):Node = build(name, null, None, None, None)
 				
 			// TODO, find a better solution for the type attribute than Any
-			def build(name:String, id:Option[String], to:Option[JID], from:Option[JID], kind:Option[Any], children:Option[Seq[Node]]=None):Node = 
+			def build(name:String, kind:String, id:Option[String], to:Option[JID], from:Option[JID], children:Option[Seq[Node]]=None):Node = 
 			{
 				val kids:Seq[Node] = if (!children.isEmpty) children.get else null
 				//if (!extension.isEmpty) children += extension.get
@@ -60,7 +60,7 @@ package org.xmpp
 				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
 				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
 				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
-				if (!kind.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(kind.get.toString), Null))
+				if (null == kind && !kind.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(kind), Null))
 				
 				return Elem(null, name, metadata, TopScope, kids:_*)
 			}
@@ -77,7 +77,7 @@ package org.xmpp
 		
 		abstract class Stanza(xml:Node) extends XmlWrapper(xml)
 		{																		
-			val TypeEnumeration:Enumeration
+			//val TypeEnumeration:Enumeration
 			
 			// getters			
 			private var _id:Option[String] = None
@@ -89,8 +89,8 @@ package org.xmpp
 			private var _from:Option[JID] = None
 			def from:Option[JID] = _from
 			
-			private var _kind:Option[TypeEnumeration.Value] = None
-			def kind:Option[TypeEnumeration.Value] = _kind
+			//private var _kind:Option[TypeEnumeration.Value] = None
+			//def kind:Option[TypeEnumeration.Value] = _kind
 			
 			private var _language:Option[String] = None
 			def language:Option[String] = _language
@@ -111,8 +111,8 @@ package org.xmpp
 				val from = (this.xml \ "@from").text
 				_from = if (from.isEmpty) None else Some(JID(from))
 				
-				val kind = (this.xml \ "@type").text
-				_kind = if (kind.isEmpty) None else Some(TypeEnumeration.withName(kind))
+				//val kind = (this.xml \ "@type").text
+				//_kind = if (kind.isEmpty) None else Some(TypeEnumeration.withName(kind))
 
 				// TODO: find a better way to query this prefixed attribute with no namespace, this does not work: (this.xml \ "@lang").text
 				_language = this.xml.attributes.find((attribute) => "lang" == attribute.key) match

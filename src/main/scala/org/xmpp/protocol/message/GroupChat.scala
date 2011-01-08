@@ -10,16 +10,22 @@ package org.xmpp
 		
 		object GroupChat
 		{
-			def apply():GroupChat =
+			def apply(to:Option[JID], from:Option[JID], body:Option[String]):GroupChat = apply(None, to, from, None, body, None, None)
+			
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], body:Option[String]):GroupChat = apply(id, to, from, None, body, None, None)
+				
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String]):GroupChat = apply(id, to, from, subject, body, None, None)
+					
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):GroupChat =
 			{
-				val xml = Stanza.build(Message.TAG)
-				return new GroupChat(xml)
+				val xml = Message.build(MessageTypeEnumeration.GroupChat, id, to, from, subject, body, thread, extensions)
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):GroupChat = new GroupChat(xml)
 		}
 		
-		class GroupChat(xml:Node) extends Message(xml)
+		class GroupChat(xml:Node) extends Message(xml, MessageTypeEnumeration.GroupChat)
 		{
 		}
 	}

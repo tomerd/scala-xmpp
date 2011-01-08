@@ -13,7 +13,7 @@ package org.xmpp
 			def apply():DoNotDisturb =
 			{
 				val xml = Stanza.build(Presence.TAG)
-				return new DoNotDisturb(xml)
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):DoNotDisturb = new DoNotDisturb(xml)

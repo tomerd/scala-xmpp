@@ -8,15 +8,11 @@ package org.xmpp
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.Protocol._
 					
-		object Presence
+		protected object Presence
 		{
 			val TAG = "presence"
-
-			def apply():Presence = apply(None, None, None, None, None, None, None, None)
-			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[PresenceTypeEnumeration.Value], extensions:Option[Seq[Extension]]):Presence = apply(id, to, from, kind, None, None, None, extensions)
 						
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[PresenceTypeEnumeration.Value], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Presence =
+			def build(kind:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Node =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!show.isEmpty) children += <show>{ show.get }</show>
@@ -24,24 +20,15 @@ package org.xmpp
 				if (!priority.isEmpty) children += <priority>{ priority.get }</priority>
 				if (!extensions.isEmpty) children ++= extensions.get
 					
-				val xml = Stanza.build(TAG, id, to, from, kind, children)
-				return apply(xml)
+				return Stanza.build(TAG, kind.toString, id, to, from, children)
 			}
 			
-			def apply(xml:Node):Presence = PresenceFactory.create(xml).get
-			
-			/*
-			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]=None):Presence =
-			{
-				val xml = Stanza.error(TAG, id, to, from, condition, description)
-				return new Presence(xml)
-			}
-			*/
+			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(TAG, id, to, from, condition, description)
 		}
 		
-		abstract class Presence(xml:Node) extends Stanza(xml)
+		abstract class Presence(xml:Node, val kind:PresenceTypeEnumeration.Value) extends Stanza(xml)
 		{
-			val TypeEnumeration = PresenceTypeEnumeration
+			//val TypeEnumeration = PresenceTypeEnumeration
 			
 			def error(condition:ErrorCondition.Value, description:Option[String]=None):Error = Error(this.id, this.from, this.to, condition, description)
 		}

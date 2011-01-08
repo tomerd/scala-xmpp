@@ -13,7 +13,7 @@ package org.xmpp
 			def apply():ExtendedAway =
 			{
 				val xml = Stanza.build(Presence.TAG)
-				return new ExtendedAway(xml)
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):ExtendedAway = new ExtendedAway(xml)

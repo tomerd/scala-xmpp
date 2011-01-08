@@ -10,16 +10,16 @@ package org.xmpp
 			
 		object Probe
 		{
-			def apply():Probe =
-			{
-				val xml = Stanza.build(Presence.TAG)
-				return new Probe(xml)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Probe =
+			{					
+				val xml = Presence.build(PresenceTypeEnumeration.Probe, id, to, from, None, None, None, None)
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):Probe = new Probe(xml)
 		}
 		
-		class Probe(xml:Node) extends Presence(xml)
+		class Probe(xml:Node) extends Presence(xml, PresenceTypeEnumeration.Probe)
 		{
 		}
 	}

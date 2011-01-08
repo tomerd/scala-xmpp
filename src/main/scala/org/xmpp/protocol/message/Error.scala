@@ -12,14 +12,14 @@ package org.xmpp
 		{
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]=None):Error =
 			{
-				val xml = Stanza.error(Message.TAG, id, to, from, condition, description)
-				return new Error(xml)
+				val xml = Message.error(id, to, from, condition, description)
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):Error = new Error(xml)
 		}
 		
-		class Error(xml:Node) extends Message(xml)
+		class Error(xml:Node) extends Message(xml, MessageTypeEnumeration.Error)
 		{
 		}
 	}

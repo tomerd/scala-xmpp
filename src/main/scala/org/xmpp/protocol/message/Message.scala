@@ -8,15 +8,23 @@ package org.xmpp
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.Protocol._
 		
-		object Message
+		protected object Message
 		{
 			val TAG = "message"
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], body:Option[String]):Message = apply(id, to, from, kind, None, body, None, None)
+			def apply(kind:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], body:Option[String]):Message = apply(kind, id, to, from, None, body, None, None)
 				
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String]):Message = apply(id, to, from, kind, subject, body, None, None)
+			def apply(kind:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String]):Message = apply(kind, id, to, from, subject, body, None, None)
 					
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], kind:Option[MessageTypeEnumeration.Value], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Message =
+			def apply(kind:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Message =
+			{
+				val xml = build(kind, id, to, from, subject, body, thread, extensions)
+				return apply(xml)
+			}
+			
+			def apply(xml:Node):Message = MessageFactory.create(xml).get
+						
+			def build(kind:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Node =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!subject.isEmpty) children += <subject>{ subject.get }</subject>
@@ -24,24 +32,16 @@ package org.xmpp
 				if (!thread.isEmpty) children += <thread>{ thread.get }</thread>
 				if (!extensions.isEmpty) children ++= extensions.get	
 				
-				val xml = Stanza.build(TAG, id, to, from, kind, children)
-				return apply(xml)
+				return Stanza.build(TAG, kind.toString, id, to, from, children)
 			}
 			
-			def apply(xml:Node):Message = MessageFactory.create(xml).get
-			
-			/*			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]=None):Message =
-			{
-				val xml = Stanza.error(TAG, id, to, from, condition, description)
-				return new Message(xml)
-			}
-			*/			
+			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(TAG, id, to, from, condition, description)			
+						
 		}
 		
-		abstract class Message(xml:Node) extends Stanza(xml)
+		abstract class Message(xml:Node, val kind:MessageTypeEnumeration.Value) extends Stanza(xml)
 		{			
-			val TypeEnumeration = MessageTypeEnumeration
+			//val TypeEnumeration = MessageTypeEnumeration
 			
 			// getters
 			private var _subject:Option[String] = None
@@ -67,11 +67,14 @@ package org.xmpp
 				_thread = if (thread.isEmpty) None else Some(thread)
 			}
 			
-			def reply(body:String):Message = Message(this.id, this.from, this.to, this.kind, this.subject, Some(body), this.thread, None)
-			
-			def reply(subject:String, body:String):Message = Message(this.id, this.from, this.to, this.kind, Some(subject), Some(body), this.thread, None)
-			
-			def forward(to:JID):Message = Message(this.id, to, this.from, this.kind, this.subject, this.body, this.thread, None)
+			// FIXME, need to handle extensions here
+			def reply(body:String):Message = Message(this.kind, this.id, this.from, this.to, this.subject, Some(body), this.thread, None)
+
+			// FIXME, need to handle extensions here			
+			def reply(subject:String, body:String):Message = Message(this.kind, this.id, this.from, this.to, Some(subject), Some(body), this.thread, None)
+						
+			// FIXME, need to handle extensions here			
+			def forward(to:JID):Message = Message(this.kind, this.id, to, this.from, this.subject, this.body, this.thread, None)
 			
 			def error(condition:ErrorCondition.Value, description:Option[String]=None):Error = Error(this.id, this.from, this.to, condition, description)
 		}

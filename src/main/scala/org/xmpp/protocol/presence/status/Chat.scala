@@ -13,7 +13,7 @@ package org.xmpp
 			def apply():Chat =
 			{
 				val xml = Stanza.build(Presence.TAG)
-				return new Chat(xml)
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):Chat = new Chat(xml)

@@ -10,16 +10,16 @@ package org.xmpp
 			
 		object Subscribed
 		{
-			def apply():Subscribed =
-			{
-				val xml = Stanza.build(Presence.TAG)
-				return new Subscribed(xml)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Subscribed =
+			{					
+				val xml = Presence.build(PresenceTypeEnumeration.Subscribed, id, to, from, None, None, None, None)
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):Subscribed = new Subscribed(xml)
 		}
 		
-		class Subscribed(xml:Node) extends Presence(xml)
+		class Subscribed(xml:Node) extends Presence(xml, PresenceTypeEnumeration.Subscribed)
 		{
 		}
 	}

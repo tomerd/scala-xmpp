@@ -10,16 +10,20 @@ package org.xmpp
 			
 		object Available
 		{
-			def apply():Available =
-			{
-				val xml = Stanza.build(Presence.TAG)
-				return new Available(xml)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Available = apply(id, to, from)
+			
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Available = apply(id, to, from, extensions)
+			
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Available =
+			{					
+				val xml = Presence.build(PresenceTypeEnumeration.Available, id, to, from, show, status, priority, extensions)
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):Available = new Available(xml)
 		}
 		
-		class Available(xml:Node) extends Presence(xml)
+		class Available(xml:Node) extends Presence(xml, PresenceTypeEnumeration.Available)
 		{
 			// getters
 			private var _show:Option[Show.Value] = None
@@ -30,9 +34,7 @@ package org.xmpp
 			
 			private var _priority:Option[Int] = None
 			private def priority:Option[Int] = _priority
-			
-			def available:Boolean = TypeEnumeration.Available == this.kind
-			
+						
 			override protected def parse
 			{
 				super.parse

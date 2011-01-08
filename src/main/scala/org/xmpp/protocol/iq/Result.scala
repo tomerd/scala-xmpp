@@ -12,14 +12,14 @@ package org.xmpp
 		{
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Result = 
 			{
-				val xml = Stanza.build(IQ.TAG, id, to, from, IQTypeEnumeration.Result.toString, extensions)
+				val xml = IQ.build(IQTypeEnumeration.Result, id, to, from, extensions)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node) = new Result(xml)
 		}
 		
-		class Result(xml:Node) extends IQ(xml)
+		class Result(xml:Node) extends IQ(xml, IQTypeEnumeration.Result)
 		{
 			/*
 			// getters

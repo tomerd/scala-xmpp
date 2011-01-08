@@ -10,16 +10,16 @@ package org.xmpp
 			
 		object Unsubscribed
 		{
-			def apply():Unsubscribed =
-			{
-				val xml = Stanza.build(Presence.TAG)
-				return new Unsubscribed(xml)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Unsubscribed =
+			{					
+				val xml = Presence.build(PresenceTypeEnumeration.Unsubscribed, id, to, from, None, None, None, None)
+				return apply(xml)
 			}
-			
+
 			def apply(xml:Node):Unsubscribed = new Unsubscribed(xml)
 		}
 		
-		class Unsubscribed(xml:Node) extends Presence(xml)
+		class Unsubscribed(xml:Node) extends Presence(xml, PresenceTypeEnumeration.Unsubscribed)
 		{
 		}
 	}

@@ -14,7 +14,7 @@ package org.xmpp
 			{
 				xml match
 				{
-					case <iq>{ content @ _* }</iq> => Some(new Error(xml))					
+					case <iq>{ content @ _* }</iq> => Some(Error(xml))					
 					case _ => None
 				}				
 			}
