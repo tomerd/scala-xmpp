@@ -13,13 +13,13 @@ package org.xmpp
 			{
 				val kids:Seq[Node] = if (!children.isEmpty) children.get else null
 				val scope = if (!namespace.isEmpty) new NamespaceBinding(null, namespace.get, TopScope) else TopScope
-				return Extension(Elem(null, name, Null, scope, kids:_*))
+				return apply(Elem(null, name, Null, scope, kids:_*))
 			}
 			
 			def apply(other:Extension, children:Option[Seq[Node]]):Extension =
 			{
 				val kids:Seq[Node] = if (!children.isEmpty) children.get else null
-				return Extension(Elem(null, other.xml.label, other.xml.attributes, other.xml.scope, kids:_*))
+				return apply(Elem(null, other.xml.label, other.xml.attributes, other.xml.scope, kids:_*))
 			}
 			
 			def apply(xml:Node):Extension = new Extension(xml)

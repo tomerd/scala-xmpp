@@ -10,9 +10,9 @@ package org.xmpp
 			
 		object Available
 		{
-			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Available = apply(id, to, from)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Available = apply(id, to, from, None, None, None, None)
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Available = apply(id, to, from, extensions)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Available = apply(id, to, from, None, None, None, extensions)
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Available =
 			{					
