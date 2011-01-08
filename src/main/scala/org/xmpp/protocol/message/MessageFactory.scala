@@ -14,7 +14,12 @@ package org.xmpp
 			{
 				xml match
 				{
-					case <message>{ content @ _* }</message> => Some(Error(xml))
+					// FIXME, handle other cases here
+					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.Normal.toString => Some(Normal(root))
+					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.Chat.toString => Some(Chat(root))
+					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.GroupChat.toString => Some(GroupChat(root))
+					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.Headline.toString => Some(Headline(root))
+					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.Error.toString => Some(Error(root))								
 					case _ => None
 				}
 			}

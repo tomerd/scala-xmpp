@@ -14,8 +14,16 @@ package org.xmpp
 			{
 				xml match
 				{
-					case <presence>{ content @ _* }</presence> => Some(Error(xml))
-					case _ => None
+					// FIXME, handle other cases here
+					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Available.toString => Some(Available(root))
+					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Unavailable.toString => Some(Unavailable(root))
+					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Subscribe.toString => Some(Subscribe(root))
+					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Subscribed.toString => Some(Subscribed(root))
+					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Unsubscribe.toString => Some(Unsubscribe(root))
+					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Unsubscribed.toString => Some(Unsubscribed(root))
+					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Probe.toString => Some(Probe(root))
+					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Error.toString => Some(Error(root))
+					case _ => None			
 				}
 			}
 		}

@@ -14,7 +14,11 @@ package org.xmpp
 			{
 				xml match
 				{
-					case <iq>{ content @ _* }</iq> => Some(Error(xml))					
+					// FIXME, handle other cases here
+					case root @ <iq>{ extensions @ _* }</iq> if (root \ "@type").text == IQTypeEnumeration.Get.toString => Some(Get(root))
+					case root @ <iq>{ extensions @ _* }</iq> if (root \ "@type").text == IQTypeEnumeration.Set.toString => Some(Set(root))
+					case root @ <iq>{ extensions @ _* }</iq> if (root \ "@type").text == IQTypeEnumeration.Result.toString => Some(Result(root))
+					case root @ <iq>{ extensions @ _* }</iq> if (root \ "@type").text == IQTypeEnumeration.Error.toString => Some(Error(root))
 					case _ => None
 				}				
 			}

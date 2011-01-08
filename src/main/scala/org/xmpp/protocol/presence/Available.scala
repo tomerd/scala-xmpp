@@ -49,5 +49,16 @@ package org.xmpp
 				_priority = if (priority.isEmpty) None else Some(priority.toInt)				
 			}
 		}
+		
+		object Show extends Enumeration
+		{
+			type Reason = Value
+			
+			val Unknown = Value("unknown") // internal use
+			val Chat = Value("chat")
+			val Away = Value("away")
+			val XA = Value("xa")
+			val DND = Value("dnd")
+		}		
 	}
 }

@@ -79,7 +79,7 @@ package org.xmpp
 			def error(condition:ErrorCondition.Value, description:Option[String]=None):Error = Error(this.id, this.from, this.to, condition, description)
 		}
 		
-		object MessageTypeEnumeration extends Enumeration
+		protected object MessageTypeEnumeration extends Enumeration
 		{
 			type value = Value
 			

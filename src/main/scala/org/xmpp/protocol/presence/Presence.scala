@@ -33,7 +33,7 @@ package org.xmpp
 			def error(condition:ErrorCondition.Value, description:Option[String]=None):Error = Error(this.id, this.from, this.to, condition, description)
 		}
 		
-		object PresenceTypeEnumeration extends Enumeration
+		protected  object PresenceTypeEnumeration extends Enumeration
 		{
 			type value = Value
 			
@@ -48,17 +48,5 @@ package org.xmpp
 			val Error = Value("error")
 		}
 		
-		object Show extends Enumeration
-		{
-			type Reason = Value
-			
-			val Unknown = Value("unknown") // internal use
-			val Chat = Value("chat")
-			val Away = Value("away")
-			val XA = Value("xa")
-			val DND = Value("dnd")
-		}
-
-
 	}
 }

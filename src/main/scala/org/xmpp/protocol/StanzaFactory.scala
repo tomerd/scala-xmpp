@@ -25,22 +25,17 @@ package org.xmpp
 			}
 			
 			def create(xml:Node):Stanza =
-			{
-				// TODO, find a more consice way for doing this
-				var stanza:Stanza = null
-				var factory = factories.iterator.next
-				while ((null != stanza) && factories.iterator.hasNext)
+			{			
+				while (factories.iterator.hasNext)
 				{
-					stanza = factory.create(xml) match
+					factories.iterator.next.create(xml) match
 					{
-						case Some(s) => s.asInstanceOf[Stanza]
-						case None => null
+						case Some(s) => return s.asInstanceOf[Stanza]
+						case None => // continue
 					}
-					factory = factories.iterator.next
 				}
 				
-				if (null == stanza) throw new Exception("no registered factory was able to create a stanza of this xml")
-				return stanza
+				throw new Exception("no registered factory was able to create a stanza of this xml")
 			}
 			
 		}
