@@ -26,9 +26,10 @@ package org.xmpp
 			
 			def create(xml:Node):Stanza =
 			{			
-				while (factories.iterator.hasNext)
+				val iterator = factories.iterator
+				while (iterator.hasNext)
 				{
-					factories.iterator.next.create(xml) match
+					iterator.next.create(xml) match
 					{
 						case Some(s) => return s.asInstanceOf[Stanza]
 						case None => // continue

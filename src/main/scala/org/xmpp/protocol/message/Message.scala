@@ -44,6 +44,7 @@ package org.xmpp
 			//val TypeEnumeration = MessageTypeEnumeration
 			
 			// getters
+			/*
 			private var _subject:Option[String] = None
 			def subject:Option[String] = _subject
 			
@@ -66,13 +67,32 @@ package org.xmpp
 				val thread = (this.xml \ "thread").text
 				_thread = if (thread.isEmpty) None else Some(thread)
 			}
+			*/
+			
+			def subject:Option[String] = 
+			{
+				val subject = (this.xml \ "subject").text
+				if (subject.isEmpty) None else Some(subject)
+			}
+			
+			def body:Option[String] = 
+			{
+				val body = (this.xml \ "body").text
+				if (body.isEmpty) None else Some(body)
+			}
+			
+			def thread:Option[String] = 
+			{
+				val thread = (this.xml \ "thread").text
+				if (thread.isEmpty) None else Some(thread)
+			}
 			
 			// FIXME, need to handle extensions here
 			def reply(body:String):Message = Message(this.kind, this.id, this.from, this.to, this.subject, Some(body), this.thread, None)
-
+			
 			// FIXME, need to handle extensions here			
 			def reply(subject:String, body:String):Message = Message(this.kind, this.id, this.from, this.to, Some(subject), Some(body), this.thread, None)
-						
+			
 			// FIXME, need to handle extensions here			
 			def forward(to:JID):Message = Message(this.kind, this.id, to, this.from, this.subject, this.body, this.thread, None)
 			

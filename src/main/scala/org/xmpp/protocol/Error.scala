@@ -31,6 +31,7 @@ package org.xmpp
 		protected class Error(xml:Node) extends XmlWrapper(xml)
 		{				
 			// getters
+			/*
 			private var _kind:Option[ErrorType.Value] = None
 			private def kind:Option[ErrorType.Value] = _kind
 			
@@ -76,7 +77,50 @@ package org.xmpp
 				val conditions = mutable.ListBuffer[String]()			
 				xml.child.filter( (child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label } )
 				_otherConditions = if (conditions.isEmpty) None else Some(conditions)
-			}			
+			*/
+			
+			private def kind:Option[ErrorType.Value] = 
+			{
+				val kind = (this.xml \ "@type").text
+				if (kind.isEmpty) None else Some(ErrorType.withName(kind))
+			}
+			
+			private def condition:Option[ErrorCondition.Value] = 
+			{
+				this.xml.child.find( (child) => Error.NAMESPACE == child.namespace && "text" != child.label ) match
+				{
+					case Some(node) => 
+					{
+						ErrorCondition.fromString(node.label) match
+						{
+							case Some(error) => Some(error)
+							case None => None
+						}
+					}
+					case None =>
+					{
+						ErrorCondition.fromLegacyCode((this.xml \ "@code").text.toInt) match
+						{
+							case Some(error) => Some(error)
+							case None => None
+						}
+					}
+				}
+			}
+			
+			private def description:Option[String] = 
+			{
+				val description = (this.xml \ "text").text
+				if (description.isEmpty) None else Some(description)
+			}
+			
+			private def otherConditions:Option[Seq[String]] =
+			{
+				val conditions = mutable.ListBuffer[String]()			
+				xml.child.filter( (child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label } )
+				if (conditions.isEmpty) None else Some(conditions)				
+			}
+			
 		}
 
 		object ErrorCondition extends Enumeration

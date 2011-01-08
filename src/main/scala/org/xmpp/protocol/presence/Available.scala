@@ -26,6 +26,7 @@ package org.xmpp
 		class Available(xml:Node) extends Presence(xml, PresenceTypeEnumeration.Available)
 		{
 			// getters
+			/*
 			private var _show:Option[Show.Value] = None
 			private def show:Option[Show.Value] = _show
 			
@@ -46,7 +47,26 @@ package org.xmpp
 				_status = if (status.isEmpty) None else Some(status)
 				
 				val priority = (this.xml \ "priority").text
-				_priority = if (priority.isEmpty) None else Some(priority.toInt)				
+				_priority = if (priority.isEmpty) None else Some(priority.toInt)
+			}
+			*/
+			
+			private def show:Option[Show.Value] = 
+			{
+				val show = (this.xml \ "show").text
+				if (show.isEmpty) None else Some(Show.withName(show))				
+			}
+			
+			private def status:Option[String] = 
+			{
+				val status = (this.xml \ "status").text
+				if (status.isEmpty) None else Some(status)
+			}
+			
+			private def priority:Option[Int] = 
+			{
+				val priority = (this.xml \ "priority").text
+				if (priority.isEmpty) None else Some(priority.toInt)
 			}
 		}
 		

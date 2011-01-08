@@ -76,10 +76,11 @@ package org.xmpp
 		}
 		
 		abstract class Stanza(xml:Node) extends XmlWrapper(xml)
-		{																		
+		{
 			//val TypeEnumeration:Enumeration
 			
-			// getters			
+			// getters
+			/*
 			private var _id:Option[String] = None
 			def id:Option[String] = _id
 			
@@ -123,6 +124,41 @@ package org.xmpp
 
 				val errorNodes = (this.xml \ "error")
 				_error = if (0 == errorNodes.length) None else Some(new Error(errorNodes(0)))				
+			}
+			*/
+			
+			def id:Option[String] = 
+			{
+				val id = (this.xml \ "@id").text
+				if (id.isEmpty) None else Some(id)
+			}
+					
+			def to:Option[JID] = 
+			{
+				val to = (this.xml \ "@to").text
+				if (to.isEmpty) None else Some(JID(to))
+			}
+			
+			def from:Option[JID] = 
+			{
+				val from = (this.xml \ "@from").text
+				if (from.isEmpty) None else Some(JID(from))
+			}
+			
+			def language:Option[String] = 
+			{
+				// TODO: find a better way to query this prefixed attribute with no namespace, this does not work: (this.xml \ "@lang").text
+				this.xml.attributes.find((attribute) => "lang" == attribute.key) match
+				{
+					case Some(attribute) => if (attribute.value.text.isEmpty) None else Some(attribute.value.text)
+					case None => None
+				}
+			}
+			
+			def error:Option[Error] = 
+			{
+				val errorNodes = (this.xml \ "error")
+				if (0 == errorNodes.length) None else Some(new Error(errorNodes(0)))
 			}
 			
 			def getExtensionByName(name:String):Option[Extension] =

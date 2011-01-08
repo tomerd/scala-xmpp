@@ -28,6 +28,7 @@ package org.xmpp
 		class Extension(xml:Node) extends XmlWrapper(xml)
 		{					
 			// getters
+			/*
 			private var _name:String = null
 			def name:String = _name
 			
@@ -43,6 +44,15 @@ package org.xmpp
 				val namespace = this.xml.scope.uri
 				_namespace = if ((null != namespace) && !namespace.isEmpty) Some(namespace) else None
 			}		
+			*/
+			
+			def name:String =  this.xml.label
+			
+			def namespace:Option[String] = 
+			{
+				val namespace = this.xml.scope.uri
+				if ((null != namespace) && !namespace.isEmpty) Some(namespace) else None
+			}
 		}
 	}
 }

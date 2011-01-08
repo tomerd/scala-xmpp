@@ -1,5 +1,6 @@
 package org.xmpp
 {
+	// FIXME: need to rewrite this area of the code
 	package protocol.iq.roster
 	{
 		import scala.collection._
@@ -31,6 +32,7 @@ package org.xmpp
 		class RosterResult(xml:Node) extends Result(xml)
 		{
 			// getters
+			/*
 			private var _items:Option[Seq[RosterItem]] = None
 			private def items:Option[Seq[RosterItem]] = _items
 			
@@ -41,7 +43,7 @@ package org.xmpp
 				val itemsNodes = (this.xml \ "item")
 				_items = if (0 == itemsNodes.length) None else Some(itemsNodes.map( node => new RosterItem(node) ))
 			}
-			
+			*/
 		}
 		
 		object RosterItem
@@ -66,10 +68,9 @@ package org.xmpp
 		}
 		
 		class RosterItem(xml:Node) extends Item(xml)
-		{
-			parse
-			
+		{			
 			// getters
+			/*
 			private var _jid:Option[JID] = None
 			private def jid:Option[JID] = _jid
 			
@@ -103,6 +104,37 @@ package org.xmpp
 				
 				val groupNodes = (this.xml \ "group")
 				_groups = if (0 == groupNodes.length) None else Some( groupNodes.map( node => node.label ) )
+			}
+			*/
+			
+			private def jid:Option[JID] = 
+			{
+				val jid = (this.xml \ "@jid").text
+				if (jid.isEmpty) None else Some(JID(jid))
+			}
+			
+			private def name:Option[String] = 
+			{
+				val name = (this.xml \ "@name").text
+				if (name.isEmpty) None else Some(name)
+			}
+			
+			private def subscrption:Option[RosterItemSubscription.Value] = 
+			{
+				val subscrption = (this.xml \ "@subscrption").text
+				if (subscrption.isEmpty) None else Some(RosterItemSubscription.withName(subscrption))
+			}
+			
+			private def ask:Option[RosterItemAsk.Value] = 
+			{
+				val ask = (this.xml \ "@ask").text
+				if (ask.isEmpty) None else Some(RosterItemAsk.withName(ask))
+			}
+			
+			private def groups:Option[Seq[String]] = 
+			{
+				val groupNodes = (this.xml \ "group")
+				if (0 == groupNodes.length) None else Some( groupNodes.map( node => node.label ) )				
 			}
 		}
 		

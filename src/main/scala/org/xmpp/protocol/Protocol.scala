@@ -7,11 +7,13 @@ package org.xmpp
 
 		abstract class XmlWrapper(val xml:Node)
 		{	
+			/*
 			parse
 			
 			protected def parse
 			{				
 			}
+			*/
 			
 			override def toString = xml.toString			
 		}
