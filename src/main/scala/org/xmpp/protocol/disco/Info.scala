@@ -27,7 +27,9 @@ package org.xmpp
 		
 		class Info(xml:Node) extends Get(xml)
 		{
-			def result(identity:Identity, features:Seq[Feature]):InfoResult = InfoResult(this.id, this.from, this.to, identity, features)
+			def result(identity:Identity, feature:Feature):InfoResult = InfoResult(this.id, this.from, this.to, List(identity), List(feature))
+			def result(identity:Identity, features:Seq[Feature]):InfoResult = InfoResult(this.id, this.from, this.to, List(identity), features)
+			def result(identities:Seq[Identity], features:Seq[Feature]):InfoResult = InfoResult(this.id, this.from, this.to, identities, features)
 		}
 		
 	}

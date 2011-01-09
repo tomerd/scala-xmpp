@@ -14,12 +14,10 @@ package org.xmpp
 			val kind = Result.kindName
 			val name = Query.name
 			val namespace = Info.namespace
-				
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], identify:Identity, feature:Feature):InfoResult = apply(id, to, from, identify, List(feature)) 
 						
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], identify:Identity, features:Seq[Feature]):InfoResult = 
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], identities:Seq[Identity], features:Seq[Feature]):InfoResult = 
 			{
-				val xml = Result.build(id, to, from, Query(namespace, List(identify) ++ features))
+				val xml = Result.build(id, to, from, Query(namespace, identities ++ features))
 				return apply(xml)
 			}
 			
