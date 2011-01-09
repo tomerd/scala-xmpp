@@ -6,6 +6,8 @@ package org.xmpp
 		import scala.xml._
 		
 		import org.xmpp.protocol._
+		import org.xmpp.protocol.extensions._
+		
 		import org.xmpp.protocol.Protocol._
 		
 		object IQFactory extends StanzaFactory[IQ]
