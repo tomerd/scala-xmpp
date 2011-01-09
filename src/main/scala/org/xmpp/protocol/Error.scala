@@ -9,21 +9,21 @@ package org.xmpp
 				
 		object Error
 		{
-			val TAG = "error"				
-			val NAMESPACE:String = "urn:ietf:params:xml:ns:xmpp-stanzas"
-						
+			val tag = "error"
+			val namespace:String = "urn:ietf:params:xml:ns:xmpp-stanzas"
+			
 			def apply(condition:ErrorCondition.Value, description:Option[String]=None, otherConditions:Option[Seq[String]]=None):Error =
 			{
 				import org.xmpp.protocol.ErrorCondition._
 
-				val children = mutable.ListBuffer[Node]()						
+				val children = mutable.ListBuffer[Node]()
 				// TODO: test the namespace
-				children += Elem(null, condition.toString, Null, new NamespaceBinding(null, NAMESPACE, TopScope))				
+				children += Elem(null, condition.toString, Null, new NamespaceBinding(null, namespace, TopScope))				
 				if (!otherConditions.isEmpty) otherConditions.foreach( condition => { children += Elem(null, condition.toString, Null, TopScope) } )
-				if (!description.isEmpty) children += <text xmlns={ NAMESPACE } xml:lang="en">{ description.get }</text>
+				if (!description.isEmpty) children += <text xmlns={ namespace } xml:lang="en">{ description.get }</text>
 				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.kind.toString), Null)
 						
-				return new Error(Elem(null, TAG, attributes, TopScope, children:_*))
+				return new Error(Elem(null, tag, attributes, TopScope, children:_*))
 			}
 			
 			def apply(xml:Node):Error = new Error(xml)
@@ -88,7 +88,7 @@ package org.xmpp
 			
 			private def condition:Option[ErrorCondition.Value] = 
 			{
-				this.xml.child.find( (child) => Error.NAMESPACE == child.namespace && "text" != child.label ) match
+				this.xml.child.find( (child) => Error.namespace == child.namespace && "text" != child.label ) match
 				{
 					case Some(node) => 
 					{
@@ -117,9 +117,9 @@ package org.xmpp
 			
 			private def otherConditions:Option[Seq[String]] =
 			{
-				val conditions = mutable.ListBuffer[String]()			
-				xml.child.filter( (child) => Error.NAMESPACE != child.namespace).foreach(child => { conditions += child.label } )
-				if (conditions.isEmpty) None else Some(conditions)				
+				val conditions = mutable.ListBuffer[String]()
+				xml.child.filter( (child) => Error.namespace != child.namespace).foreach(child => { conditions += child.label } )
+				if (conditions.isEmpty) None else Some(conditions)
 			}
 			
 		}

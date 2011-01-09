@@ -10,14 +10,17 @@ package org.xmpp
 		
 		object Result
 		{
+			val kind = IQTypeEnumeration.Result
+			val kindName = kind.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]=None):Result = apply(build(id, to, from, extensions))
 			
 			def apply(xml:Node) = new Result(xml)
 			
-			def build(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]=None):Node = IQ.build(IQTypeEnumeration.Result, id, to, from, extensions)
+			def build(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]=None):Node = IQ.build(kind, id, to, from, extensions)
 		}
 		
-		class Result(xml:Node) extends IQ(xml, IQTypeEnumeration.Result)
+		class Result(xml:Node) extends IQ(xml, Result.kind)
 		{
 			/*
 			// getters

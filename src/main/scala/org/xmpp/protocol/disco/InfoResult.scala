@@ -11,17 +11,15 @@ package org.xmpp
 		
 		object InfoResult extends ExtendedStanzaBuilder[InfoResult]
 		{
-			val NAMESPACE = "http://jabber.org/protocol/disco#info"
-				
-			val kind = "result"
-			val name = Query.NAME
-			val namespace = NAMESPACE			
+			val kind = Result.kindName
+			val name = Query.name
+			val namespace = Info.namespace
 				
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], identify:Identity, features:Seq[Feature]):InfoResult = 
-			{				
-				val extension = Query(NAMESPACE, List(identify) ++ features)
+			{
+				val extension = Query(namespace, List(identify) ++ features)
 				val xml = Result.build(id, to, from, Some(List(extension)))
-				return apply(xml)	
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):InfoResult = new InfoResult(xml)

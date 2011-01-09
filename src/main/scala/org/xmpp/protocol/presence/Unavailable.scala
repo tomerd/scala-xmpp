@@ -10,16 +10,19 @@ package org.xmpp
 			
 		object Unavailable
 		{
+			val kind = PresenceTypeEnumeration.Unavailable
+			val kindName = kind.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Unavailable =
-			{					
-				val xml = Presence.build(PresenceTypeEnumeration.Unavailable, id, to, from, None, None, None, None)
+			{
+				val xml = Presence.build(kind, id, to, from, None, None, None, None)
 				return apply(xml)
 			}
 
 			def apply(xml:Node):Unavailable = new Unavailable(xml)
 		}
 		
-		class Unavailable(xml:Node) extends Presence(xml, PresenceTypeEnumeration.Unavailable)
+		class Unavailable(xml:Node) extends Presence(xml, Unavailable.kind)
 		{
 		}
 	}

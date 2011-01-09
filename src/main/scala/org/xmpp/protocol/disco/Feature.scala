@@ -11,12 +11,12 @@ package org.xmpp
 		
 		object Feature
 		{		
-			val TAG = "feature"
+			val tag = "feature"
 			
 			def apply(namespace:String):Feature = 
-			{				
+			{
 				val metadata = new UnprefixedAttribute("var", Text(namespace), Null)
-				return apply(Elem(null, TAG, metadata, TopScope))
+				return apply(Elem(null, tag, metadata, TopScope))
 			}
 			
 			def apply(xml:Node):Feature = new Feature(xml)

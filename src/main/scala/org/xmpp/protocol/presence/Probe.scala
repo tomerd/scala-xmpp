@@ -10,16 +10,19 @@ package org.xmpp
 			
 		object Probe
 		{
+			val kind = PresenceTypeEnumeration.Probe
+			val kindName = kind.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Probe =
 			{					
-				val xml = Presence.build(PresenceTypeEnumeration.Probe, id, to, from, None, None, None, None)
+				val xml = Presence.build(kind, id, to, from, None, None, None, None)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Probe = new Probe(xml)
 		}
 		
-		class Probe(xml:Node) extends Presence(xml, PresenceTypeEnumeration.Probe)
+		class Probe(xml:Node) extends Presence(xml, Probe.kind)
 		{
 		}
 	}

@@ -11,17 +11,15 @@ package org.xmpp
 		
 		object ItemsResult extends ExtendedStanzaBuilder[ItemsResult]
 		{
-			val NAMESPACE = "http://jabber.org/protocol/disco#items"
-				
-			val kind = "result"
-			val name = Query.NAME
-			val namespace = NAMESPACE			
-				
+			val kind = Result.kindName
+			val name = Query.name
+			val namespace = Items.namespace
+			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], items:Seq[Item]):ItemsResult = 
-			{				
-				val extension = Query(NAMESPACE, items)
+			{	
+				val extension = Query(namespace, items)
 				val xml = Result.build(id, to, from, Some(List(extension)))
-				return apply(xml)	
+				return apply(xml)
 			}
 			
 			def apply(xml:Node):ItemsResult = new ItemsResult(xml)

@@ -20,13 +20,13 @@ package org.xmpp
 			{				
 				(xml \ "@type").text match
 				{
-					// FIXME, use enum values instead of hard coded string here (getting compilation error. even with implicict cast)
-					case "get" => Get(xml) // IQTypeEnumeration.Get
-					case "set" => Set(xml) // IQTypeEnumeration.Set
-					case "result" => Result(xml) // IQTypeEnumeration.Result
-					case "error" => Error(xml) // IQTypeEnumeration.Error
+					// FIXME, use the enum values (attribute kind) instead of kindName, getting compilation error even with implicict cast
+					case Get.kindName => Get(xml) 
+					case Set.kindName => Set(xml)
+					case Result.kindName => Result(xml) 
+					case Error.kindName => Error(xml)
 					case _ => throw new Exception("unknown iq stanza") // TODO, give a more detailed error message here
-				}				
+				}
 			}
 		}
 		
