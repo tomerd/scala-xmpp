@@ -13,11 +13,12 @@ package org.xmpp
 		{
 			val tag = "identity"
 			
-			def apply(name:String, category:String, kind:String):Identity = 
+			def apply(category:String, kind:String, name:Option[String]):Identity = 
 			{
-				var metadata:MetaData = new UnprefixedAttribute("name", Text(name), Null)
-				metadata = metadata.append(new UnprefixedAttribute("category", Text(category), Null))
-				metadata = metadata.append(new UnprefixedAttribute("type", Text(kind), Null))				
+				var metadata:MetaData = new UnprefixedAttribute("category", Text(category), Null)
+				metadata = metadata.append(new UnprefixedAttribute("type", Text(kind), Null))
+				if (!name.isEmpty) metadata = metadata.append(new UnprefixedAttribute("name", Text(name.get), Null)) 
+				
 				return apply(Elem(null, tag, metadata, TopScope))
 			}
 			
