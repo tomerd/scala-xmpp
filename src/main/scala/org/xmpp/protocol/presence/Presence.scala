@@ -12,13 +12,13 @@ package org.xmpp
 		{
 			val TAG = "presence"
 						
-			def build(kind:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Node =
+			def build(kind:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Node =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!show.isEmpty) children += <show>{ show.get }</show>
 				if (!status.isEmpty) children += <status>{ status.get }</status>
 				if (!priority.isEmpty) children += <priority>{ priority.get }</priority>
-				if (!extensions.isEmpty) children ++= extensions.get
+				if (!extension.isEmpty) children ++= extension.get
 					
 				return Stanza.build(TAG, kind.toString, id, to, from, children)
 			}

@@ -19,9 +19,9 @@ package org.xmpp
 				
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String]):Normal = apply(id, to, from, subject, body, None, None)
 					
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Normal =
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):Normal =
 			{
-				val xml = Message.build(kind, id, to, from, subject, body, thread, extensions)
+				val xml = Message.build(kind, id, to, from, subject, body, thread, extension)
 				return apply(xml)
 			}
 			

@@ -19,8 +19,7 @@ package org.xmpp
 						
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], identify:Identity, features:Seq[Feature]):InfoResult = 
 			{
-				val extension = Query(namespace, List(identify) ++ features)
-				val xml = Result.build(id, to, from, Some(List(extension)))
+				val xml = Result.build(id, to, from, Query(namespace, List(identify) ++ features))
 				return apply(xml)
 			}
 			

@@ -18,8 +18,7 @@ package org.xmpp
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):RosterGet = 
 			{
-				val extension = Query(namespace)
-				val xml = Get.build(id, to, from, Some(List(extension)))
+				val xml = Get.build(id, to, from, Query(namespace))
 				return apply(xml)
 			}
 			

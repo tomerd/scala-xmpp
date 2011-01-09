@@ -10,7 +10,7 @@ package org.xmpp
 		
 		object IQFactory extends StanzaFactory[IQ]
 		{
-			// well known extensions
+			// well known extension
 			/* disco */
 			registerExtension(disco.Info)
 			registerExtension(disco.InfoResult)

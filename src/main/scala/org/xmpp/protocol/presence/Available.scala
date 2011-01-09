@@ -15,11 +15,11 @@ package org.xmpp
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Available = apply(id, to, from, None, None, None, None)
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Available = apply(id, to, from, None, None, None, extensions)
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]):Available = apply(id, to, from, None, None, None, extension)
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Available =
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Available =
 			{					
-				val xml = Presence.build(kind, id, to, from, show, status, priority, extensions)
+				val xml = Presence.build(kind, id, to, from, show, status, priority, extension)
 				return apply(xml)
 			}
 			

@@ -12,7 +12,7 @@ package org.xmpp
 		{
 			val TAG = "iq"
 									
-			def build(kind:IQTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Node = Stanza.build(TAG, kind.toString, id, to, from, extensions)
+			def build(kind:IQTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]):Node = Stanza.build(TAG, kind.toString, id, to, from, extension)
 			
 			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(TAG, id, to, from, condition, description)
 		}
