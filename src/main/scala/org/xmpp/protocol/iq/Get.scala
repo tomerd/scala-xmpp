@@ -10,13 +10,11 @@ package org.xmpp
 		
 		object Get
 		{
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Get = 
-			{				
-				val xml = IQ.build(IQTypeEnumeration.Get, id, to, from, extensions)
-				return apply(xml)	
-			}
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]=None):Get = apply(build(id, to, from, extensions)) 
 			
 			def apply(xml:Node):Get = new Get(xml)
+			
+			def build(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]=None):Node = IQ.build(IQTypeEnumeration.Get, id, to, from, extensions)
 		}
 		
 		class Get(xml:Node) extends IQ(xml, IQTypeEnumeration.Get)

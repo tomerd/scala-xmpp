@@ -10,21 +10,19 @@ package org.xmpp
 		
 		object MessageFactory extends StanzaFactory[Message]
 		{
-			def create(xml:Node):Option[Message] = 
+			def create(xml:Node):Message = 
 			{
-				xml match
+				(xml \ "@type").text match
 				{
-					// FIXME, handle other cases here
-					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.Normal.toString => Some(Normal(root))
-					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.Chat.toString => Some(Chat(root))
-					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.GroupChat.toString => Some(GroupChat(root))
-					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.Headline.toString => Some(Headline(root))
-					case root @ <message>{ extensions @ _* }</message> if (root \ "@type").text == MessageTypeEnumeration.Error.toString => Some(Error(root))								
-					case _ => None
-				}
+					// FIXME, use enum values instead of hard coded string here (getting compilation error. even with implicict cast)
+					case "normal" => Normal(xml) // MessageTypeEnumeration.Normal		
+					case "chat" => Chat(xml) // MessageTypeEnumeration.Chat
+					case "groupchat" => GroupChat(xml) // MessageTypeEnumeration.GroupChat				
+					case "headline" => Headline(xml) // MessageTypeEnumeration.Headline
+					case "error" => Error(xml) // MessageTypeEnumeration.Error
+					case _ => throw new Exception("unknown message stanza") // TODO, give a more detailed error message here
+				}			
 			}
-			
-			
 		}
 	}
 }

@@ -8,37 +8,70 @@ package org.xmpp
 		import org.xmpp.protocol.iq.IQFactory
 		import org.xmpp.protocol.presence.PresenceFactory
 		import org.xmpp.protocol.message.MessageFactory
-		
-		trait StanzaFactory[T <: Stanza]  
+				
+		trait ExtendedStanzaBuilder[T <: Stanza]
 		{
-			def create(xml:Node):Option[T]
+			val kind:String
+			val name:String
+			val namespace:String
+			def apply(xml:Node):T
 		}
-		
-		object StanzaFactory
+				
+		trait StanzaFactory[T <: Stanza]
 		{
-			// default factories
-			val factories = mutable.ListBuffer[StanzaFactory[_]](IQFactory, PresenceFactory, MessageFactory)
+			private val builders = mutable.ListBuffer[ExtendedStanzaBuilder[_]]()
+				
+			def create(xml:Node):T
 			
-			def registerFactory(factory:StanzaFactory[_])
+			final def registerExtension[E <: T](builder:ExtendedStanzaBuilder[E])
 			{
-				factories += factory
+				builders += builder
 			}
 			
-			def create(xml:Node):Stanza =
-			{			
-				val iterator = factories.iterator
+			final def createExtended(xml:Node):Option[T] =
+			{
+				if (0 == builders.length) return None
+				
+				val kind:String = (xml \ "@type").text
+				val iterator = xml.child.iterator
 				while (iterator.hasNext)
 				{
-					iterator.next.create(xml) match
+					val node = iterator.next
+					findBuilder(kind, node.label, node.namespace) match
 					{
-						case Some(s) => return s.asInstanceOf[Stanza]
+						case Some(builder) => return Some(builder.apply(xml).asInstanceOf[T])
 						case None => // continue
 					}
 				}
 				
-				throw new Exception("no registered factory was able to create a stanza of this xml")
+				return None
 			}
 			
+			private def findBuilder(kind:String, name:String, namesapce:String):Option[ExtendedStanzaBuilder[_]] = 
+			{
+				builders.find( builder => kind == builder.kind && name == builder.name && namesapce == builder.namespace )
+			}
+			
+		}
+		
+		object StanzaFactory
+		{		
+			def create(xml:Node):Stanza =
+			{			
+				val factory = xml match
+				{
+					case <iq>{ _* }</iq> => IQFactory
+					case <presence>{ _* }</presence> => PresenceFactory
+					case <message>{ _* }</message> => MessageFactory
+					case _ => throw new Exception("unknown stanza type, expected iq, presence or message")
+				}
+				
+				factory.createExtended(xml) match
+				{
+					case Some(stanza) => stanza
+					case None => factory.create(xml)
+				}
+			}
 		}
 	}
 }

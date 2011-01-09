@@ -10,16 +10,22 @@ package org.xmpp
 		
 		object IQFactory extends StanzaFactory[IQ]
 		{
-			def create(xml:Node):Option[IQ] =
-			{
-				xml match
+			// well known extensions
+			registerExtension(disco.Info)
+			registerExtension(disco.InfoResult)
+			registerExtension(disco.Items)
+			registerExtension(disco.ItemsResult)
+			
+			def create(xml:Node):IQ =
+			{				
+				(xml \ "@type").text match
 				{
-					// FIXME, handle other cases here
-					case root @ <iq>{ extensions @ _* }</iq> if (root \ "@type").text == IQTypeEnumeration.Get.toString => Some(Get(root))
-					case root @ <iq>{ extensions @ _* }</iq> if (root \ "@type").text == IQTypeEnumeration.Set.toString => Some(Set(root))
-					case root @ <iq>{ extensions @ _* }</iq> if (root \ "@type").text == IQTypeEnumeration.Result.toString => Some(Result(root))
-					case root @ <iq>{ extensions @ _* }</iq> if (root \ "@type").text == IQTypeEnumeration.Error.toString => Some(Error(root))
-					case _ => None
+					// FIXME, use enum values instead of hard coded string here (getting compilation error. even with implicict cast)
+					case "get" => Get(xml) // IQTypeEnumeration.Get
+					case "set" => Set(xml) // IQTypeEnumeration.Set
+					case "result" => Result(xml) // IQTypeEnumeration.Result
+					case "error" => Error(xml) // IQTypeEnumeration.Error
+					case _ => throw new Exception("unknown iq stanza") // TODO, give a more detailed error message here
 				}				
 			}
 		}

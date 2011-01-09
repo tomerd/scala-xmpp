@@ -10,13 +10,11 @@ package org.xmpp
 		
 		object Set
 		{
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Set = 
-			{				
-				val xml = IQ.build(IQTypeEnumeration.Set, id, to, from, extensions)
-				return apply(xml)	
-			}
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]=None):Set = apply(build(id, to, from, extensions)) 
 			
 			def apply(xml:Node):Set = new Set(xml)
+			
+			def build(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]=None):Node = IQ.build(IQTypeEnumeration.Set, id, to, from, extensions)
 		}
 		
 		class Set(xml:Node) extends IQ(xml, IQTypeEnumeration.Set)

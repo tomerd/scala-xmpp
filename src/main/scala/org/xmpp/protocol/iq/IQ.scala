@@ -26,7 +26,7 @@ package org.xmpp
 			//def error(condition:ErrorCondition.Value, description:Option[String]=None):IQ = IQ.error(this.id, this.from, this.to, condition, description)
 		}
 				
-		protected object IQTypeEnumeration extends Enumeration
+		object IQTypeEnumeration extends Enumeration
 		{
 			type value = Value
 			

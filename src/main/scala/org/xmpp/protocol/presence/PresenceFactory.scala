@@ -10,20 +10,20 @@ package org.xmpp
 			
 		object PresenceFactory extends StanzaFactory[Presence]
 		{
-			def create(xml:Node):Option[Presence] = 
+			def create(xml:Node):Presence = 
 			{
-				xml match
+				(xml \ "@type").text match
 				{
-					// FIXME, handle other cases here
-					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Available.toString => Some(Available(root))
-					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Unavailable.toString => Some(Unavailable(root))
-					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Subscribe.toString => Some(Subscribe(root))
-					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Subscribed.toString => Some(Subscribed(root))
-					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Unsubscribe.toString => Some(Unsubscribe(root))
-					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Unsubscribed.toString => Some(Unsubscribed(root))
-					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Probe.toString => Some(Probe(root))
-					case root @ <presence>{ extensions @ _* }</presence> if (root \ "@type").text == PresenceTypeEnumeration.Error.toString => Some(Error(root))
-					case _ => None			
+					// FIXME, use enum values instead of hard coded string here (getting compilation error. even with implicict cast)
+					case "" => Available(xml) // PresenceTypeEnumeration.Available
+					case "unavailable" => Unavailable(xml) // PresenceTypeEnumeration.Unavailable					
+					case "subscribe" => Subscribe(xml) // PresenceTypeEnumeration.Subscribe
+					case "subscribed" => Subscribed(xml) // PresenceTypeEnumeration.Subscribed					
+					case "unsubscribe" => Unsubscribe(xml) // PresenceTypeEnumeration.Unsubscribe
+					case "unsubscribed" => Unsubscribed(xml) // PresenceTypeEnumeration.Unsubscribed
+					case "probe" => Probe(xml) // PresenceTypeEnumeration.Probe
+					case "error" => Error(xml) // PresenceTypeEnumeration.Error
+					case _ => throw new Exception("unknown presence stanza") // TODO, give a more detailed error message here
 				}
 			}
 		}

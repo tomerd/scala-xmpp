@@ -22,7 +22,7 @@ package org.xmpp
 				return apply(xml)
 			}
 			
-			def apply(xml:Node):Message = MessageFactory.create(xml).get
+			def apply(xml:Node):Message = MessageFactory.create(xml)
 						
 			def build(kind:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Node =
 			{

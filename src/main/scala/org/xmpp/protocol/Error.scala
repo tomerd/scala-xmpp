@@ -16,8 +16,9 @@ package org.xmpp
 			{
 				import org.xmpp.protocol.ErrorCondition._
 
-				val children = mutable.ListBuffer[Node]()
-				children += Elem(null, condition.toString, new UnprefixedAttribute("xmlns", Text(NAMESPACE), Null), TopScope)
+				val children = mutable.ListBuffer[Node]()						
+				// TODO: test the namespace
+				children += Elem(null, condition.toString, Null, new NamespaceBinding(null, NAMESPACE, TopScope))				
 				if (!otherConditions.isEmpty) otherConditions.foreach( condition => { children += Elem(null, condition.toString, Null, TopScope) } )
 				if (!description.isEmpty) children += <text xmlns={ NAMESPACE } xml:lang="en">{ description.get }</text>
 				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.kind.toString), Null)
