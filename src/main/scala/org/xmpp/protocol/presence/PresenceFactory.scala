@@ -12,6 +12,8 @@ package org.xmpp
 		{
 			def create(xml:Node):Presence = 
 			{
+				require("presence" == xml.label)
+				
 				(xml \ "@type").text match
 				{
 					// FIXME, use the enum values (attribute kind) instead of kindName, getting compilation error even with implicict cast
