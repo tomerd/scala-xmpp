@@ -25,7 +25,8 @@ package org.xmpp
 			implicit def wrapper2opt(wrapper:XmlWrapper):Option[XmlWrapper] = if (null != wrapper) Some(wrapper) else None
 			implicit def metadata2opt(metadata:MetaData):Option[MetaData] = if ((null != metadata) && (Null != metadata)) Some(metadata) else None
 			implicit def seqwrapper2opt(seq:Seq[XmlWrapper]):Option[Seq[XmlWrapper]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None
-			implicit def wrapper2optseq(wrapper:XmlWrapper):Option[Seq[XmlWrapper]] = if (null != wrapper) Some(List(wrapper)) else None
+			implicit def wrapper2optseq(wrapper:XmlWrapper):Option[Seq[XmlWrapper]] = if (null != wrapper) Some(List(wrapper)) else None			
+			implicit def seqext2optseqext(seq:Seq[Extension]):Option[Seq[Extension]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None // not sure why this one is required and the wrapper one is not enough
 			implicit def wrapper2optseqnode(wrapper:XmlWrapper):Option[Seq[Node]] = if (null != wrapper) Some(List(wrapper)) else None
 			implicit def optwrapper2optseqnode(optwrapper:Option[XmlWrapper]):Option[Seq[Node]] = if (!optwrapper.isEmpty) Some(List(optwrapper.get)) else None
 			implicit def seqwrapper2optseqnode(seq:Seq[XmlWrapper]):Option[Seq[Node]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None

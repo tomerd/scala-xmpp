@@ -7,6 +7,7 @@ package org.xmpp
 		
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.iq._
+		
 		import org.xmpp.protocol.Protocol._
 		
 		object Info extends ExtendedStanzaBuilder[Info]

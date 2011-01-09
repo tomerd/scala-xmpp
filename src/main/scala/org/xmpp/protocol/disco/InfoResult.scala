@@ -15,6 +15,8 @@ package org.xmpp
 			val name = Query.name
 			val namespace = Info.namespace
 				
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], identify:Identity, feature:Feature):InfoResult = apply(id, to, from, identify, List(feature)) 
+						
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], identify:Identity, features:Seq[Feature]):InfoResult = 
 			{
 				val extension = Query(namespace, List(identify) ++ features)
