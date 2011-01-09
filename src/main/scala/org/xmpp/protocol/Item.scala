@@ -14,7 +14,7 @@ package org.xmpp
 			
 			def apply(xml:Node):Item = new Item(xml)
 			
-			def build(attributes:MetaData, children:Seq[Node]):Node = Elem(null, TAG, attributes, TopScope, children:_*)
+			def build(attributes:MetaData, children:Seq[Node]):Node = Elem(null, tag, attributes, TopScope, children:_*)
 			
 			def build(attributes:Seq[Tuple2[String, String]]):Node = 
 			{
