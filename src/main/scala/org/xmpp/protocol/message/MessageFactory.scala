@@ -6,10 +6,16 @@ package org.xmpp
 		import scala.xml._
 		
 		import org.xmpp.protocol._
+		import org.xmpp.protocol.extensions._
+		
 		import org.xmpp.protocol.Protocol._
 		
 		object MessageFactory extends StanzaFactory[Message]
 		{
+			// well known extension
+			/* forms */
+			registerExtension(forms.FormFactory)
+			
 			def create(xml:Node):Message = 
 			{		
 				require("message" == xml.label)

@@ -13,6 +13,7 @@ package org.xmpp
 		object Protocol
 		{			
 			implicit def string2opt(string:String):Option[String] = if ((null != string) && (!string.isEmpty)) Some(string) else None
+			implicit def seqstring2optseqstring(seq:Seq[String]):Option[Seq[String]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None
 			implicit def jid2opt(jid:JID):Option[JID] = if (null != jid) Some(jid) else None		
 			
 			implicit def metadata2opt(metadata:MetaData):Option[MetaData] = if ((null != metadata) && (Null != metadata)) Some(metadata) else None
