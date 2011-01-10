@@ -30,14 +30,9 @@ package org.xmpp
 		
 		class Extension(xml:Node) extends XmlWrapper(xml)
 		{					
-			// getters
 			val name:String =  this.xml.label
 			
-			val namespace:Option[String] = 
-			{
-				val namespace = this.xml.scope.uri
-				if ((null != namespace) && !namespace.isEmpty) Some(namespace) else None
-			}
+			val namespace:Option[String] = this.xml.scope.uri 			
 		}
 	}
 }

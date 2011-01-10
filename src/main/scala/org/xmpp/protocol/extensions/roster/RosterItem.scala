@@ -18,7 +18,7 @@ package org.xmpp
 			
 			def apply(jid:JID, name:Option[String], subscription:Option[ItemSubscription.Value], ask:Option[ItemAsk.Value], groups:Option[Seq[String]]):RosterItem = apply(build(jid, name, subscription, ask, groups))
 			
-			def apply(xml:Node) = new RosterItem(xml)
+			def apply(xml:Node):RosterItem = new RosterItem(xml)
 			
 			def build(jid:JID, name:Option[String], subscrption:Option[ItemSubscription.Value], ask:Option[ItemAsk.Value], groups:Option[Seq[String]]):Node =
 			{
@@ -37,11 +37,7 @@ package org.xmpp
 			// getters		
 			val jid:JID = (this.xml \ "@jid").text		
 			
-			val name:Option[String] = 
-			{
-				val name = (this.xml \ "@name").text
-				if (name.isEmpty) None else Some(name)
-			}
+			val name:Option[String] = (this.xml \ "@name").text
 			
 			val subscrption:Option[ItemSubscription.Value] = 
 			{
@@ -58,7 +54,7 @@ package org.xmpp
 			val groups:Option[Seq[String]] = 
 			{
 				val groupNodes = (this.xml \ "group")
-				if (0 == groupNodes.length) None else Some( groupNodes.map( node => node.label ) )				
+				if (0 == groupNodes.length) None else Some( groupNodes.map( node => node.label ) )
 			}
 		}
 		

@@ -16,12 +16,12 @@ package org.xmpp
 				
 				(xml \ "@type").text match
 				{					  
-					// FIXME, use the enum values (attribute kind) instead of kindName, getting compilation error even with implicict cast
-					case Normal.kindName => Normal(xml) 
-					case Chat.kindName => Chat(xml) 
-					case GroupChat.kindName => GroupChat(xml) 
-					case Headline.kindName => Headline(xml) 
-					case Error.kindName => Error(xml) 
+					// FIXME, use the enum values (attribute stanzaType) instead of stanzaTypeName, getting compilation error even with implicict cast
+					case Normal.stanzaTypeName => Normal(xml) 
+					case Chat.stanzaTypeName => Chat(xml) 
+					case GroupChat.stanzaTypeName => GroupChat(xml) 
+					case Headline.stanzaTypeName => Headline(xml) 
+					case Error.stanzaTypeName => Error(xml) 
 					case _ => throw new Exception("unknown message stanza") // TODO, give a more detailed error message here
 				}
 			}

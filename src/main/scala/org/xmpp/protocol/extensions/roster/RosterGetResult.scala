@@ -7,12 +7,13 @@ package org.xmpp
 		
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.iq._
+		import org.xmpp.protocol.extensions._
 		
 		import org.xmpp.protocol.Protocol._
 		
 		object RosterGetResult extends ExtendedStanzaBuilder[RosterGetResult]
 		{
-			val kind = Result.kindName
+			val stanzaType = Result.stanzaTypeName
 			val name = Query.name
 			val namespace = RosterGet.namespace
 			
@@ -27,7 +28,6 @@ package org.xmpp
 		
 		class RosterGetResult(xml:Node) extends Result(xml)
 		{
-			// getters
 			val items:Seq[RosterItem] = (this.xml \ "item").map( node => RosterItem(node) )
 		}
 	}

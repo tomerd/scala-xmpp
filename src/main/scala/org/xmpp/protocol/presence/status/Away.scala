@@ -12,7 +12,7 @@ package org.xmpp
 		{
 			def apply():Away =
 			{
-				val xml = Stanza.build(Presence.TAG)
+				val xml = Stanza.build(Presence.tag)
 				return apply(xml)
 			}
 			

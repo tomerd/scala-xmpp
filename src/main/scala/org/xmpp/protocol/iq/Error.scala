@@ -10,8 +10,8 @@ package org.xmpp
 		
 		object Error
 		{
-			val kind = IQTypeEnumeration.Error
-			val kindName = kind.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val stanzaType = IQTypeEnumeration.Error
+			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]=None):Error =
 			{
@@ -22,7 +22,7 @@ package org.xmpp
 			def apply(xml:Node):Error = new Error(xml)
 		}
 		
-		class Error(xml:Node) extends IQ(xml, Error.kind)
+		class Error(xml:Node) extends IQ(xml, Error.stanzaType)
 		{
 		}
 	}

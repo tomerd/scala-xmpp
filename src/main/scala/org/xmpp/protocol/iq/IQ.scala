@@ -10,20 +10,15 @@ package org.xmpp
 		
 		protected object IQ
 		{
-			val TAG = "iq"
+			val tag = "iq"
 									
-			def build(kind:IQTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]):Node = Stanza.build(TAG, kind.toString, id, to, from, extension)
+			def build(stanzaType:IQTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]):Node = Stanza.build(tag, stanzaType.toString, id, to, from, extension)
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(TAG, id, to, from, condition, description)
+			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(tag, id, to, from, condition, description)
 		}
 		
-		abstract class IQ(xml:Node, val kind:IQTypeEnumeration.Value) extends Stanza(xml)
+		abstract class IQ(xml:Node, val stanzaType:IQTypeEnumeration.Value) extends Stanza(xml)
 		{
-			//val TypeEnumeration = IQTypeEnumeration
-						
-			//def result:IQResult = new IQResult(this.id, this.to, this.from, Some(IQTypeEnumeration.Result), None)
-			
-			//def error(condition:ErrorCondition.Value, description:Option[String]=None):IQ = IQ.error(this.id, this.from, this.to, condition, description)
 		}
 				
 		object IQTypeEnumeration extends Enumeration

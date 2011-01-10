@@ -10,19 +10,19 @@ package org.xmpp
 			
 		object Subscribed
 		{
-			val kind = PresenceTypeEnumeration.Subscribed
-			val kindName = kind.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val stanzaType = PresenceTypeEnumeration.Subscribed
+			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Subscribed =
 			{
-				val xml = Presence.build(kind, id, to, from, None, None, None, None)
+				val xml = Presence.build(stanzaType, id, to, from, None, None, None, None)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Subscribed = new Subscribed(xml)
 		}
 		
-		class Subscribed(xml:Node) extends Presence(xml, Subscribed.kind)
+		class Subscribed(xml:Node) extends Presence(xml, Subscribed.stanzaType)
 		{
 		}
 	}

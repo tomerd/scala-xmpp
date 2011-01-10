@@ -10,8 +10,8 @@ package org.xmpp
 				
 		object Normal
 		{
-			val kind = MessageTypeEnumeration.Normal
-			val kindName = kind.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val stanzaType = MessageTypeEnumeration.Normal
+			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(to:Option[JID], from:Option[JID], body:Option[String]):Normal = apply(None, to, from, None, body, None, None)
 			
@@ -21,14 +21,14 @@ package org.xmpp
 					
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):Normal =
 			{
-				val xml = Message.build(kind, id, to, from, subject, body, thread, extension)
+				val xml = Message.build(stanzaType, id, to, from, subject, body, thread, extension)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Normal = new Normal(xml)
 		}
 		
-		class Normal(xml:Node) extends Message(xml, Normal.kind)
+		class Normal(xml:Node) extends Message(xml, Normal.stanzaType)
 		{
 		}
 		

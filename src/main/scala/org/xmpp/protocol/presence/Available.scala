@@ -10,8 +10,8 @@ package org.xmpp
 			
 		object Available
 		{
-			val kind = PresenceTypeEnumeration.Available
-			val kindName = kind.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val stanzaType = PresenceTypeEnumeration.Available
+			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Available = apply(id, to, from, None, None, None, None)
 			
@@ -19,14 +19,14 @@ package org.xmpp
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Available =
 			{					
-				val xml = Presence.build(kind, id, to, from, show, status, priority, extension)
+				val xml = Presence.build(stanzaType, id, to, from, show, status, priority, extension)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Available = new Available(xml)
 		}
 		
-		class Available(xml:Node) extends Presence(xml, Available.kind)
+		class Available(xml:Node) extends Presence(xml, Available.stanzaType)
 		{
 			// getters
 			val show:Option[Show.Value] = 

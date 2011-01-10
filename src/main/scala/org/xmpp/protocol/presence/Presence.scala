@@ -10,9 +10,9 @@ package org.xmpp
 					
 		protected object Presence
 		{
-			val TAG = "presence"
+			val tag = "presence"
 						
-			def build(kind:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Node =
+			def build(stanzaType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Node =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!show.isEmpty) children += <show>{ show.get }</show>
@@ -20,16 +20,14 @@ package org.xmpp
 				if (!priority.isEmpty) children += <priority>{ priority.get }</priority>
 				if (!extension.isEmpty) children ++= extension.get
 					
-				return Stanza.build(TAG, kind.toString, id, to, from, children)
+				return Stanza.build(tag, stanzaType.toString, id, to, from, children)
 			}
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(TAG, id, to, from, condition, description)
+			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(tag, id, to, from, condition, description)
 		}
 		
-		abstract class Presence(xml:Node, val kind:PresenceTypeEnumeration.Value) extends Stanza(xml)
+		abstract class Presence(xml:Node, val stanzaType:PresenceTypeEnumeration.Value) extends Stanza(xml)
 		{
-			//val TypeEnumeration = PresenceTypeEnumeration
-			
 			def error(condition:ErrorCondition.Value, description:Option[String]=None):Error = Error(this.id, this.from, this.to, condition, description)
 		}
 		

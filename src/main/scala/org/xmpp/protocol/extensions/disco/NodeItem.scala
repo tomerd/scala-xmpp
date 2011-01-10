@@ -11,9 +11,9 @@ package org.xmpp
 		
 		object NodeItem
 		{			
-			def apply(jid:JID, node:String, name:Option[String]=None):Node = apply(build(jid, node, name))
+			def apply(jid:JID, node:String, name:Option[String]=None):NodeItem = apply(build(jid, node, name))
 			
-			def apply(xml:Node) = new NodeItem(xml)
+			def apply(xml:Node):NodeItem = new NodeItem(xml)
 			
 			def build(jid:JID, node:String, name:Option[String]):Node =
 			{
@@ -25,18 +25,13 @@ package org.xmpp
 		}
 		
 		class NodeItem(xml:Node) extends Item(xml)
-		{			
-			// getters			
+		{
 			val jid:JID = (this.xml \ "@jid").text
-
+			
 			val node:String = (this.xml \ "@node").text
 			
-			val name:Option[String] = 
-			{
-				val name = (this.xml \ "@name").text
-				if (name.isEmpty) None else Some(name)
-			}
+			val name:Option[String] = (this.xml \ "@name").text
 		}
-				
+		
 	}
 }

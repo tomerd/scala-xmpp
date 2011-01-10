@@ -7,11 +7,13 @@ package org.xmpp
 		
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.iq._
+		import org.xmpp.protocol.extensions._
+		
 		import org.xmpp.protocol.Protocol._
 		
 		object InfoResult extends ExtendedStanzaBuilder[InfoResult]
 		{
-			val kind = Result.kindName
+			val stanzaType = Result.stanzaTypeName
 			val name = Query.name
 			val namespace = Info.namespace
 						
@@ -29,6 +31,7 @@ package org.xmpp
 		
 		class InfoResult(xml:Node) extends Result(xml)
 		{
+			val node:Option[String] = (this.xml \ "@node").text
 		}
 		
 	}

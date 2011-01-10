@@ -11,7 +11,7 @@ package org.xmpp
 				
 		trait ExtendedStanzaBuilder[T <: Stanza]
 		{
-			val kind:String
+			val stanzaType:String
 			val name:String
 			val namespace:String
 			def apply(xml:Node):T
@@ -32,12 +32,12 @@ package org.xmpp
 			{
 				if (0 == builders.length) return None
 				
-				val kind:String = (xml \ "@type").text
+				val stanzaType:String = (xml \ "@type").text
 				val iterator = xml.child.iterator
 				while (iterator.hasNext)
 				{
 					val node = iterator.next
-					findBuilder(kind, node.label, node.namespace) match
+					findBuilder(stanzaType, node.label, node.namespace) match
 					{
 						case Some(builder) => return Some(builder.apply(xml).asInstanceOf[T])
 						case None => // continue
@@ -47,9 +47,9 @@ package org.xmpp
 				return None
 			}
 			
-			private def findBuilder(kind:String, name:String, namesapce:String):Option[ExtendedStanzaBuilder[_]] = 
+			private def findBuilder(stanzaType:String, name:String, namesapce:String):Option[ExtendedStanzaBuilder[_]] = 
 			{
-				builders.find( builder => kind == builder.kind && name == builder.name && namesapce == builder.namespace )
+				builders.find( builder => stanzaType == builder.stanzaType && name == builder.name && namesapce == builder.namespace )
 			}
 			
 		}

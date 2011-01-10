@@ -7,12 +7,13 @@ package org.xmpp
 		
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.iq._
+		import org.xmpp.protocol.extensions._
 		
 		import org.xmpp.protocol.Protocol._
 		
 		object RosterGet extends ExtendedStanzaBuilder[RosterGet]
 		{			
-			val kind = Get.kindName
+			val stanzaType = Get.stanzaTypeName
 			val name = Query.name
 			val namespace = "jabber:iq:roster"
 			

@@ -21,7 +21,7 @@ package org.xmpp
 				children += Elem(null, condition.toString, Null, new NamespaceBinding(null, namespace, TopScope))				
 				if (!otherConditions.isEmpty) otherConditions.foreach( condition => { children += Elem(null, condition.toString, Null, TopScope) } )
 				if (!description.isEmpty) children += <text xmlns={ namespace } xml:lang="en">{ description.get }</text>
-				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.kind.toString), Null)
+				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.errorType.toString), Null)
 						
 				return new Error(Elem(null, tag, attributes, TopScope, children:_*))
 			}
@@ -32,10 +32,10 @@ package org.xmpp
 		protected class Error(xml:Node) extends XmlWrapper(xml)
 		{				
 			// getters
-			val kind:Option[ErrorType.Value] = 
+			val errorType:Option[ErrorType.Value] = 
 			{
-				val kind = (this.xml \ "@type").text
-				if (kind.isEmpty) None else Some(ErrorType.withName(kind))
+				val errorType = (this.xml \ "@type").text
+				if (errorType.isEmpty) None else Some(ErrorType.withName(errorType))
 			}
 			
 			val condition:Option[ErrorCondition.Value] = 
@@ -61,11 +61,7 @@ package org.xmpp
 				}
 			}
 			
-			val description:Option[String] = 
-			{
-				val description = (this.xml \ "text").text
-				if (description.isEmpty) None else Some(description)
-			}
+			val description:Option[String] = (this.xml \ "text").text 
 			
 			val otherConditions:Option[Seq[String]] =
 			{
@@ -107,7 +103,7 @@ package org.xmpp
 			def fromString(string:String):Option[ErrorCondition.Value] = values.find((value) => value.name.equals(string.toLowerCase))
 			def fromLegacyCode(code:Int):Option[ErrorCondition.Value] = values.find((value) => value.legacyCode.equals(code))
 			
-			case class Condition(name:String, val kind:ErrorType.Value, val legacyCode:Int) extends Val(name)
+			case class Condition(name:String, val errorType:ErrorType.Value, val legacyCode:Int) extends Val(name)
 			
 			implicit def valueToCondition(value:Value):Condition = value.asInstanceOf[Condition]
 		}

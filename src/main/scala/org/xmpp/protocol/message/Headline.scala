@@ -10,8 +10,8 @@ package org.xmpp
 		
 		object Headline
 		{
-			val kind = MessageTypeEnumeration.Headline
-			val kindName = kind.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson			
+			val stanzaType = MessageTypeEnumeration.Headline
+			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson			
 			
 			def apply(to:Option[JID], from:Option[JID], body:Option[String]):Headline = apply(None, to, from, None, body, None, None)
 			
@@ -21,14 +21,14 @@ package org.xmpp
 					
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):Headline =
 			{
-				val xml = Message.build(kind, id, to, from, subject, body, thread, extension)
+				val xml = Message.build(stanzaType, id, to, from, subject, body, thread, extension)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Headline = new Headline(xml)
 		}
 		
-		class Headline(xml:Node) extends Message(xml, Headline.kind)
+		class Headline(xml:Node) extends Message(xml, Headline.stanzaType)
 		{
 		}
 		

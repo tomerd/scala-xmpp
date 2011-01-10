@@ -28,8 +28,7 @@ package org.xmpp
 								
 			def build(name:String):Node = build(name, null, None, None, None)
 				
-			// TODO, find a better solution for the type attribute than Any
-			def build(name:String, kind:String, id:Option[String], to:Option[JID], from:Option[JID], children:Option[Seq[Node]]=None):Node = 
+			def build(name:String, stanzaType:String, id:Option[String], to:Option[JID], from:Option[JID], children:Option[Seq[Node]]=None):Node = 
 			{
 				val kids:Seq[Node] = if (!children.isEmpty) children.get else null
 				//if (!extension.isEmpty) children += extension.get
@@ -37,7 +36,7 @@ package org.xmpp
 				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
 				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
 				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
-				if (null != kind && !kind.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(kind), Null))
+				if (null != stanzaType && !stanzaType.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(stanzaType), Null))
 				
 				return Elem(null, name, metadata, TopScope, kids:_*)
 			}
@@ -54,12 +53,8 @@ package org.xmpp
 		
 		abstract class Stanza(xml:Node) extends XmlWrapper(xml)
 		{
-			val id:Option[String] = 
-			{
-				val id = (this.xml \ "@id").text
-				if (id.isEmpty) None else Some(id)
-			}
-					
+			val id:Option[String] = (this.xml \ "@id").text 
+								
 			val to:Option[JID] = 
 			{
 				val to = (this.xml \ "@to").text

@@ -5,13 +5,15 @@ package org.xmpp
 		import scala.collection._
 		import scala.xml._
 		
-		import org.xmpp.protocol._
+		import org.xmpp.protocol._		
 		import org.xmpp.protocol.iq._
+		import org.xmpp.protocol.extensions._
+		
 		import org.xmpp.protocol.Protocol._
 		
 		object ItemsResult extends ExtendedStanzaBuilder[ItemsResult]
 		{
-			val kind = Result.kindName
+			val stanzaType = Result.stanzaTypeName
 			val name = Query.name
 			val namespace = Items.namespace
 			
@@ -29,7 +31,8 @@ package org.xmpp
 		
 		class ItemsResult(xml:Node) extends Result(xml)
 		{
-			// getters
+			val node:Option[String] = (this.xml \ "@node").text
+			
 			val items:Seq[Item] = (this.xml \ "item").map( node => Item(node) )
 		}
 		

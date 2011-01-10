@@ -7,12 +7,13 @@ package org.xmpp
 		
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.iq._
+		import org.xmpp.protocol.extensions._
 		
 		import org.xmpp.protocol.Protocol._
 		
 		object Info extends ExtendedStanzaBuilder[Info]
 		{
-			val kind = Get.kindName
+			val stanzaType = Get.stanzaTypeName
 			val name = Query.name
 			val namespace = "http://jabber.org/protocol/disco#info"
 			
@@ -28,11 +29,7 @@ package org.xmpp
 		
 		class Info(xml:Node) extends Get(xml)
 		{
-			val node:Option[String] = 
-			{
-				val node = (this.xml \ "@node").text
-				if (node.isEmpty) None else Some(node)
-			}
+			val node:Option[String] = (this.xml \ "@node").text
 			
 			def result(identity:Identity, feature:Feature):InfoResult = InfoResult(this.id, this.from, this.to, this.node, List(identity), List(feature))
 			

@@ -13,9 +13,9 @@ package org.xmpp
 		{		
 			val tag = "feature"
 			
-			def apply(namespace:String):Feature = 
+			def apply(identifier:String):Feature = 
 			{
-				val metadata = new UnprefixedAttribute("var", Text(namespace), Null)
+				val metadata = new UnprefixedAttribute("var", Text(identifier), Null)
 				return apply(Elem(null, tag, metadata, TopScope))
 			}
 			
@@ -24,6 +24,7 @@ package org.xmpp
 		
 		class Feature(xml:Node) extends XmlWrapper(xml)
 		{
+			val identifier:String = (this.xml \ "@var").text
 		}
 	}
 }
