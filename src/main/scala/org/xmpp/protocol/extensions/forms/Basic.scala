@@ -5,13 +5,12 @@ package org.xmpp
 		import scala.collection._
 		import scala.xml._
 		
-		import org.xmpp.protocol._
-		import org.xmpp.protocol.message._
-		import org.xmpp.protocol.extensions._
+		import org.xmpp.protocol._		
+		import org.xmpp.protocol.extensions.forms.fields._
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object Basic 
+		object Basic
 		{
 			val formType = FormTypeEnumeration.Form
 			val formTypeName = formType.toString
