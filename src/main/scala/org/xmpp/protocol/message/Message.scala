@@ -41,47 +41,20 @@ package org.xmpp
 		
 		abstract class Message(xml:Node, val kind:MessageTypeEnumeration.Value) extends Stanza(xml)
 		{			
-			//val TypeEnumeration = MessageTypeEnumeration
-			
 			// getters
-			/*
-			private var _subject:Option[String] = None
-			def subject:Option[String] = _subject
-			
-			private var _body:Option[String] = None
-			def body:Option[String] = _body
-			
-			private var _thread:Option[String] = None
-			def thread:Option[String] = _thread
-			
-			override protected def parse
-			{
-				super.parse
-				
-				val subject = (this.xml \ "subject").text
-				_subject = if (subject.isEmpty) None else Some(subject)
-				
-				val body = (this.xml \ "body").text
-				_body = if (body.isEmpty) None else Some(body)
-				
-				val thread = (this.xml \ "thread").text
-				_thread = if (thread.isEmpty) None else Some(thread)
-			}
-			*/
-			
-			def subject:Option[String] = 
+			val subject:Option[String] = 
 			{
 				val subject = (this.xml \ "subject").text
 				if (subject.isEmpty) None else Some(subject)
 			}
 			
-			def body:Option[String] = 
+			val body:Option[String] = 
 			{
 				val body = (this.xml \ "body").text
 				if (body.isEmpty) None else Some(body)
 			}
 			
-			def thread:Option[String] = 
+			val thread:Option[String] = 
 			{
 				val thread = (this.xml \ "thread").text
 				if (thread.isEmpty) None else Some(thread)

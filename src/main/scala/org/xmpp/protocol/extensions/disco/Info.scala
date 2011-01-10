@@ -16,9 +16,10 @@ package org.xmpp
 			val name = Query.name
 			val namespace = "http://jabber.org/protocol/disco#info"
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Info = 
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], node:Option[String]=None):Info = 
 			{
-				val xml = Get.build(id, to, from, Query(namespace))
+				val attributes:MetaData = if (!node.isEmpty) new UnprefixedAttribute("node", Text(node.get), Null) else Null
+				val xml = Get.build(id, to, from, Query(namespace, attributes))
 				return apply(xml)
 			}
 			
@@ -27,9 +28,17 @@ package org.xmpp
 		
 		class Info(xml:Node) extends Get(xml)
 		{
-			def result(identity:Identity, feature:Feature):InfoResult = InfoResult(this.id, this.from, this.to, List(identity), List(feature))
-			def result(identity:Identity, features:Seq[Feature]):InfoResult = InfoResult(this.id, this.from, this.to, List(identity), features)
-			def result(identities:Seq[Identity], features:Seq[Feature]):InfoResult = InfoResult(this.id, this.from, this.to, identities, features)
+			val node:Option[String] = 
+			{
+				val node = (this.xml \ "@node").text
+				if (node.isEmpty) None else Some(node)
+			}
+			
+			def result(identity:Identity, feature:Feature):InfoResult = InfoResult(this.id, this.from, this.to, this.node, List(identity), List(feature))
+			
+			def result(identity:Identity, features:Seq[Feature]):InfoResult = InfoResult(this.id, this.from, this.to, this.node, List(identity), features)
+			
+			def result(identities:Seq[Identity], features:Seq[Feature]):InfoResult = InfoResult(this.id, this.from, this.to, this.node, identities, features)
 		}
 		
 	}

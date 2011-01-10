@@ -12,9 +12,13 @@ package org.xmpp
 		{
 			def name = "query"
 			
-			def apply(namespace:String):Query = apply(Extension.build(name, namespace))
+			def apply(namespace:String):Query = apply(namespace, Null, Nil)
 			
-			def apply(namespace:String, children:Option[Seq[Node]]):Query = apply(Extension.build(name, namespace, None, children))
+			def apply(namespace:String, children:Seq[Node]):Query = apply(namespace, Null, children)
+			
+			def apply(namespace:String, attributes:MetaData):Query = apply(namespace, attributes, Nil)
+			
+			def apply(namespace:String, attributes:MetaData, children:Seq[Node]):Query = apply(Extension.build(name, namespace, attributes, children))
 			
 			def apply(xml:Node):Query = new Query(xml)
 		}

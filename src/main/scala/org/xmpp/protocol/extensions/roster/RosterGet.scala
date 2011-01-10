@@ -27,7 +27,7 @@ package org.xmpp
 		
 		class RosterGet(xml:Node) extends Get(xml)
 		{
-			def result(items:Seq[Item]):RosterGetResult = RosterGetResult(this.id, this.from, this.to, items)
+			def result(items:Seq[RosterItem]):RosterGetResult = RosterGetResult(this.id, this.from, this.to, items)
 		}
 		
 	}

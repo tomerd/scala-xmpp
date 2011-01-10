@@ -6,15 +6,7 @@ package org.xmpp
 		import scala.xml._
 
 		abstract class XmlWrapper(val xml:Node)
-		{	
-			/*
-			parse
-			
-			protected def parse
-			{				
-			}
-			*/
-			
+		{				
 			override def toString = xml.toString			
 		}
 			
@@ -57,10 +49,18 @@ package org.xmpp
 					}
 				}
 			}
+			
+			implicit def tuples2metadata(tuple:Tuple2[String, String]):MetaData = new UnprefixedAttribute(tuple._1, Text(tuple._2), Null)			
+			implicit def seqtuples2metadata(tuples:Seq[Tuple2[String, String]]):MetaData = 
+			{
+				var metadata:MetaData = Null
+				tuples.foreach( tuple => metadata = metadata.append(new UnprefixedAttribute(tuple._1, Text(tuple._2), Null)) )
+				return metadata
+			}			
 						
 			// TODO: not sure why these are required and the wrapper is not enough
 			implicit def ext2optext(ext:Extension):Option[Extension] = if (null != ext) Some(ext) else None 
-			//implicit def seqext2optseqext(seq:Seq[Extension]):Option[Extension] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None
+			//implicit def seqext2optseqext(seq:Seq[Extension]):Option[Extension] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None	
 			
 			implicit def string2stanza(xml:String):Stanza = Stanza(xml)
 			implicit def node2stanza(xml:Node):Stanza = Stanza(xml)

@@ -15,9 +15,12 @@ package org.xmpp
 			val name = Query.name
 			val namespace = Info.namespace
 						
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], identities:Seq[Identity], features:Seq[Feature]):InfoResult = 
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], identities:Seq[Identity], features:Seq[Feature]):InfoResult = apply(id, to, from, None, identities, features)
+			
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], node:Option[String], identities:Seq[Identity], features:Seq[Feature]):InfoResult = 
 			{
-				val xml = Result.build(id, to, from, Query(namespace, identities ++ features))
+				val attributes:MetaData = if (!node.isEmpty) new UnprefixedAttribute("node", Text(node.get), Null) else Null
+				val xml = Result.build(id, to, from, Query(namespace, attributes, identities ++ features))
 				return apply(xml)
 			}
 			

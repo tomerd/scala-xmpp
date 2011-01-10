@@ -15,9 +15,10 @@ package org.xmpp
 			val name = Query.name
 			val namespace = "http://jabber.org/protocol/disco#items"
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], items:Option[Seq[Item]]):Items = 
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], node:Option[String]=None):Items = 
 			{
-				val xml = Result.build(id, to, from, Query(namespace, items))
+				val attributes:MetaData = if (!node.isEmpty) new UnprefixedAttribute("node", Text(node.get), Null) else Null
+				val xml = Result.build(id, to, from, Query(namespace, attributes))
 				return apply(xml)
 			}
 			
@@ -26,7 +27,13 @@ package org.xmpp
 		
 		class Items(xml:Node) extends Get(xml)
 		{
-			def result(items:Seq[Item]):ItemsResult = ItemsResult(this.id, this.from, this.to, items) 
+			val node:Option[String] = 
+			{
+				val node = (this.xml \ "@node").text
+				if (node.isEmpty) None else Some(node)
+			}
+
+			def result(items:Seq[Item]):ItemsResult = ItemsResult(this.id, this.from, this.to, this.node, items) 
 		}
 		
 	}
