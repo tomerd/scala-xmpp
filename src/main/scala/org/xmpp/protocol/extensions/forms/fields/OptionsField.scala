@@ -18,7 +18,7 @@ package org.xmpp
 			def build(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Seq[FieldOption]=Nil):Node =
 			{
 				Field.build(fieldType, identifier, label, description, required, options)
-			}			
+			}
 		}
 		
 		class OptionsField(xml:Node) extends Field(xml)

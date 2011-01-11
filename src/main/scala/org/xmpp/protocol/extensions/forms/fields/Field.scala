@@ -26,9 +26,9 @@ package org.xmpp
 			}
 		}
 		
-		abstract protected[forms] class Field(xml:Node) extends XmlWrapper(xml)
-		{			
-			val fieldType:FieldTypeEnumeration.Value = FieldTypeEnumeration.withName((this.xml \ "@type").text)
+		abstract protected[forms] class Field(xml:Node, val fieldType:FieldTypeEnumeration.Value) extends XmlWrapper(xml)
+		{
+			//val fieldType:FieldTypeEnumeration.Value = FieldTypeEnumeration.withName((this.xml \ "@type").text)
 			
 			val identifier:Option[String] = (this.xml \ "@identifier").text
 			

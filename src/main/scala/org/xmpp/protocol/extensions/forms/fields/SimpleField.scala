@@ -24,9 +24,9 @@ package org.xmpp
 		}
 		
 		class SimpleField(xml:Node) extends Field(xml)
-		{	
+		{
 			val value:Option[String] = (this.xml \ "value").text
-		}		
+		}
 		
 	}
 }

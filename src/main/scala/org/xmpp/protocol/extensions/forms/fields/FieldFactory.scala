@@ -12,7 +12,7 @@ package org.xmpp
 		protected[forms] object FieldFactory
 		{
 			def create(xml:Node):Field =
-			{			
+			{
 				xml match
 				{
 					case field @ <field/> if !(field \ "value").isEmpty => SimpleField(xml)
