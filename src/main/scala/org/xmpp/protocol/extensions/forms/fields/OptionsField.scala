@@ -11,17 +11,18 @@ package org.xmpp
 				
 		object OptionsField
 		{
+			/*
 			def apply(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Seq[FieldOption]=Nil):OptionsField = apply(build(fieldType, identifier, label, description, required, options))
 			
 			def apply(xml:Node):OptionsField = new OptionsField(xml)
-			
+			*/
 			def build(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Seq[FieldOption]=Nil):Node =
 			{
 				Field.build(fieldType, identifier, label, description, required, options)
 			}
 		}
 		
-		class OptionsField(xml:Node) extends Field(xml)
+		abstract class OptionsField(xml:Node, fieldType:FieldTypeEnumeration.Value) extends Field(xml, fieldType)
 		{
 			val options:Seq[FieldOption] = (this.xml \ "option").map( option => FieldOption(option) )
 		}		

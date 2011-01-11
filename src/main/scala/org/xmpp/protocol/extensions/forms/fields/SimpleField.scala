@@ -11,9 +11,11 @@ package org.xmpp
 		
 		object SimpleField 
 		{
+			/*
 			def apply(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, value:Option[String]=None):SimpleField = apply(build(fieldType, identifier, label, description, required, value))
 			
 			def apply(xml:Node):SimpleField = new SimpleField(xml)
+			*/
 			
 			def build(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, value:Option[String]=None):Node =
 			{
@@ -23,7 +25,7 @@ package org.xmpp
 			}
 		}
 		
-		class SimpleField(xml:Node) extends Field(xml)
+		abstract class SimpleField(xml:Node, fieldType:FieldTypeEnumeration.Value) extends Field(xml, fieldType)
 		{
 			val value:Option[String] = (this.xml \ "value").text
 		}
