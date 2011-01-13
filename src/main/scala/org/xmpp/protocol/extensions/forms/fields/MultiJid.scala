@@ -14,16 +14,17 @@ package org.xmpp
 			val fieldType = FieldTypeEnumeration.MultiJid
 			val fieldTypeName = fieldType.toString
 			
-			def apply(identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, children:Option[Seq[Node]]=None):MultiJid =
+			def apply(identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, jids:Option[Seq[JID]]=None):MultiJid =
 			{
-				val xml = Field.build(MultiJid.fieldType, identifier, label, description, required, children)
+				val options = if (!jids.isEmpty) Some(jids.get.map( jid => FieldOption(jid)) ) else None
+				val xml = OptionsField.build(MultiJid.fieldType, identifier, label, description, required, options)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):MultiJid = new MultiJid(xml)
 		}
 		
-		class MultiJid(xml:Node) extends Field(xml, MultiJid.fieldType)
+		class MultiJid(xml:Node) extends OptionsField(xml, MultiJid.fieldType)
 		{
 		}
 		

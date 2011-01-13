@@ -14,16 +14,16 @@ package org.xmpp
 			val fieldType = FieldTypeEnumeration.SingleJid
 			val fieldTypeName = fieldType.toString
 			
-			def apply(identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, children:Option[Seq[Node]]=None):SingleJid =
+			def apply(identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, jid:Option[JID]=None):SingleJid =
 			{
-				val xml = Field.build(SingleJid.fieldType, identifier, label, description, required, children)
+				val xml = SimpleField.build(SingleJid.fieldType, identifier, label, description, required, jid)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):SingleJid = new SingleJid(xml)
 		}
 		
-		class SingleJid(xml:Node) extends Field(xml, SingleJid.fieldType)
+		class SingleJid(xml:Node) extends SimpleField(xml, SingleJid.fieldType)
 		{
 		}
 		

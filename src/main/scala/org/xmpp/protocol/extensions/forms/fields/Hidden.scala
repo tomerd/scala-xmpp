@@ -14,16 +14,16 @@ package org.xmpp
 			val fieldType = FieldTypeEnumeration.Hidden
 			val fieldTypeName = fieldType.toString
 			
-			def apply(identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, children:Option[Seq[Node]]=None):Hidden =
+			def apply(identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, value:Option[String]=None):Hidden =
 			{
-				val xml = Field.build(Hidden.fieldType, identifier, label, description, required, children)
+				val xml = SimpleField.build(Hidden.fieldType, identifier, label, description, required, value)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Hidden = new Hidden(xml)
 		}
 		
-		class Hidden(xml:Node) extends Field(xml, Hidden.fieldType)
+		class Hidden(xml:Node) extends SimpleField(xml, Hidden.fieldType)
 		{
 		}
 		

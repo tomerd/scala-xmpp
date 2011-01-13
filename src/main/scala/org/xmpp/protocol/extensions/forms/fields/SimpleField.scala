@@ -9,7 +9,7 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object SimpleField 
+		protected object SimpleField 
 		{
 			/*
 			def apply(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, value:Option[String]=None):SimpleField = apply(build(fieldType, identifier, label, description, required, value))

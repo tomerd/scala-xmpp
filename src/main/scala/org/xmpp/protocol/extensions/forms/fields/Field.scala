@@ -13,7 +13,7 @@ package org.xmpp
 		{
 			val tag = "field"
 			
-			def build(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, children:Option[Seq[Node]]=None):Node =
+			def build(fieldType:FieldTypeEnumeration.Value, identifier:Option[String], label:Option[String], description:Option[String], required:Boolean, children:Option[Seq[Node]]):Node =
 			{
 				val kids = mutable.ListBuffer[Node]()
 				if (!description.isEmpty) kids += <desc>{ description }</desc>

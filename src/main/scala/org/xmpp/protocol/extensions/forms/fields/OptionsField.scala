@@ -9,14 +9,14 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 				
-		object OptionsField
+		protected object OptionsField
 		{
 			/*
 			def apply(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Seq[FieldOption]=Nil):OptionsField = apply(build(fieldType, identifier, label, description, required, options))
 			
 			def apply(xml:Node):OptionsField = new OptionsField(xml)
 			*/
-			def build(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Seq[FieldOption]=Nil):Node =
+			def build(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Option[Seq[FieldOption]]=None):Node =
 			{
 				Field.build(fieldType, identifier, label, description, required, options)
 			}
@@ -31,6 +31,8 @@ package org.xmpp
 		{
 			val tag = "option"
 			
+			def apply(label:String):FieldOption = apply(label, label)
+				
 			def apply(label:String, value:String):FieldOption = apply(build(label, value))
 			
 			def apply(xml:Node):FieldOption = new FieldOption(xml)
