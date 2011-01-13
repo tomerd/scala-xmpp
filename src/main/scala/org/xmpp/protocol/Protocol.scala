@@ -16,7 +16,7 @@ package org.xmpp
 			implicit def seqstring2optseqstring(seq:Seq[String]):Option[Seq[String]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None
 			implicit def jid2opt(jid:JID):Option[JID] = if (null != jid) Some(jid) else None		
 			
-			implicit def optjid2optstring(optjid:Option[JID]):Option[String] = if (!optjid.isEmpty) optjid.get.toString else None
+			implicit def optjid2optstring(optjid:Option[JID]):Option[String] = if (!optjid.isEmpty) optjid.get.toString else None		
 			implicit def optbool2optstring(optbool:Option[Boolean]):Option[String] = if (!optbool.isEmpty) optbool.get.toString else None
 						
 			implicit def metadata2opt(metadata:MetaData):Option[MetaData] = if ((null != metadata) && (Null != metadata)) Some(metadata) else None
@@ -32,7 +32,9 @@ package org.xmpp
 			implicit def wrapper2optseqnode(wrapper:XmlWrapper):Option[Seq[Node]] = if (null != wrapper) Some(List(wrapper)) else None
 			implicit def optwrapper2optseqnode(optwrapper:Option[XmlWrapper]):Option[Seq[Node]] = if (!optwrapper.isEmpty) Some(List(optwrapper.get)) else None
 			implicit def seqwrapper2optseqnode(seq:Seq[XmlWrapper]):Option[Seq[Node]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None
-						
+									
+			implicit def seqoptjid2seqoptstring(seqoptjid:Option[Seq[JID]]):Option[Seq[String]] = if (!seqoptjid.isEmpty) seqoptjid.get.map( jid => jid.toString ) else None
+			
 			implicit def seqwrapper2seqnode(seq:Seq[XmlWrapper]):Seq[Node] = 
 			{
 				val nodes = new mutable.ListBuffer[Node]()

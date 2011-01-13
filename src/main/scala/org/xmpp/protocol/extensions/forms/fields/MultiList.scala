@@ -14,9 +14,9 @@ package org.xmpp
 			val fieldType = FieldTypeEnumeration.MultiList
 			val fieldTypeName = fieldType.toString
 			
-			def apply(identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Option[Seq[FieldOption]]=None):MultiList =
+			def apply(identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Option[Seq[FieldOption]]=None, values:Option[Seq[String]]=None):MultiList =
 			{
-				val xml = OptionsField.build(MultiList.fieldType, identifier, label, description, required, options)
+				val xml = OptionsField.build(MultiList.fieldType, identifier, label, description, required, options, values)
 				return apply(xml)
 			}
 			

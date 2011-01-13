@@ -16,15 +16,15 @@ package org.xmpp
 			
 			def apply(identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, jids:Option[Seq[JID]]=None):MultiJid =
 			{
-				val options = if (!jids.isEmpty) Some(jids.get.map( jid => FieldOption(jid)) ) else None
-				val xml = OptionsField.build(MultiJid.fieldType, identifier, label, description, required, options)
+				//val options = if (!jids.isEmpty) Some(jids.get.map( jid => FieldOption(jid)) ) else None
+				val xml = MultiField.build(MultiJid.fieldType, identifier, label, description, required, jids)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):MultiJid = new MultiJid(xml)
 		}
 		
-		class MultiJid(xml:Node) extends OptionsField(xml, MultiJid.fieldType)
+		class MultiJid(xml:Node) extends MultiField(xml, MultiJid.fieldType)
 		{
 		}
 		

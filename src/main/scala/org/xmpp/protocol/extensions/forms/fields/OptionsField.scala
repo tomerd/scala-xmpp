@@ -11,14 +11,12 @@ package org.xmpp
 				
 		protected object OptionsField
 		{
-			/*
-			def apply(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Seq[FieldOption]=Nil):OptionsField = apply(build(fieldType, identifier, label, description, required, options))
-			
-			def apply(xml:Node):OptionsField = new OptionsField(xml)
-			*/
-			def build(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Option[Seq[FieldOption]]=None):Node =
+			def build(fieldType:FieldTypeEnumeration.Value, identifier:Option[String]=None, label:Option[String]=None, description:Option[String]=None, required:Boolean=false, options:Option[Seq[FieldOption]], values:Option[Seq[String]]=None):Node =
 			{
-				Field.build(fieldType, identifier, label, description, required, options)
+				val children = mutable.ListBuffer[Node]()
+				if (!options.isEmpty) children ++= options.get
+				if (!values.isEmpty) values.foreach ( value => children += <value> { value } </value> ) 
+				Field.build(fieldType, identifier, label, description, required, children)
 			}
 		}
 		
