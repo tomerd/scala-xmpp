@@ -10,21 +10,10 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object IQFactory extends StanzaFactory[IQ]
+		object IQFactory //extends StanzaFactory[IQ]
 		{
-			// well known extension
-			/* disco */
-			registerExtension(disco.Info)
-			registerExtension(disco.InfoResult)
-			registerExtension(disco.Items)
-			registerExtension(disco.ItemsResult)
-			/* roster */
-			registerExtension(roster.RosterGet)
-			registerExtension(roster.RosterGetResult)
-
-			
 			def create(xml:Node):IQ =
-			{				
+			{
 				require("iq" == xml.label)
 				
 				(xml \ "@type").text match

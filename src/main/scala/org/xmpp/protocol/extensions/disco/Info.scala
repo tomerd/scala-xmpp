@@ -11,31 +11,29 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object Info extends ExtendedStanzaBuilder[Info]
+		object Info extends ExtensionBuilder[Info]
 		{
-			val stanzaType = Get.stanzaTypeName
 			val name = Query.name
 			val namespace = "http://jabber.org/protocol/disco#info"
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], node:Option[String]=None):Info = 
+			def apply(node:Option[String]=None):Info = 
 			{
 				val attributes:MetaData = if (!node.isEmpty) new UnprefixedAttribute("node", Text(node.get), Null) else Null
-				val xml = Get.build(id, to, from, Query(namespace, attributes))
-				return apply(xml)
+				return apply(build(attributes))
 			}
 			
 			def apply(xml:Node):Info = new Info(xml)
 		}
 		
-		class Info(xml:Node) extends Get(xml)
+		class Info(xml:Node) extends Query(xml)
 		{
 			val node:Option[String] = (this.xml \ "@node").text
 			
-			def result(identity:Identity, feature:Feature):InfoResult = InfoResult(this.id, this.from, this.to, this.node, List(identity), List(feature))
+			def result(identity:Identity, feature:Feature):InfoResult = InfoResult(this.node, List(identity), List(feature))
 			
-			def result(identity:Identity, features:Seq[Feature]):InfoResult = InfoResult(this.id, this.from, this.to, this.node, List(identity), features)
+			def result(identity:Identity, features:Seq[Feature]):InfoResult = InfoResult(this.node, List(identity), features)
 			
-			def result(identities:Seq[Identity], features:Seq[Feature]):InfoResult = InfoResult(this.id, this.from, this.to, this.node, identities, features)
+			def result(identities:Seq[Identity], features:Seq[Feature]):InfoResult = InfoResult(this.node, identities, features)
 		}
 		
 	}

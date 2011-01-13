@@ -11,27 +11,25 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object Items extends ExtendedStanzaBuilder[Items]
+		object Items extends ExtensionBuilder[Items]
 		{
-			val stanzaType = Get.stanzaTypeName
 			val name = Query.name
 			val namespace = "http://jabber.org/protocol/disco#items"
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], node:Option[String]=None):Items = 
+			def apply(node:Option[String]=None):Items = 
 			{
 				val attributes:MetaData = if (!node.isEmpty) new UnprefixedAttribute("node", Text(node.get), Null) else Null
-				val xml = Result.build(id, to, from, Query(namespace, attributes))
-				return apply(xml)
+				return apply(build(attributes))
 			}
 			
 			def apply(xml:Node):Items = new Items(xml)
 		}
 		
-		class Items(xml:Node) extends Get(xml)
+		class Items(xml:Node) extends Query(xml)
 		{
 			val node:Option[String] = (this.xml \ "@node").text
 			
-			def result(items:Seq[Item]):ItemsResult = ItemsResult(this.id, this.from, this.to, this.node, items) 
+			def result(items:Seq[Item]):ItemsResult = ItemsResult(this.node, items) 
 		}
 		
 	}

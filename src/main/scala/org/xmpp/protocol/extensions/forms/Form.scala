@@ -14,16 +14,6 @@ package org.xmpp
 
 		protected object Form
 		{
-			/*
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], formType:FormTypeEnumeration.Value, fields:Seq[Field]):Form = apply(id, to, from, formType, None, None, fields)
-			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], formType:FormTypeEnumeration.Value, title:Option[String], fields:Seq[Field]):Form = apply(id, to, from, formType, title, None, fields)
-			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], formType:FormTypeEnumeration.Value, title:Option[String], instructions:Option[Seq[String]], fields:Seq[Field]):Form = apply(build(id, to, from, formType, title, instructions, fields))
- 			
-			def apply(xml:Node):Form = new Form(xml)
-			*/
-			
 			//def build(id:Option[String], to:Option[JID], from:Option[JID], formType:FormTypeEnumeration.Value, title:Option[String], instructions:Option[Seq[String]], fields:Seq[Field]):Node =						
 			def build(id:Option[String], to:Option[JID], from:Option[JID], formType:FormTypeEnumeration.Value, title:Option[String], instructions:Option[Seq[String]], children:Seq[Node]):Node =
 			{
@@ -32,17 +22,13 @@ package org.xmpp
 				if (!instructions.isEmpty) instructions.get.foreach( instruction => kids += <instructions>{ instruction }</instructions>)
 				kids ++= children
 				var metadata:MetaData = new UnprefixedAttribute("type", Text(formType.toString), Null)
-				return Container.build(id, to, from, X(FormFactory.namespace, metadata, children))
-			}			
+				return FormFactory.build(metadata, children)
+			}
 		}
 		
-		abstract class Form(xml:Node, val formType:FormTypeEnumeration.Value) extends Container(xml)
+		abstract class Form(xml:Node, val formType:FormTypeEnumeration.Value) extends X(xml)
 		{
-			//val formType:FormTypeEnumeration.Value = FormTypeEnumeration.withName((this.xml \ "@type").text)
-			
 		 	val title:Option[String] = (this.xml \ "title").text
-			
-			//val reported:Option[String] = (this.xml \ "reported").text
 			
 			val instructions:Option[Seq[String]] = (this.xml \ "instructions").map( node => node.text )
 			

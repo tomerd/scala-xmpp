@@ -11,27 +11,29 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object InfoResult extends ExtendedStanzaBuilder[InfoResult]
+		object InfoResult extends ExtensionBuilder[InfoResult]
 		{
-			val stanzaType = Result.stanzaTypeName
 			val name = Query.name
 			val namespace = Info.namespace
-						
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], identities:Seq[Identity], features:Seq[Feature]):InfoResult = apply(id, to, from, None, identities, features)
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], node:Option[String], identities:Seq[Identity], features:Seq[Feature]):InfoResult = 
+			def apply(identities:Seq[Identity], features:Seq[Feature]):InfoResult = apply(None, identities, features)
+			
+			def apply(node:Option[String], identities:Seq[Identity], features:Seq[Feature]):InfoResult = 
 			{
 				val attributes:MetaData = if (!node.isEmpty) new UnprefixedAttribute("node", Text(node.get), Null) else Null
-				val xml = Result.build(id, to, from, Query(namespace, attributes, identities ++ features))
-				return apply(xml)
+				return apply(build(attributes, identities ++ features))
 			}
 			
 			def apply(xml:Node):InfoResult = new InfoResult(xml)
 		}
 		
-		class InfoResult(xml:Node) extends Result(xml)
+		class InfoResult(xml:Node) extends Query(xml)
 		{
 			val node:Option[String] = (this.xml \ "@node").text
+			
+			val identities:Seq[Identity] = (this.xml \ "identity").map( node => Identity(node) )
+			
+			val features:Seq[Feature] = (this.xml \ "feature").map( node => Feature(node) )
 		}
 		
 	}

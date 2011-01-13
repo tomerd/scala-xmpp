@@ -5,6 +5,9 @@ package org.xmpp
 		import scala.collection._
 		import scala.xml._
 		
+		import org.xmpp.protocol.iq.IQFactory
+		import org.xmpp.protocol.presence.PresenceFactory
+		import org.xmpp.protocol.message.MessageFactory
 		import org.xmpp.protocol.Protocol._
 		
 		object Stanza
@@ -24,7 +27,16 @@ package org.xmpp
 			
 			def apply(xml:String):Stanza= apply(XML.loadString(xml))
 									
-			def apply(xml:Node):Stanza = StanzaFactory.create(xml)
+			def apply(xml:Node):Stanza = //StanzaFactory.create(xml)
+			{
+				xml.label match
+				{
+					case "iq" => IQFactory.create(xml)
+					case "presence" => PresenceFactory.create(xml)
+					case "message" => MessageFactory.create(xml)
+					case _ => throw new Exception("unknown stanza type, expected iq, presence or message")
+				}				
+			}
 								
 			def build(name:String):Node = build(name, null, None, None, None)
 				
@@ -48,7 +60,7 @@ package org.xmpp
 				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
 				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))		
 				return Elem(null, name, metadata, TopScope, Error(errorCondition, errorDescription))				
-			}			
+			}	
 		}
 		
 		abstract class Stanza(xml:Node) extends XmlWrapper(xml)
@@ -77,12 +89,16 @@ package org.xmpp
 				}
 			}
 			
+			val extension:Option[Extension] = ExtensionsManager.getExtension(this.xml)
+			
+			
+			/*
 			val error:Option[Error] = 
 			{
 				val errorNodes = (this.xml \ "error")
 				if (0 == errorNodes.length) None else Some(new Error(errorNodes(0)))
 			}
-	
+			*/	
 		}
 		
 	}

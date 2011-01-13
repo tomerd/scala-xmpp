@@ -8,7 +8,7 @@ package org.xmpp
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.Protocol._
 			
-		object PresenceFactory extends StanzaFactory[Presence]
+		object PresenceFactory
 		{
 			def create(xml:Node):Presence = 
 			{

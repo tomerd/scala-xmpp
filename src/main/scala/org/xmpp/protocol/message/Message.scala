@@ -35,8 +35,7 @@ package org.xmpp
 				return Stanza.build(tag, stanzaType.toString, id, to, from, children)
 			}
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(tag, id, to, from, condition, description)			
-						
+			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(tag, id, to, from, condition, description)						
 		}
 		
 		abstract class Message(xml:Node, val stanzaType:MessageTypeEnumeration.Value) extends Stanza(xml)

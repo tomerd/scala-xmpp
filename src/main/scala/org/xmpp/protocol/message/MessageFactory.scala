@@ -10,18 +10,14 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object MessageFactory extends StanzaFactory[Message]
+		object MessageFactory //extends StanzaFactory[Message]
 		{
-			// well known extension
-			/* forms */
-			registerExtension(forms.FormFactory)
-			
 			def create(xml:Node):Message = 
 			{		
 				require("message" == xml.label)
 				
 				(xml \ "@type").text match
-				{					  
+				{
 					// FIXME, use the enum values (attribute stanzaType) instead of stanzaTypeName, getting compilation error even with implicict cast
 					case Normal.stanzaTypeName => Normal(xml) 
 					case Chat.stanzaTypeName => Chat(xml) 

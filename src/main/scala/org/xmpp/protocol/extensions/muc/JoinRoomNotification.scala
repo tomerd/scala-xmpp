@@ -10,27 +10,24 @@ package org.xmpp.protocol
 		import org.xmpp.protocol.extensions._
 		
 		import org.xmpp.protocol.Protocol._		
-		
-		
-		object JoinRoomResult
+				
+		object JoinRoomNotification extends ExtensionBuilder[JoinRoomNotification]
 		{
-			val stanzaType = Available.stanzaTypeName
 			val name = X.name
 			val namespace = "http://jabber.org/protocol/muc#user"
 				
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], affiliation:RoomAffiliation.Value, role:RoomRole.Value, statuses:Option[Seq[Int]]):JoinRoomResult =
+			def apply(affiliation:RoomAffiliation.Value, role:RoomRole.Value, statuses:Option[Seq[Int]]):JoinRoomNotification =
 			{
 				val children = mutable.ListBuffer[Node]()
 				children += <item affiliation={  affiliation.toString } role={ role.toString }  />
 				if (!statuses.isEmpty) statuses.foreach ( status => children += <status code={ status.toString } /> )
-				val xml = Available.build(id, to, from, None, None, None, X(namespace, children))
-				return apply(xml)
+				return apply(build(children))
 			}
 				
-			def apply(xml:Node):JoinRoomResult = JoinRoomResult(xml)			
+			def apply(xml:Node):JoinRoomNotification = JoinRoomNotification(xml)			
 		}
 		
-		class JoinRoomResult(xml:Node) extends Available(xml)
+		class JoinRoomNotification(xml:Node) extends X(xml)
 		{	
 			private val itemNode = (xml \ "item")(0)
 			

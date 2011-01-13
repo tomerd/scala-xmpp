@@ -10,7 +10,7 @@ package org.xmpp
 		import org.xmpp.protocol.Protocol._
 		
 		object NodeItem
-		{			
+		{
 			def apply(jid:JID, node:String, name:Option[String]=None):NodeItem = apply(build(jid, node, name))
 			
 			def apply(xml:Node):NodeItem = new NodeItem(xml)

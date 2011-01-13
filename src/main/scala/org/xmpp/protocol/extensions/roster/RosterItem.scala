@@ -33,9 +33,8 @@ package org.xmpp
 		}
 		
 		class RosterItem(xml:Node) extends Item(xml)
-		{			
-			// getters		
-			val jid:JID = (this.xml \ "@jid").text		
+		{
+			val jid:JID = (this.xml \ "@jid").text
 			
 			val name:Option[String] = (this.xml \ "@name").text
 			
