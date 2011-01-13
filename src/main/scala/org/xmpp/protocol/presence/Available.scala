@@ -17,13 +17,12 @@ package org.xmpp
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]):Available = apply(id, to, from, None, None, None, extension)
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Available =
-			{					
-				val xml = Presence.build(stanzaType, id, to, from, show, status, priority, extension)
-				return apply(xml)
-			}
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Available = apply(build(id, to, from, show, status, priority, extension))
 			
 			def apply(xml:Node):Available = new Available(xml)
+			
+			def build(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Node = Presence.build(stanzaType, id, to, from, show, status, priority, extension)				
+
 		}
 		
 		class Available(xml:Node) extends Presence(xml, Available.stanzaType)
