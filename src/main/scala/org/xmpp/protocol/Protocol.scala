@@ -22,9 +22,9 @@ package org.xmpp
 			implicit def seqstring2optseqstring(seq:Seq[String]):Option[Seq[String]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None
 			implicit def seqint2optseqint(seq:Seq[Int]):Option[Seq[Int]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None			
 			
-			implicit def string2optseqstring(string:String):Option[Seq[String]] = Some(List(string))
+			//implicit def string2optseqstring(string:String):Option[Seq[String]] = Some(List(string))
 			implicit def int2optseqint(int:Int):Option[Seq[Int]] = Some(List(int))
-			implicit def jid2optseqjid(jid:JID):Option[Seq[JID]] = Some(List(jid))
+			//implicit def jid2optseqjid(jid:JID):Option[Seq[JID]] = Some(List(jid))
 			
 			implicit def optjid2optstring(optjid:Option[JID]):Option[String] = if (!optjid.isEmpty) optjid.get.toString else None		
 			implicit def optbool2optstring(optbool:Option[Boolean]):Option[String] = if (!optbool.isEmpty) optbool.get.toString else None
