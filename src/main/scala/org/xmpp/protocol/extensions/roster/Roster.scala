@@ -11,11 +11,8 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object Roster extends ExtensionBuilder[Roster]
+		object Roster extends
 		{
-			val name = Query.name
-			val namespace = "jabber:iq:roster"
-						
 			def apply(xml:Node):Roster = new Roster(xml)
 		}
 		

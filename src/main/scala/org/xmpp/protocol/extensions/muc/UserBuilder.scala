@@ -1,6 +1,6 @@
 package org.xmpp
 {
-	package protocol.extensions.forms
+	package protocol.extensions.muc
 	{
 		import scala.collection._
 		import scala.xml._
@@ -11,16 +11,14 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		/*
-		object OwnerFactory extends ExtensionBuilder[Extension]
+		object UserBuilder extends ExtensionBuilder[X]
 		{
 			val name = X.name
-			val namespace = "http://jabber.org/protocol/muc#owner"
+			val namespace = Builder.namespace + "#user"
 				
-			def apply(xml:Node):Any = 
-			{
-			}
+			// FIXME: implement this
+			def apply(xml:Node):X = X(xml)
 		}
-		*/
+		
 	}
 }

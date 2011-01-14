@@ -11,15 +11,12 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object Items extends ExtensionBuilder[Items]
+		object Items 
 		{
-			val name = Query.name
-			val namespace = "http://jabber.org/protocol/disco#items"
-			
 			def apply(node:Option[String]=None):Items = 
 			{
 				val attributes:MetaData = if (!node.isEmpty) new UnprefixedAttribute("node", Text(node.get), Null) else Null
-				return apply(build(attributes))
+				return apply(ItemsBuilder.build(attributes))
 			}
 			
 			def apply(xml:Node):Items = new Items(xml)

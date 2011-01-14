@@ -11,18 +11,14 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		/*		
-		object UserFactory extends ExtensionBuilder[Extension]
+		object OwnerBuilder extends ExtensionBuilder[X]
 		{
 			val name = X.name
-			val namespace = "http://jabber.org/protocol/muc#user"
-		
-			def apply(xml:Node):Extension = 
-			{
+			val namespace = Builder.namespace + "#owner"
 				
-			}
+			// FIXME: implement this
+			def apply(xml:Node):X = X(xml)
 		}
-		*/
 		
 	}
 }

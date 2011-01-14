@@ -1,6 +1,6 @@
 package org.xmpp
 {
-	package protocol.extensions
+	package protocol.extensions.pubsub
 	{
 		import scala.collection._
 		import scala.xml._
@@ -8,9 +8,9 @@ package org.xmpp
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.Protocol._
 		
-		object Query //extends ExtensionBuilder[Query]
+		object Event
 		{
-			def name = "query"
+			def name = "event"
 			
 			/*
 			def apply(namespace:String):Query = apply(namespace, Null, Nil)
@@ -30,10 +30,10 @@ package org.xmpp
 			def build(namespace:String, attributes:MetaData, children:Seq[Node]):Node = Extension.build(name, namespace, attributes, children)
 			*/
 				
-			def apply(xml:Node):Query = new Query(xml)
+			def apply(xml:Node):Event = new Event(xml)
 		}
 		
-		class Query(xml:Node) extends Extension(xml) 
+		class Event(xml:Node) extends Extension(xml) 
 		{
 		}
 

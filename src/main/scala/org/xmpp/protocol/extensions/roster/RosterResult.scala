@@ -11,12 +11,9 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object RosterResult extends ExtensionBuilder[RosterResult]
+		object RosterResult
 		{
-			val name = Query.name
-			val namespace = Roster.namespace
-			
-			def apply(items:Seq[RosterItem]):RosterResult = apply(build(items))
+			def apply(items:Seq[RosterItem]):RosterResult = apply(Builder.build(items))
 			
 			def apply(xml:Node):RosterResult = new RosterResult(xml)
 		}

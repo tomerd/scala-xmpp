@@ -14,15 +14,15 @@ package org.xmpp
 
 		protected object Form
 		{
-			//def build(id:Option[String], to:Option[JID], from:Option[JID], formType:FormTypeEnumeration.Value, title:Option[String], instructions:Option[Seq[String]], fields:Seq[Field]):Node =						
-			def build(id:Option[String], to:Option[JID], from:Option[JID], formType:FormTypeEnumeration.Value, title:Option[String], instructions:Option[Seq[String]], children:Seq[Node]):Node =
+			//def build( formType:FormTypeEnumeration.Value, title:Option[String], instructions:Option[Seq[String]], fields:Seq[Field]):Node =
+			def build(formType:FormTypeEnumeration.Value, title:Option[String], instructions:Option[Seq[String]], children:Seq[Node]):Node =
 			{
 				val kids = mutable.ListBuffer[Node]()
 				if (!title.isEmpty) kids += <title>{ title }</title>
 				if (!instructions.isEmpty) instructions.get.foreach( instruction => kids += <instructions>{ instruction }</instructions>)
 				kids ++= children
 				var metadata:MetaData = new UnprefixedAttribute("type", Text(formType.toString), Null)
-				return FormFactory.build(metadata, children)
+				return Builder.build(metadata, children)
 			}
 		}
 		

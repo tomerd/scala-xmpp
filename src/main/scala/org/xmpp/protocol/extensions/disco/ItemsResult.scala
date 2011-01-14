@@ -11,17 +11,14 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object ItemsResult extends ExtensionBuilder[ItemsResult]
+		object ItemsResult
 		{
-			val name = Query.name
-			val namespace = Items.namespace
-			
 			def apply(items:Seq[Item]):ItemsResult = apply(None, items)
 			
 			def apply(node:Option[String], items:Seq[Item]):ItemsResult = 
 			{	
 				val attributes:MetaData = if (!node.isEmpty) new UnprefixedAttribute("node", Text(node.get), Null) else Null
-				return apply(build(attributes, items))
+				return apply(ItemsBuilder.build(attributes, items))
 			}
 			
 			def apply(xml:Node):ItemsResult = new ItemsResult(xml)

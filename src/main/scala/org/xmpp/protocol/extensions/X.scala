@@ -8,10 +8,10 @@ package org.xmpp
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.Protocol._
 		
-		object X //extends ExtensionB[X]
+		object X //extends ExtensionBuilder[X]
 		{
 			def name = "x"
-			
+				
 			/*
 			def apply(namespace:String):Query = apply(namespace, Null, Nil)
 			
@@ -29,7 +29,7 @@ package org.xmpp
 			
 			def build(namespace:String, attributes:MetaData, children:Seq[Node]):Node = Extension.build(name, namespace, attributes, children)
 			*/
-
+				
 			def apply(xml:Node):X = new X(xml)
 		}
 		

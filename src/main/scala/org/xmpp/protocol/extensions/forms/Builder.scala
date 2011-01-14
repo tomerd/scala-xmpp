@@ -11,15 +11,13 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		object FormFactory extends ExtensionBuilder[Form]
+		object Builder extends ExtensionBuilder[Form]
 		{
 			val name = X.name
 			val namespace = "jabber:x:data"
 			
 			def apply(xml:Node):Form = 
 			{
-				require("form" == xml.label)
-				
 				(xml \ "@type").text match
 				{ 
 					// FIXME, use the enum values (attribute formType) instead of formTypeName, getting compilation error even with implicict cast

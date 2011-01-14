@@ -1,6 +1,6 @@
 package org.xmpp
 {
-	package protocol.extensions.forms
+	package protocol.extensions.muc
 	{
 		import scala.collection._
 		import scala.xml._
@@ -11,17 +11,15 @@ package org.xmpp
 		
 		import org.xmpp.protocol.Protocol._
 		
-		/*
-		object AdminFactory extends ExtensionBuilder[Extension]
+		object AdminBuilder extends ExtensionBuilder[X]
 		{
 			val name = X.name
-			val namespace = "http://jabber.org/protocol/muc#admin"
+			val namespace = Builder.namespace + "#admin"
 				
-			def apply(xml:Node):Extension = 
-			{
-			}
+			// FIXME: implement this
+			def apply(xml:Node):X = X(xml)
+			
 		}
-		*/
 		
 	}
 }

@@ -14,7 +14,7 @@ package org.xmpp
 		{
 			val name:String
 			val namespace:String
-						
+			
 			//def apply(xml:Node):T
 			
 			def apply():T = apply(Null, Nil)
@@ -39,7 +39,7 @@ package org.xmpp
 			{
 				val scope = new NamespaceBinding(null, this.namespace, TopScope)
 				return Elem(null, this.name, attributes, scope, children:_*)
-			}			
+			}
 		}
 		
 		object ExtensionsManager
@@ -72,19 +72,20 @@ package org.xmpp
 			// well known extensions
 			
 			/* disco */
-			registerExtensionBuilder(disco.Info)
-			registerExtensionBuilder(disco.InfoResult)
-			registerExtensionBuilder(disco.Items)
-			registerExtensionBuilder(disco.ItemsResult)
+			registerExtensionBuilder(disco.InfoBuilder)
+			registerExtensionBuilder(disco.ItemsBuilder)
 			/* roster */
-			registerExtensionBuilder(roster.Roster)
-			registerExtensionBuilder(roster.RosterResult)
+			registerExtensionBuilder(roster.Builder)
 			/* forms */
-			registerExtensionBuilder(forms.FormFactory)
+			registerExtensionBuilder(forms.Builder)
 			/* muc */
-			//registerExtensionBuilder(muc.AdminFactory)
-			//registerExtensionBuilder(muc.OwnerFactory)
-			//registerExtensionBuilder(muc.UserFactoryy)
+			registerExtensionBuilder(muc.Builder)
+			registerExtensionBuilder(muc.UserBuilder)
+			registerExtensionBuilder(muc.OwnerBuilder)
+			registerExtensionBuilder(muc.AdminBuilder)
+			/* pubsub */
+			registerExtensionBuilder(pubsub.Builder)
+			registerExtensionBuilder(pubsub.EventBuilder)
 		}
 		
 		
