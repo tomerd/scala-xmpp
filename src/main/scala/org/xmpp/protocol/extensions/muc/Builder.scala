@@ -16,8 +16,8 @@ package org.xmpp
 			val name = X.name
 			val namespace = "http://jabber.org/protocol/muc"
 				
-			// FIXME: implement this
-			def apply(xml:Node):X = X(xml)
+			// TODO: look into this, seems like a single stanza is mapped to this namespace
+			def apply(xml:Node):X = RoomPresence(xml)
 		}
 		
 	}

@@ -10,8 +10,8 @@ package org.xmpp
 		
 		object Error
 		{
-			val stanzaType = MessageTypeEnumeration.Error
-			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val messageType = MessageTypeEnumeration.Error
+			val messageTypeName = messageType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]=None):Error =
 			{
@@ -22,7 +22,7 @@ package org.xmpp
 			def apply(xml:Node):Error = new Error(xml)
 		}
 		
-		class Error(xml:Node) extends Message(xml, Error.stanzaType)
+		class Error(xml:Node) extends Message(xml, Error.messageType)
 		{
 		}
 	}

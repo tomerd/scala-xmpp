@@ -18,11 +18,11 @@ package org.xmpp
 				
 				(xml \ "@type").text match
 				{
-					// FIXME, use the enum values (attribute stanzaType) instead of stanzaTypeName, getting compilation error even with implicict cast
-					case Get.stanzaTypeName => Get(xml) 
-					case Set.stanzaTypeName => Set(xml)
-					case Result.stanzaTypeName => Result(xml) 
-					case Error.stanzaTypeName => Error(xml)
+					// FIXME, use the enum values (attribute iqType) instead of iqTypeName, getting compilation error even with implicict cast
+					case Get.iqTypeName => Get(xml) 
+					case Set.iqTypeName => Set(xml)
+					case Result.iqTypeName => Result(xml) 
+					case Error.iqTypeName => Error(xml)
 					case _ => throw new Exception("unknown iq stanza") // TODO, give a more detailed error message here
 				}
 			}

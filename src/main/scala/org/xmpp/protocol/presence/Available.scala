@@ -10,8 +10,8 @@ package org.xmpp
 			
 		object Available
 		{
-			val stanzaType = PresenceTypeEnumeration.Available
-			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val presenceType = PresenceTypeEnumeration.Available
+			val presenceTypeName = presenceType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Available = apply(id, to, from, None, None, None, None)
 			
@@ -21,11 +21,22 @@ package org.xmpp
 			
 			def apply(xml:Node):Available = new Available(xml)
 			
-			def build(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Node = Presence.build(stanzaType, id, to, from, show, status, priority, extension)				
+			def build(id:Option[String], to:Option[JID], from:Option[JID]):Node = build(id, to, from, None, None, None, None)
+			
+			def build(id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]):Node = build(id, to, from, None, None, None, extension)
+			
+			def build(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Node = 
+			{
+				val children = mutable.ListBuffer[Node]()
+				if (!show.isEmpty) children += <show>{ show.get }</show>
+				if (!status.isEmpty) children += <status>{ status.get }</status>
+				if (!priority.isEmpty) children += <priority>{ priority.get }</priority>			
+				Presence.build(presenceType, id, to, from, children, extension)				
+			}
 
 		}
 		
-		class Available(xml:Node) extends Presence(xml, Available.stanzaType)
+		class Available(xml:Node) extends Presence(xml, Available.presenceType)
 		{
 			// getters
 			val show:Option[Show.Value] = 

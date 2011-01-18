@@ -7,7 +7,7 @@ package org.xmpp
 		object Item
 		{
 			val tag = "item"
-							
+			
 			def apply(attributes:MetaData, children:Seq[Node]=Nil):Item = apply(build(attributes, children))
 			
 			//def apply(attributes:Seq[Tuple2[String, String]]):Item = apply(build(attributes, Nil))

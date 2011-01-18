@@ -1,6 +1,6 @@
 package org.xmpp
 {
-	package protocol.extensions.muc
+	package protocol.extensions.muc.user
 	{
 		import scala.collection._
 		import scala.xml._
@@ -8,27 +8,28 @@ package org.xmpp
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.presence._
 		import org.xmpp.protocol.extensions._
+		import org.xmpp.protocol.extensions.muc._
 		
 		import org.xmpp.protocol.Protocol._		
 				
-		object JoinRoomNotification 
-		{				
-			def apply(affiliation:Affiliation.Value, role:Role.Value):JoinRoomNotification = apply(affiliation, role, None)
-
-			//def apply(affiliation:Affiliation.Value, role:Role.Value, status:Int):JoinRoomNotification = apply(affiliation, role, List(status))
+		object RoomPresenceBroadcast 
+		{
+			def apply(affiliation:Affiliation.Value, role:Role.Value):RoomPresenceBroadcast = apply(affiliation, role, None)
 			
-			def apply(affiliation:Affiliation.Value, role:Role.Value, statuses:Option[Seq[Int]]):JoinRoomNotification =
+			//def apply(affiliation:Affiliation.Value, role:Role.Value, status:Int):RoomPresenceBroadcast = apply(affiliation, role, List(status))
+			
+			def apply(affiliation:Affiliation.Value, role:Role.Value, statuses:Option[Seq[Int]]):RoomPresenceBroadcast =
 			{
 				val children = mutable.ListBuffer[Node]()
 				children += <item affiliation={  affiliation.toString } role={ role.toString }  />
 				if (!statuses.isEmpty) statuses.foreach ( status => children += <status code={ status.toString } /> )
 				return apply(Builder.build(children))
 			}
-				
-			def apply(xml:Node):JoinRoomNotification = JoinRoomNotification(xml)			
+			
+			def apply(xml:Node):RoomPresenceBroadcast = RoomPresenceBroadcast(xml)
 		}
 		
-		class JoinRoomNotification(xml:Node) extends X(xml)
+		class RoomPresenceBroadcast(xml:Node) extends X(xml)
 		{	
 			private val itemNode = (xml \ "item")(0)
 			
@@ -46,8 +47,6 @@ package org.xmpp
 				}
 			}
 		}
-		
-				
 		
 	}	
 }

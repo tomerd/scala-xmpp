@@ -58,8 +58,8 @@ package org.xmpp
 				var metadata:MetaData = new UnprefixedAttribute("type", Text("error"), Null)
 				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
 				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
-				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))		
-				return Elem(null, name, metadata, TopScope, Error(errorCondition, errorDescription))				
+				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
+				return Elem(null, name, metadata, TopScope, Error(errorCondition, errorDescription))
 			}	
 		}
 		

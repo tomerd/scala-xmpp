@@ -10,8 +10,8 @@ package org.xmpp
 		
 		object Chat
 		{	
-			val stanzaType = MessageTypeEnumeration.Chat
-			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val messageType = MessageTypeEnumeration.Chat
+			val messageTypeName = messageType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(to:Option[JID], from:Option[JID], body:Option[String]):Chat = apply(None, to, from, None, body, None, None)
 			
@@ -21,14 +21,14 @@ package org.xmpp
 					
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):Chat =
 			{
-				val xml = Message.build(stanzaType, id, to, from, subject, body, thread, extension)
+				val xml = Message.build(messageType, id, to, from, subject, body, thread, extension)
 				return apply(xml)
 			}
 						
 			def apply(xml:Node):Chat = new Chat(xml)
 		}
 		
-		class Chat(xml:Node) extends Message(xml, Chat.stanzaType)
+		class Chat(xml:Node) extends Message(xml, Chat.messageType)
 		{
 		}
 

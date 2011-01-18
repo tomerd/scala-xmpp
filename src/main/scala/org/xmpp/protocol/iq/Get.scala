@@ -10,17 +10,17 @@ package org.xmpp
 		
 		object Get
 		{
-			val stanzaType = IQTypeEnumeration.Get
-			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val iqType = IQTypeEnumeration.Get
+			val iqTypeName = iqType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]=None):Get = apply(build(id, to, from, extension)) 
 			
 			def apply(xml:Node):Get = new Get(xml)
 			
-			def build(id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]=None):Node = IQ.build(stanzaType, id, to, from, extension)
+			def build(id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]=None):Node = IQ.build(iqType, id, to, from, extension)
 		}
 		
-		class Get(xml:Node) extends IQ(xml, Get.stanzaType)
+		class Get(xml:Node) extends IQ(xml, Get.iqType)
 		{
 			def result(extension:Option[Extension]):Result = Result(this.id, this.from, this.to, extension)
 		}

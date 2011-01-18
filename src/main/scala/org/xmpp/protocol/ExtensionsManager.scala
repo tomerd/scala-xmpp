@@ -80,9 +80,9 @@ package org.xmpp
 			registerExtensionBuilder(forms.Builder)
 			/* muc */
 			registerExtensionBuilder(muc.Builder)
-			registerExtensionBuilder(muc.UserBuilder)
-			registerExtensionBuilder(muc.OwnerBuilder)
-			registerExtensionBuilder(muc.AdminBuilder)
+			registerExtensionBuilder(muc.user.Builder)
+			registerExtensionBuilder(muc.owner.Builder)
+			registerExtensionBuilder(muc.admin.Builder)
 			/* pubsub */
 			registerExtensionBuilder(pubsub.Builder)
 			registerExtensionBuilder(pubsub.EventBuilder)

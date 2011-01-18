@@ -10,19 +10,19 @@ package org.xmpp
 			
 		object Unsubscribe
 		{
-			val stanzaType = PresenceTypeEnumeration.Unsubscribe
-			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val presenceType = PresenceTypeEnumeration.Unsubscribe
+			val presenceTypeName = presenceType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Unsubscribe =
 			{
-				val xml = Presence.build(stanzaType, id, to, from, None, None, None, None)
+				val xml = Presence.build(presenceType, id, to, from)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Unsubscribe = new Unsubscribe(xml)
 		}
 		
-		class Unsubscribe(xml:Node) extends Presence(xml, Unsubscribe.stanzaType)
+		class Unsubscribe(xml:Node) extends Presence(xml, Unsubscribe.presenceType)
 		{
 		}
 	}

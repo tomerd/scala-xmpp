@@ -10,8 +10,8 @@ package org.xmpp
 		
 		object GroupChat
 		{
-			val stanzaType = MessageTypeEnumeration.GroupChat
-			val stanzaTypeName = stanzaType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val messageType = MessageTypeEnumeration.GroupChat
+			val messageTypeName = messageType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
 			
 			def apply(to:Option[JID], from:Option[JID], body:Option[String]):GroupChat = apply(None, to, from, None, body, None, None)
 			
@@ -21,14 +21,14 @@ package org.xmpp
 					
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):GroupChat =
 			{
-				val xml = Message.build(stanzaType, id, to, from, subject, body, thread, extension)
+				val xml = Message.build(messageType, id, to, from, subject, body, thread, extension)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):GroupChat = new GroupChat(xml)
 		}
 		
-		class GroupChat(xml:Node) extends Message(xml, GroupChat.stanzaType)
+		class GroupChat(xml:Node) extends Message(xml, GroupChat.messageType)
 		{
 		}
 	}
