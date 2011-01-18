@@ -14,15 +14,25 @@ package org.xmpp
 				
 		object RoomPresenceBroadcast 
 		{
-			def apply(affiliation:Affiliation.Value, role:Role.Value):RoomPresenceBroadcast = apply(affiliation, role, None)
+			def apply(affiliation:Affiliation.Value, role:Role.Value):RoomPresenceBroadcast = apply(affiliation, role, None, None, None)
 			
-			//def apply(affiliation:Affiliation.Value, role:Role.Value, status:Int):RoomPresenceBroadcast = apply(affiliation, role, List(status))
+			def apply(affiliation:Affiliation.Value, role:Role.Value, actor:Option[JID], reason:Option[String]):RoomPresenceBroadcast = apply(affiliation, role, actor, reason, None)
 			
-			def apply(affiliation:Affiliation.Value, role:Role.Value, statuses:Option[Seq[Int]]):RoomPresenceBroadcast =
+			def apply(affiliation:Affiliation.Value, role:Role.Value, statuses:Option[Seq[Int]]):RoomPresenceBroadcast = apply(affiliation, role, None, None, statuses)
+			
+			def apply(affiliation:Affiliation.Value, role:Role.Value, actor:Option[JID], reason:Option[String], statuses:Option[Seq[Int]]):RoomPresenceBroadcast =
 			{
+				val itemChildren = mutable.ListBuffer[Node]()
+				if (!actor.isEmpty) itemChildren += <actor>{ actor }</actor>
+				if (!reason.isEmpty) itemChildren += <reason>{ reason }</reason>
+				
+				var itemMetadata:MetaData = new UnprefixedAttribute("affiliation", Text(affiliation.toString), Null)
+				itemMetadata = itemMetadata.append(new UnprefixedAttribute("role", Text(role.toString), Null))
+				
 				val children = mutable.ListBuffer[Node]()
-				children += <item affiliation={  affiliation.toString } role={ role.toString }  />
+				children += Elem(null, "item", itemMetadata, TopScope, itemChildren:_*)
 				if (!statuses.isEmpty) statuses.foreach ( status => children += <status code={ status.toString } /> )
+				
 				return apply(Builder.build(children))
 			}
 			

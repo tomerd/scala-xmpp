@@ -26,15 +26,14 @@ package org.xmpp
 					{
 						return Invite(xml)
 					}
-					if (1 == (xml \ Decline.tag).length)
+					else if (1 == (xml \ Decline.tag).length)
 					{
 						return Decline(xml)
 					}
 					else
 					{
 						return RoomPresenceBroadcast(xml)
-					}
-					
+					}					
 				}
 			}
 		}

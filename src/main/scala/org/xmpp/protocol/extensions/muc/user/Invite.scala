@@ -17,11 +17,12 @@ package org.xmpp
 			{
 				val tag = "invite"
 				
-				def apply(to:JID, reason:Option[String], password:Option[String]):Invite = 
+				def apply(to:JID, reason:Option[String], password:Option[String], thread:Option[String]):Invite = 
 				{
 					val children = mutable.ListBuffer[Node]()
-					if (!reason.isEmpty) children += <reason>{ reason }</reason>
-					if (!password.isEmpty) children += <password>{ password }</password>
+					if (!reason.isEmpty) children += <reason>{ reason.get }</reason>
+					if (!password.isEmpty) children += <password>{ password.get }</password>
+					if (!thread.isEmpty) children += <continue thread={ thread.get } />
 					
 					val metadata = new UnprefixedAttribute("to", Text(to), Null)
 					

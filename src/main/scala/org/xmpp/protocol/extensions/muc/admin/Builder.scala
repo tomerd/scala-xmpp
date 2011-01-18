@@ -19,8 +19,18 @@ package org.xmpp
 				val name = X.name
 				val namespace = org.xmpp.protocol.extensions.muc.Builder.namespace + "#admin"
 					
-				// FIXME: implement this
-				def apply(xml:Node):X = X(xml)
+				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty
+				def apply(xml:Node):X = 
+				{
+					if (false)
+					{
+						return X(xml)
+					}
+					else
+					{
+						return ChangeStatus(xml)
+					}					
+				}
 				
 			}
 		}
