@@ -13,25 +13,24 @@ package org.xmpp
 		
 			import org.xmpp.protocol.Protocol._		
 			
-			object Invite 
+			object Decline 
 			{
-				val tag = "invite"
+				val tag = "decline"
 				
-				def apply(to:JID, reason:Option[String], password:Option[String]):Invite = 
+				def apply(to:JID, reason:Option[String]):Decline = 
 				{
 					val children = mutable.ListBuffer[Node]()
 					if (!reason.isEmpty) children += <reason>{ reason }</reason>
-					if (!password.isEmpty) children += <password>{ password }</password>
 					
 					val metadata = new UnprefixedAttribute("to", Text(to), Null)
 					
 					apply(Builder.build(Elem(null, tag, metadata, TopScope, children:_*)))
 				}
 				
-				def apply(xml:Node):Invite = Invite(xml)
+				def apply(xml:Node):Decline = Decline(xml)
 			}
 		
-			class Invite(xml:Node) extends X(xml)
+			class Decline(xml:Node) extends X(xml)
 			{
 				private val inviteNode = (xml \ "invite")(0)
 				
@@ -40,16 +39,6 @@ package org.xmpp
 				val reason:Option[String] = 
 				{
 					val nodes = (this.inviteNode \ "reason")
-					nodes.length match
-					{
-						case 0 => None
-						case _ => Some(nodes(0).text)
-					}
-				}
-				
-				val password:Option[String] = 
-				{
-					val nodes = (this.xml \ "password")
 					nodes.length match
 					{
 						case 0 => None

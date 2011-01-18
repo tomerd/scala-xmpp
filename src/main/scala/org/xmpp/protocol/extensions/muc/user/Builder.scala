@@ -19,16 +19,20 @@ package org.xmpp
 				val name = X.name
 				val namespace = org.xmpp.protocol.extensions.muc.Builder.namespace + "#user"
 				
-				// FIXME: implement this
+				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty
 				def apply(xml:Node):X = 
 				{
-					(xml \ "inivite").length match
+					if (1 == (xml \ Invite.tag).length)
 					{
-						case 1 => Invite(xml)
-						case _ =>
-						{
-							RoomPresenceBroadcast(xml)
-						}
+						return Invite(xml)
+					}
+					if (1 == (xml \ Decline.tag).length)
+					{
+						return Decline(xml)
+					}
+					else
+					{
+						return RoomPresenceBroadcast(xml)
 					}
 					
 				}
