@@ -15,11 +15,12 @@ package org.xmpp
 			val name = "set"
 			val namespace = "http://jabber.org/protocol/rsm"
 			
-			def apply[T](after:T, max:Int):Request = 
+			def apply[T](max:Int, before:Option[T], after:Option[T]):Request = 
 			{
 				val children = mutable.ListBuffer[Node]()
-				children += <after>{ after.toString }</after>
 				children += <max>{ max }</max>
+				if (!before.isEmpty) children += <before>{ before.get.toString }</before>
+				if (!after.isEmpty) children += <after>{ after.get.toString }</after>				
 				apply(build(children))
 			}
 			
