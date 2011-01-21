@@ -34,7 +34,7 @@ package org.xmpp
 		
 			class Invite(xml:Node) extends X(xml)
 			{
-				private val inviteNode = (xml \ "invite")(0)
+				private val inviteNode = (xml \ Invite.tag)(0)
 				
 				val to:JID = (this.inviteNode \ "@to").text
 				

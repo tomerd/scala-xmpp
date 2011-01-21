@@ -2,7 +2,7 @@ package org.xmpp
 {
 	package protocol.extensions.muc
 	{
-		package user
+		package owner
 		{
 			import scala.collection._
 			import scala.xml._
@@ -12,29 +12,29 @@ package org.xmpp
 			import org.xmpp.protocol.extensions._
 		
 			import org.xmpp.protocol.Protocol._		
-			
-			object Decline 
+					
+			object Destroy 
 			{
-				val tag = "decline"
+				val tag = "destroy"
 				
-				def apply(to:JID, reason:Option[String]):Decline = 
+				def apply(jid:JID, reason:Option[String]):Destroy = 
 				{
 					val children = mutable.ListBuffer[Node]()
 					if (!reason.isEmpty) children += <reason>{ reason }</reason>
 					
-					val metadata = new UnprefixedAttribute("to", Text(to), Null)
+					val metadata = new UnprefixedAttribute("jid", Text(jid), Null)
 					
 					apply(Builder.build(Elem(null, tag, metadata, TopScope, children:_*)))
 				}
 				
-				def apply(xml:Node):Decline = Decline(xml)
+				def apply(xml:Node):Destroy = Destroy(xml)
 			}
 		
-			class Decline(xml:Node) extends X(xml)
+			class Destroy(xml:Node) extends Query(xml)
 			{
-				private val inviteNode = (xml \ Decline.tag)(0)
+				private val inviteNode = (xml \ Destroy.tag)(0)
 				
-				val to:JID = (this.inviteNode \ "@to").text
+				val jid:JID = (this.inviteNode \ "@jid").text
 				
 				val reason:Option[String] = 
 				{

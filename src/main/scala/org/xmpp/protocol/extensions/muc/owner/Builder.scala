@@ -19,11 +19,14 @@ package org.xmpp
 				val name = Query.name
 				val namespace = org.xmpp.protocol.extensions.muc.Builder.namespace + "#owner"
 				
-				// FIXME: implement this
 				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty
 				def apply(xml:Node):Query = 
 				{
-					if (1 == (xml \ forms.Builder.name).length)
+					if (1 == (xml \ Destroy.tag).length)
+					{
+						return Destroy(xml)
+					}
+					else if (1 == (xml \ forms.Builder.name).length)
 					{
 						return RoomConfiguration(xml)
 					}
@@ -37,3 +40,4 @@ package org.xmpp
 		}
 	}
 }
+

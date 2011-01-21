@@ -26,7 +26,7 @@ package org.xmpp
 			
 			class RoomConfiguration(xml:Node) extends Query(xml)
 			{	
-				val form:Form = forms.Builder(xml)
+				val form:Form = forms.Builder(xml.child(0))
 			}
 		}
 	}	
