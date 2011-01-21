@@ -189,7 +189,7 @@ package org.xmpp
 	
 					_writer = new BufferedWriter(new OutputStreamWriter(_socket.getOutputStream, "UTF-8"))
 
-					// start xmpp stream
+					// open xmpp stream
 					send("<stream:stream xmlns=\"jabber:component:accept\" xmlns:stream=\"http://etherx.jabber.org/streams\" to=\"" + domain + "\">")										
 					val xpp:XmlPullParser = _reader.getXPPParser
 					var eventType:Int = xpp.getEventType
@@ -229,7 +229,7 @@ package org.xmpp
 					
 					if (null != _socket)
 					{
-						// end xmpp stream
+						// close xmpp stream
 						send("</stream:stream>")
 						_socket.close
 					}					
