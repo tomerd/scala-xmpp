@@ -286,7 +286,8 @@ package org.xmpp
 					{
 						case e:Exception =>
 						{
-							println ("error handling stanza:" + e)	
+							// TODO: do something more intelligent here
+							println ("error pasring or handling stanza: " + e)	
 						}
 					}
 				}				

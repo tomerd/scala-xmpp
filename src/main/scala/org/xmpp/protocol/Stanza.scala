@@ -28,7 +28,7 @@ package org.xmpp
 			
 			def apply(xml:String):Stanza= apply(XML.loadString(xml))
 									
-			def apply(xml:Node):Stanza = //StanzaFactory.create(xml)
+			def apply(xml:Node):Stanza = 
 			{
 				xml.label match
 				{
