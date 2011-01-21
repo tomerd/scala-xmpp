@@ -273,12 +273,22 @@ package org.xmpp
 			
 			override def run
 			{
-				// listen on port until noptified otherwise
+				// listen on port until notified otherwise
 				while (_active) 
 				{
-					val element = reader.parseDocument.getRootElement
-					println ("stanza arrived")
-					if (null != element) stanzaHandler(Stanza(element))					
+					try
+					{
+						val element = reader.parseDocument.getRootElement
+						println ("stanza arrived")
+						if (null != element) stanzaHandler(Stanza(element))
+					}
+					catch
+					{
+						case e:Exception =>
+						{
+							println ("error handling stanza:" + e)	
+						}
+					}
 				}				
 			}
 			

@@ -15,7 +15,7 @@ package org.xmpp
 		{				
 			def apply():RoomPresence = apply(Builder.build())
 				
-			def apply(xml:Node):RoomPresence = RoomPresence(xml)			
+			def apply(xml:Node):RoomPresence = new RoomPresence(xml)			
 		}
 		
 		class RoomPresence(xml:Node) extends X(xml)

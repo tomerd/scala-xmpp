@@ -53,20 +53,27 @@ package org.xmpp
 			
 			final def getExtension[T <: Extension](xml:Node):Option[T] =
 			{
-				if (0 == builders.length) return None
-				
-				val iterator = xml.child.iterator
-				while (iterator.hasNext)
+				try
 				{
-					val node = iterator.next
-					builders.find( builder => node.label == builder.name && node.scope.uri == builder.namespace ) match
+					if (0 == builders.length) return None
+					
+					val iterator = xml.child.iterator
+					while (iterator.hasNext)
 					{
-						case Some(builder) => return Some(builder.apply(node).asInstanceOf[T])
-						case None => // continue
+						val node = iterator.next
+						builders.find( builder => node.label == builder.name && node.scope.uri == builder.namespace ) match
+						{
+							case Some(builder) => return Some(builder.apply(node).asInstanceOf[T])
+							case None => // continue
+						}
 					}
+					
+					return None
 				}
-				
-				return None
+				catch
+				{
+					case e:Exception => return None
+				}
 			}
 			
 			// well known extensions
