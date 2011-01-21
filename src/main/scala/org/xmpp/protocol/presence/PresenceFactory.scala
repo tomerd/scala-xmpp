@@ -12,7 +12,7 @@ package org.xmpp
 		{
 			def create(xml:Node):Presence = 
 			{
-				require("presence" == xml.label)
+				require(Presence.tag == xml.label)
 				
 				(xml \ "@type").text match
 				{

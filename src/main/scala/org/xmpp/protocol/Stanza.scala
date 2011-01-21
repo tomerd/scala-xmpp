@@ -5,9 +5,10 @@ package org.xmpp
 		import scala.collection._
 		import scala.xml._
 		
-		import org.xmpp.protocol.iq.IQFactory
-		import org.xmpp.protocol.presence.PresenceFactory
-		import org.xmpp.protocol.message.MessageFactory
+		import org.xmpp.protocol.iq._
+		import org.xmpp.protocol.presence._
+		import org.xmpp.protocol.message._
+		
 		import org.xmpp.protocol.Protocol._
 		
 		object Stanza
@@ -31,9 +32,9 @@ package org.xmpp
 			{
 				xml.label match
 				{
-					case "iq" => IQFactory.create(xml)
-					case "presence" => PresenceFactory.create(xml)
-					case "message" => MessageFactory.create(xml)
+					case IQ.tag => IQFactory.create(xml)
+					case Presence.tag => PresenceFactory.create(xml)
+					case Message.tag => MessageFactory.create(xml)
 					case _ => throw new Exception("unknown stanza type, expected iq, presence or message")
 				}				
 			}
