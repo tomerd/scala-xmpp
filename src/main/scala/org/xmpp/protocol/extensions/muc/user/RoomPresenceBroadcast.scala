@@ -23,8 +23,8 @@ package org.xmpp
 			def apply(affiliation:Affiliation.Value, role:Role.Value, actor:Option[JID], reason:Option[String], statuses:Option[Seq[Int]]):RoomPresenceBroadcast =
 			{
 				val itemChildren = mutable.ListBuffer[Node]()
-				if (!actor.isEmpty) itemChildren += <actor>{ actor }</actor>
-				if (!reason.isEmpty) itemChildren += <reason>{ reason }</reason>
+				if (!actor.isEmpty) itemChildren += <actor>{ actor.get }</actor>
+				if (!reason.isEmpty) itemChildren += <reason>{ reason.get }</reason>
 				
 				var itemMetadata:MetaData = new UnprefixedAttribute("affiliation", Text(affiliation.toString), Null)
 				itemMetadata = itemMetadata.append(new UnprefixedAttribute("role", Text(role.toString), Null))

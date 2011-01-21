@@ -30,10 +30,14 @@ package org.xmpp
 					{
 						return Decline(xml)
 					}
-					else
+					else if (1 == (xml \ Item.tag).length)
 					{
 						return RoomPresenceBroadcast(xml)
 					}					
+					else
+					{
+						return X(xml)
+					}
 				}
 			}
 		}

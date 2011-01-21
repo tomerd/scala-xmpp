@@ -22,14 +22,18 @@ package org.xmpp
 				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty
 				def apply(xml:Node):X = 
 				{
-					if (false)
+					if (1 == ((xml \ "item") \ "@role").length)
+					{
+						return ChangeRole(xml)
+					}
+					else if (1 == ((xml \ "item") \ "@affiliation").length)
+					{
+						return ChangeAffiliation(xml)
+					}	
+					else
 					{
 						return X(xml)
 					}
-					else
-					{
-						return ChangeStatus(xml)
-					}					
 				}
 				
 			}

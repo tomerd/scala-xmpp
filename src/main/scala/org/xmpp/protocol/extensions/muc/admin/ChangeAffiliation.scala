@@ -14,15 +14,15 @@ package org.xmpp
 			
 			import org.xmpp.protocol.Protocol._		
 					
-			object ChangeRole 
+			object ChangeAffiliation
 			{			
-				def apply(nick:String, role:Role.Value, reason:Option[String]):ChangeRole =
+				def apply(nick:String, affiliation:Affiliation.Value, reason:Option[String]):ChangeRole =
 				{
 					val itemChildren = mutable.ListBuffer[Node]()
 					if (!reason.isEmpty) itemChildren += <reason>{ reason }</reason>
 					
 					var itemMetadata:MetaData = new UnprefixedAttribute("nick", Text(nick), Null)
-					itemMetadata = itemMetadata.append(new UnprefixedAttribute("role", Text(role.toString), Null))
+					itemMetadata = itemMetadata.append(new UnprefixedAttribute("affiliation", Text(affiliation.toString), Null))
 					
 					val children = mutable.ListBuffer[Node]()
 					children += Elem(null, "item", itemMetadata, TopScope, itemChildren:_*)
@@ -33,13 +33,13 @@ package org.xmpp
 				def apply(xml:Node):ChangeRole = ChangeRole(xml)
 			}
 			
-			class ChangeRole(xml:Node) extends X(xml)
+			class ChangeAffiliation(xml:Node) extends X(xml)
 			{	
 				private val itemNode = (xml \ "item")(0)
 							
 				val nick:String = (this.itemNode \ "@nick").text
 				
-				val role:Role.Value = Role.withName((this.itemNode \ "@role").text)
+				val affiliation:Affiliation.Value = Affiliation.withName((this.itemNode \ "@affiliation").text)
 	
 				val reason:Option[String] = 
 				{
@@ -51,6 +51,6 @@ package org.xmpp
 					}
 				}
 			}
-		} 
+		}
 	}	
 }

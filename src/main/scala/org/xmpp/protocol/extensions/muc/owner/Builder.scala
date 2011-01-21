@@ -14,13 +14,25 @@ package org.xmpp
 		
 			import org.xmpp.protocol.Protocol._
 		
-			object Builder extends ExtensionBuilder[X]
+			object Builder extends ExtensionBuilder[Query]
 			{
-				val name = X.name
+				val name = Query.name
 				val namespace = org.xmpp.protocol.extensions.muc.Builder.namespace + "#owner"
 				
 				// FIXME: implement this
-				def apply(xml:Node):X = X(xml)
+				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty
+				def apply(xml:Node):Query = 
+				{
+					if (1 == (xml \ forms.Builder.name).length)
+					{
+						return RoomConfiguration(xml)
+					}
+					else
+					{
+						return Query(xml)
+					}
+				}
+					
 			}
 		}
 	}
