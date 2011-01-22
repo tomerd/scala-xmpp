@@ -86,7 +86,7 @@ package org.xmpp
 			/* forms */
 			registerExtensionBuilder(forms.Builder)
 			/* muc */
-			registerExtensionBuilder(muc.Builder)
+			registerExtensionBuilder(muc.general.Builder)
 			registerExtensionBuilder(muc.user.Builder)
 			registerExtensionBuilder(muc.owner.Builder)
 			registerExtensionBuilder(muc.admin.Builder)

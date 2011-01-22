@@ -17,7 +17,7 @@ package org.xmpp
 			object Builder extends ExtensionBuilder[Query]
 			{
 				val name = Query.name
-				val namespace = org.xmpp.protocol.extensions.muc.Builder.namespace + "#owner"
+				val namespace = org.xmpp.protocol.extensions.muc.general.Builder.namespace + "#owner"
 				
 				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty
 				def apply(xml:Node):Query = 

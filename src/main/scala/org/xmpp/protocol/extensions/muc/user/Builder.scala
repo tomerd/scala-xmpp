@@ -17,7 +17,7 @@ package org.xmpp
 			object Builder extends ExtensionBuilder[X]
 			{
 				val name = X.name
-				val namespace = org.xmpp.protocol.extensions.muc.Builder.namespace + "#user"
+				val namespace = org.xmpp.protocol.extensions.muc.general.Builder.namespace + "#user"
 				
 				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty
 				def apply(xml:Node):X = 
