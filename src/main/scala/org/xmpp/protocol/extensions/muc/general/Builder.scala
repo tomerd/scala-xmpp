@@ -18,7 +18,7 @@ package org.xmpp
 				val name = X.name
 				val namespace = "http://jabber.org/protocol/muc"
 					
-				// TODO: look into this, seems like a single stanza is mapped to this namespace
+				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty
 				def apply(xml:Node):X =
 				{
 					if (1 == (xml \ History.tag).length)
