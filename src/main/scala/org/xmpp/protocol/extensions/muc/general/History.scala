@@ -25,7 +25,6 @@ package org.xmpp
 				def apply(since:Option[Date], seconds:Option[Int], maxstanzas:Option[Int], maxchars:Option[Int]):History = 
 				{
 					var metadata:MetaData = Null
-					// FIXME: need to convert date correctly here
 					if (!since.isEmpty) metadata = metadata.append(new UnprefixedAttribute("since", Text(DateUtil.format(since.get)), Null))
 					if (!seconds.isEmpty) metadata = metadata.append(new UnprefixedAttribute("seconds", Text(seconds.get.toString), Null))
 					if (!maxstanzas.isEmpty) metadata = metadata.append(new UnprefixedAttribute("maxstanzas", Text(maxstanzas.get.toString), Null))
@@ -43,7 +42,6 @@ package org.xmpp
 				
 				val since:Option[Date] = 
 				{
-					// FIXME: need to convert date correctly here
 					val since = (this.historyNode \ "@since").text
 					if (since.isEmpty) None else Some(DateUtil.parse(since))
 				}

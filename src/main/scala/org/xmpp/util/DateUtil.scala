@@ -7,17 +7,11 @@ package org.xmpp.util
 	
 	object DateUtil 
 	{
-		// FIXME: need to convert date correctly here		
-		def parse(text:String):Date =
-		{
-			return new Date
-		}
+		val xmppFormat = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss");
 		
-		// FIXME: need to convert date correctly here		
-		def format(date:Date):String =
-		{
-			return ""
-		}
+		def parse(text:String):Date = xmppFormat.parse(text)
+		
+		def format(date:Date):String = xmppFormat.format(date)
 	}
 
 }
