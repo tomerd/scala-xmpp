@@ -4,57 +4,53 @@ package org.xmpp
 	{
 		import java.io._
 		import java.util._
-
+		
 		import java.io.IOException
-
+		
 		import java.net.Socket
 		import java.net.InetSocketAddress
-	
-		//import java.util.concurrent.Executors
-		//import java.util.concurrent.ExecutorService
 		
 		import scala.xml._
 		
 		// TODO: replace all dom4j and xmlpull with native scala xml
-		import org.xmlpull.v1.XmlPullParser
-		import org.xmlpull.v1.XmlPullParserException
-		import org.xmlpull.v1.XmlPullParserFactory
+		//import org.xmlpull.v1.XmlPullParser
+		//import org.xmlpull.v1.XmlPullParserException
+		//import org.xmlpull.v1.XmlPullParserFactory
 		
 		// TODO: replace all dom4j and xmlpull with native scala xml
-		import org.dom4j.Element	
-		import org.dom4j.io.XPPPacketReader
+		//import org.dom4j.Element	
+		//import org.dom4j.io.XPPPacketReader
 		
 		import net.lag.naggati.IoHandlerActorAdapter
 		import net.lag.naggati.MinaMessage
 		import net.lag.naggati.ProtocolError
-		
+					
 		import org.apache.mina.core.session.IoSession
-		import org.apache.mina.core.buffer.IoBuffer
+		//import org.apache.mina.core.buffer.IoBuffer
 		import org.apache.mina.filter.codec.ProtocolCodecFilter
-		import org.apache.mina.transport.socket.SocketAcceptor
-		import org.apache.mina.transport.socket.nio.NioProcessor
-		import org.apache.mina.transport.socket.nio.NioSocketAcceptor
+		//import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory
+		import org.apache.mina.filter.logging.LoggingFilter
+		import org.apache.mina.transport.socket.nio.NioSocketConnector
+		//import org.apache.mina.common.ConnectFuture
 		
-		import scala.actors.Actor
-		import scala.actors.Actor._
+		//import scala.actors.Actor
+		//import scala.actors.Actor._
+		import com.twitter.actors.Actor
+		import com.twitter.actors.Actor._
 		
 		import org.xmpp.codec._
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.Protocol._
-		import org.xmpp.protocol.component._
 		
 		import org.xmpp.util._
-						
+		
 		object XmppComponent
 		{
 			val DEFAULT_TIMEOUT = 5 * 1000
-			val xmlPullParserFactory = XmlPullParserFactory.newInstance
 		}
 		
 		trait XmppComponent 
-		{	
-			private var _lastActive:Long = _
-			
+		{
 			// getters
 			private var _subdomain:String = _
 			def subdomain:String = _subdomain
@@ -70,9 +66,10 @@ package org.xmpp
 			
 			private var _timeout:Int = _
 			def timeout:Int = _timeout
+						
+			private var _connector:NioSocketConnector = _
+			private var _session:IoSession = _
 			
-			private var _handler:CommunicationHandler = _
-					
 			def configure(subdomain:String, host:String, port:Int, secret:String, timeout:Int=0)
 			{
 				_subdomain = subdomain
@@ -88,7 +85,7 @@ package org.xmpp
 					else {
 					this.domain = subdomain
 					}
-				*/				
+				*/
 				
 				require(this.subdomain != null)
 				require(this.host != null)
@@ -108,13 +105,18 @@ package org.xmpp
 				
 				// TODO: look into this
 				val domain = subdomain
+								
+				// start a mina thread pool listening on server messages
+				_connector = new NioSocketConnector()
+				_connector.setConnectTimeout(timeout)
+				_connector.getFilterChain.addLast("codec", new ProtocolCodecFilter(Codec.encoder, Codec.decoder))
+				_connector.getFilterChain.addLast("logger", new LoggingFilter())
+				_connector.setHandler(new IoHandlerActorAdapter(session => new XmppHandler(session, domain, this.secret, this.handleStanza)))
 				
-				_handler = new CommunicationHandler
-				_handler ! Connect(this.host, this.port, this.timeout, domain, this.secret, this.handleStanza)
+				val future = _connector.connect(new InetSocketAddress(host, port))
+				future.awaitUninterruptibly
+				_session = future.getSession
 				
-				// start a thread to listen on server messages
-				// 
-
 				// keep alive
 				//ScheduledJobsManager.registerJob("heartbeat", new HeartbeatJob(this.send, 60 * 1000))
 
@@ -130,129 +132,35 @@ package org.xmpp
 			
 			def shutdown
 			{
-				ScheduledJobsManager.stopAll
-				_handler ! Disconnect
+				try
+				{
+					send("</stream:stream>")
+					if (null != _session) _session.getCloseFuture.awaitUninterruptibly
+					if (null != _connector) _connector.dispose
+					
+					//_handler ! Disconnect
+					ScheduledJobsManager.stopAll
+				}
+				catch
+				{
+					case e:Exception => println("disconnect error " + e) // TODO: do something intelligent here
+				}
+				finally
+				{
+					_session = null
+					_connector = null
+				}
+				
 				// TODO: add hook for implementations
 			}
 			
 			def send(content:String) 
 			{
-				_handler ! Send(content)
-				_lastActive = System.currentTimeMillis
-			}
-					
-			protected def handleStanza(stanza:Stanza)
-			
-		}
-		
-		private case class Connect(host:String, port:Int, timeout:Int, domain:String, secret:String, stanzaHandler:(Stanza) => Unit)
-		private case class Disconnect
-		private case class Send(content:String)
-		private case class Exit
-		
-		private class CommunicationHandler extends Actor
-		{
-			private var _socket:Socket = _
-			private var _reader:XPPPacketReader = _
-			private var _writer:BufferedWriter = _
-			private var _listener:ListenerThread = _
-			//private var _connectionId:String = _
-			//def connectionId:String = _connectionId
-			//def connected:Boolean = null != _connectionId
-						
-			start
-			
-			def act
-			{
-				loop
-				{
-					react
-					{					
-						case Connect(host, port, timeout, domain, secret, stanzaHandler) => connect(host, port, timeout, domain, secret, stanzaHandler)
-						case Disconnect => disconnect	
-						case Send(content) => send(content)
-						case Exit => exit
-					}
-				}
-			}
-			
-			private def connect(host:String, port:Int, timeout:Int, domain:String, secret:String, stanzaHandler:(Stanza) => Unit)
-			{
-				try 
-				{
-					_socket = new Socket
-					_socket.connect(new InetSocketAddress(host, port), timeout)
-
-					_reader = new XPPPacketReader
-					_reader.setXPPFactory(XmppComponent.xmlPullParserFactory)
-					_reader.getXPPParser.setInput(new InputStreamReader(_socket.getInputStream, "UTF-8"))
-	
-					_writer = new BufferedWriter(new OutputStreamWriter(_socket.getOutputStream, "UTF-8"))
-
-					// open xmpp stream
-					send("<stream:stream xmlns=\"jabber:component:accept\" xmlns:stream=\"http://etherx.jabber.org/streams\" to=\"" + domain + "\">")										
-					val xpp:XmlPullParser = _reader.getXPPParser
-					var eventType:Int = xpp.getEventType
-					while (eventType != XmlPullParser.START_TAG) eventType = xpp.next	
-					val connectionId = xpp.getAttributeValue("", "id")
-
-					// handshake
-					send(Handshake(connectionId, secret))					
-					var doc:Element = _reader.parseDocument.getRootElement
-					if ("error".equals(doc.getName)) 
-					{
-						// FIXME
-						//val error = new StreamError(doc)
-						throw new Exception("handshake error") 
-					}
-										
-					// start a seperate thread to listen on server messages
-					_listener = new ListenerThread(_reader, stanzaHandler)
-					_listener.setDaemon(true)
-					_listener.start									
-				} 
-				catch  
-				{
-					case e:Exception =>
-					{
-						disconnect
-						throw new Exception("connection failed:" + e)
-					} 
-				}
-			}
-			
-			private def disconnect
-			{
-				try 
-				{
-					if (null != _listener) _listener.shutdown
-					
-					if (null != _socket)
-					{
-						// close xmpp stream
-						send("</stream:stream>")
-						_socket.close
-					}					
-				}
-				catch
-				{
-					case e:Exception => //TODO: do something intelligent here
-				}
-				finally
-				{
-					_socket = null
-					_listener = null
-				}
-			}
-		
-			private def send(content:String) 
-			{				
-				if (null == _writer) return
+				if (null == _session) return
 				
 				try 
 				{
-					_writer.write(content)
-					_writer.flush
+					_session.write(content)
 				}
 				catch
 				{
@@ -265,40 +173,112 @@ package org.xmpp
 					}
 				}
 			}
-		}
-		
-		private class ListenerThread(reader:XPPPacketReader, stanzaHandler:(Stanza) => Unit) extends Thread
-		{
-			private var _active = true
 			
-			override def run
+			protected def handleStanza(stanza:Stanza)
+		}
+				
+		private class XmppHandler(val session:IoSession, val domain:String, val secret:String, val stanzaHandler:(Stanza) => Unit) extends Actor 
+		{
+			//session.getConfig.setReadBufferSize(2048)
+			IoHandlerActorAdapter.filter(session) -= classOf[MinaMessage.MessageSent]
+			
+			start
+			
+			def act = 
 			{
-				// listen on port until notified otherwise
-				while (_active) 
+				loop 
+				{
+					react 
+					{	
+						case MinaMessage.SessionOpened => 
+						{
+							println("session opened")
+							// open xmpp stream
+							send("<stream:stream xmlns=\"jabber:component:accept\" xmlns:stream=\"http://etherx.jabber.org/streams\" to=\"" + domain + "\">")							
+						}
+						case MinaMessage.MessageSent(msg) =>
+						{
+							println("message sent " + msg)
+						}
+						case MinaMessage.MessageReceived(msg) => 
+						{
+							println("message received " + msg)
+							handle(msg.toString)
+						}
+						case MinaMessage.SessionClosed => 
+						{
+							println("session closed")
+							exit
+						}
+						case MinaMessage.SessionIdle(status) => 
+						{
+							println("session idle")
+							session.close
+						}
+						case MinaMessage.ExceptionCaught(cause) => 
+						{
+							println("exception caught " + cause)
+							
+							cause.getCause match 
+							{
+								case e3:Exception => send("502 Error: " + e3.getMessage + "\n")
+							}
+							session.close
+						}
+					}
+				}
+			}
+			
+  			private def handle(message:String) = 
+			{				
+				// TODO: use pattern matching here
+				if (message.indexOf("<stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:component:accept'") >= 0)
 				{
 					try
 					{
-						val element = reader.parseDocument.getRootElement
-						println ("stanza arrived")
-						if (null != element) stanzaHandler(Stanza(element))
+						// stream open succeeded, now hanshake
+						val xml = XML.loadString(message + "</stream:stream>")
+						val connectionId = (xml \ "@id").text
+						send(Handshake(connectionId, secret))
 					}
 					catch
 					{
-						case e:Exception =>
-						{
-							// TODO: do something more intelligent here
-							println ("error pasring or handling stanza: " + e)	
-						}
+						// TODO, do something more intellegent here
+						case e:Exception => println("handhsake error " + e)
 					}
-				}				
+				}
+				else if (message.indexOf("<handshake/>") >= 0)
+				{
+					// handlshake succeeded
+					// TODO, do something more intellegent here
+					println("connected to xmpp server")
+				}
+				else if (message.indexOf("<error") >= 0)
+				{
+					// TODO, do something more intellegent here
+					println("stream error " + message)
+				}
+				else
+				{
+					try
+					{
+						val stanza = Stanza(message)
+						stanzaHandler(stanza)
+					}
+					catch
+					{
+						// TODO, do something more intellegent here
+						case e:Exception => println("error parsing or handling stanza " + e + "\n" + message)
+					}
+				}
 			}
 			
-			def shutdown
+			private def send(content:String) = 
 			{
-				_active = false
+				session.write(content)
 			}
 		}
-				
+		
 		private class HeartbeatJob(sendHandler:(String) => Unit, interval:Int) extends ScheduledJob(interval)
 		{
 			def doJob

@@ -1,13 +1,13 @@
 package org.xmpp
 {
-	package protocol.component
+	package component
 	{
-		import scala.xml._
-		
 		import java.security.MessageDigest
 		
+		import scala.xml._
+		
 		import org.xmpp.protocol._
-				
+		
 		object Handshake
 		{
 			private val digest = MessageDigest.getInstance("SHA-1")

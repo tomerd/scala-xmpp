@@ -9,20 +9,19 @@ package org.xmpp
 		import net.lag.naggati._
 		import net.lag.naggati.Steps._
 		
-		case class Request(command:String, data:String)
-		case class Response(data:IoBuffer)
+		import org.xmpp.protocol.Stanza
 		
 		object Codec
 		{
 			val encoder = new XmppEncoder
-			val decoder = new XmppDecoder			
+			val decoder = new XmppDecoder
 		}
 		
 		class XmppEncoder extends ProtocolEncoder
 		{
 			def encode(session:IoSession, message:AnyRef, out:ProtocolEncoderOutput)
 			{
-				val buffer = message.asInstanceOf[Response].data
+				val buffer = IoBuffer.wrap(message.toString.getBytes)
 				out.write(buffer)
 			}
 			
@@ -32,13 +31,22 @@ package org.xmpp
 			}
 		}
 		
-		class XmppDecoder extends Decoder(readLine(true, "ISO-8859-1") 
-		{ line =>
+		// FIXME: this currently assumes 1 packaet = 1 stanza, 
+		// but this is a wrong assumption, need to buffer the content until start tag and end tag match
+		class XmppDecoder extends Decoder(readAll
+		{ buffer =>
+			{
+				val string = new String(buffer, "UTF-8")
+				state.out.write(string) 
+				End
+			}
+			/*
 		    line.split(' ').first match 
 			{
 				case "HELO" => state.out.write(Request("HELO", line.split(' ')(1))); End
 				case _ => throw new ProtocolError("Malformed request line: " + line)
 			}
+			*/
 		})
 	}
 }

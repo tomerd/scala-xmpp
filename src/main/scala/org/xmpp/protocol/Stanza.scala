@@ -15,6 +15,7 @@ package org.xmpp
 		{
 			// TODO: once XmppComponent removes all dependencies from dom4j need to remove this as well
 			// TODO: find a better way to do this
+			/*
 			def apply(element:org.dom4j.Element):Stanza =
 			{
 				import java.io._
@@ -25,6 +26,7 @@ package org.xmpp
 				writer.write(element)
 				return apply(buffer.toString)
 			}
+			*/
 			
 			def apply(xml:String):Stanza= apply(XML.loadString(xml))
 									

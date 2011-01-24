@@ -2,18 +2,15 @@ package org.xmpp
 {
 	package component
 	{
-		import scala.collection.mutable.ListMap
-		
-		//import org.xmpp.component._
-		import org.xmpp.packet._
-		
+		import scala.collection._
+				
 		object XmppComponentsManager 
 		{
-			private var components:ListMap[String, XmppComponent] = null
+			private var components:mutable.ListMap[String, XmppComponent] = null
 			
 			def registerComponent(subdomain:String, component:XmppComponent, host:String, port:Int, secret:String)
 			{
-				if (null == components) components = new ListMap[String, XmppComponent]()
+				if (null == components) components = new mutable.ListMap[String, XmppComponent]()
 				if (components.contains(subdomain)) throw new IllegalArgumentException(subdomain + " is already in use by another component")
 				components += subdomain -> component
 				component.start(subdomain, host, port, secret)
