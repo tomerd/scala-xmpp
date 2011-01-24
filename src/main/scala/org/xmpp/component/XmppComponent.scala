@@ -183,11 +183,11 @@ package org.xmpp
 						{
 							// open xmpp stream
 							val head = StreamHead("jabber:component:accept", immutable.List("to" -> domain))
-							send(head)							
+							send(head)
 						}
-						case MinaMessage.MessageReceived(msg) => 
+						case MinaMessage.MessageReceived(message) => 
 						{
-							handle(msg.toString)
+							handle(message)
 						}
 						case MinaMessage.SessionClosed => 
 						{
@@ -210,53 +210,38 @@ package org.xmpp
 				}
 			}
 			
-  			private def handle(message:String) = 
-			{				
-  				if (StreamHead.qualifies(message))
+  			private def handle(message:AnyRef) = 
+			{
+				message match
 				{
-					try
+  					case head:StreamHead =>
 					{
-						val head = StreamHead(message)
 						head.findAttribute("id") match
 						{
 							case Some(connectionId) => send(Handshake(connectionId, secret))
-							case None => throw new Exception("invaild stream head, conection id not found")
+							// TODO, do something more intelligent here
+							case None => println("invaild stream head, conection id not found")
 						}
 					}
-					catch
-					{
-						// TODO, do something more intelligent here
-						case e:Exception => println("handhsake error " + e)
-					}
-				}
-  				else if (StreamTail.qualifies(message))
-  				{
-  					// TODO, do something more intelligent here?
-  					println("tail")
-  				}
-				else if (Handshake.qualifies(message))
-				{
-					// handlshake succeeded
 					// TODO, do something more intelligent here?
-					println("connected to xmpp server")
-				}
-  				else if (StreamError.qualifies(message))
-				{
-  					val error = StreamError(message)
+					case tail:StreamTail => println("tail")
+					// TODO, do something more intelligent here?
+					case handshake:Handshake => println("connected to xmpp server")
 					// TODO, do something more intelligent here
-					println("stream error " + message)
-				}
-				else
-				{
-					try
+					case error:StreamError => println("stream error " + error)
+					case stanza:Stanza =>
 					{
-						val stanza = Stanza(message)
-						stanzaHandler(stanza)
-					}
-					catch
-					{
-						// TODO, do something more intelligent here
-						case e:Exception => println("error parsing or handling stanza " + e + "\n" + message)
+						println("stanza recieved")
+						
+						try
+						{
+							stanzaHandler(stanza)
+						}
+						catch
+						{
+							// TODO, do something more intelligent here
+							case e:Exception => println("error handling stanza " + e + "\n" + message)
+						}
 					}
 				}
 			}
