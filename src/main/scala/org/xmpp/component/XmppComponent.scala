@@ -10,28 +10,17 @@ package org.xmpp
 		import java.net.Socket
 		import java.net.InetSocketAddress
 		
+		import scala.collection._
 		import scala.xml._
-		
-		// TODO: replace all dom4j and xmlpull with native scala xml
-		//import org.xmlpull.v1.XmlPullParser
-		//import org.xmlpull.v1.XmlPullParserException
-		//import org.xmlpull.v1.XmlPullParserFactory
-		
-		// TODO: replace all dom4j and xmlpull with native scala xml
-		//import org.dom4j.Element	
-		//import org.dom4j.io.XPPPacketReader
 		
 		import net.lag.naggati.IoHandlerActorAdapter
 		import net.lag.naggati.MinaMessage
 		import net.lag.naggati.ProtocolError
 					
 		import org.apache.mina.core.session.IoSession
-		//import org.apache.mina.core.buffer.IoBuffer
 		import org.apache.mina.filter.codec.ProtocolCodecFilter
-		//import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory
 		import org.apache.mina.filter.logging.LoggingFilter
 		import org.apache.mina.transport.socket.nio.NioSocketConnector
-		//import org.apache.mina.common.ConnectFuture
 		
 		//import scala.actors.Actor
 		//import scala.actors.Actor._
@@ -134,7 +123,8 @@ package org.xmpp
 			{
 				try
 				{
-					send("</stream:stream>")
+					send(StreamTail())
+					//send("</stream:stream>")
 					if (null != _session) _session.getCloseFuture.awaitUninterruptibly
 					if (null != _connector) _connector.dispose
 					
@@ -193,7 +183,9 @@ package org.xmpp
 						case MinaMessage.SessionOpened => 
 						{
 							// open xmpp stream
-							send("<stream:stream xmlns=\"jabber:component:accept\" xmlns:stream=\"http://etherx.jabber.org/streams\" to=\"" + domain + "\">")							
+							val streamHead = StreamHead("jabber:component:accept", immutable.List("to" -> domain))
+							send(streamHead)
+							//send("<stream:stream xmlns=\"jabber:component:accept\" xmlns:stream=\"http://etherx.jabber.org/streams\" to=\"" + domain + "\">")							
 						}
 						case MinaMessage.MessageReceived(msg) => 
 						{
@@ -223,14 +215,20 @@ package org.xmpp
   			private def handle(message:String) = 
 			{				
 				// TODO: use pattern matching here
-				if (message.indexOf("<stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:component:accept'") >= 0)
+				//if (message.indexOf("<stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:component:accept'") >= 0)
+  				if (StreamHead.qualifies(message))
 				{
 					try
 					{
 						// stream open succeeded, now hanshake
-						val xml = XML.loadString(message + "</stream:stream>")
-						val connectionId = (xml \ "@id").text
-						send(Handshake(connectionId, secret))
+						//val xml = XML.loadString(message + "</stream:stream>")
+						//val connectionId = (xml \ "@id").text
+						val head = StreamHead(message)
+						head.findAttribute("id") match
+						{
+							case Some(connectionId) => send(Handshake(connectionId, secret))
+							case None => throw new Exception("invaild stream head, conection id not found")
+						}
 					}
 					catch
 					{
@@ -238,14 +236,22 @@ package org.xmpp
 						case e:Exception => println("handhsake error " + e)
 					}
 				}
-				else if (message.indexOf("<handshake/>") >= 0)
+  				else if (StreamTail.qualifies(message))
+  				{
+  					// ignore
+  					println("tail")
+  				}
+				//else if (message.indexOf("<handshake/>") >= 0)
+				else if (Handshake.qualifies(message))
 				{
 					// handlshake succeeded
 					// TODO, do something more intelligent here
 					println("connected to xmpp server")
 				}
-				else if (message.indexOf("<error") >= 0)
+				//else if (message.indexOf("<error") >= 0)
+  				else if (StreamError.qualifies(message))
 				{
+  					val error = StreamError(message)
 					// TODO, do something more intelligent here
 					println("stream error " + message)
 				}

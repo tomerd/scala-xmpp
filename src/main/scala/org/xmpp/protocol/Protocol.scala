@@ -32,6 +32,8 @@ package org.xmpp
 			implicit def metadata2opt(metadata:MetaData):Option[MetaData] = if ((null != metadata) && (Null != metadata)) Some(metadata) else None
 			implicit def seqnode2optseqnode(seq:Seq[Node]):Option[Seq[Node]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None
 						
+			implicit def streamhead2string(head:StreamHead):String = head.toString
+			implicit def streamtail2string(tail:StreamTail):String = tail.toString
 			implicit def wrapper2string(wrapper:XmlWrapper):String = wrapper.toString
 			implicit def wrapper2node(wrapper:XmlWrapper):Node = wrapper.xml
 			implicit def wrapper2seq(wrapper:XmlWrapper):Seq[XmlWrapper] = List(wrapper)			

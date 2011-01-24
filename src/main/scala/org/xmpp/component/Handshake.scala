@@ -10,13 +10,23 @@ package org.xmpp
 		
 		object Handshake
 		{
+			private val tag = "handshake"
+			
 			private val digest = MessageDigest.getInstance("SHA-1")
+			
+			def qualifies(string:String):Boolean = 
+			{
+				val xml = XML.loadString(string)
+				return tag == xml.label
+			}
 			
 			def apply(connectionId:String, secret:String):Handshake =
 			{
 				val key = createHandshakeKey(connectionId, secret)
 				return new Handshake(<handshake>{ key }</handshake>)
 			}
+			
+			def apply():Handshake = new Handshake(<handshake/>)
 			
 			private def createHandshakeKey(connectionId:String, secret:String):String =
 			{				
@@ -30,7 +40,7 @@ package org.xmpp
 				val key = connectionId + secret
 				Handshake.digest.update(key.getBytes("UTF-8"))
 				return bytes2Hex(Handshake.digest.digest)
-			}			
+			}
 		}
 		
 		class Handshake(xml:Node) extends XmlWrapper(xml)
