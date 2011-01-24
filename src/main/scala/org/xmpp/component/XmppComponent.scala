@@ -192,36 +192,27 @@ package org.xmpp
 					{	
 						case MinaMessage.SessionOpened => 
 						{
-							println("session opened")
 							// open xmpp stream
 							send("<stream:stream xmlns=\"jabber:component:accept\" xmlns:stream=\"http://etherx.jabber.org/streams\" to=\"" + domain + "\">")							
 						}
-						case MinaMessage.MessageSent(msg) =>
-						{
-							println("message sent " + msg)
-						}
 						case MinaMessage.MessageReceived(msg) => 
 						{
-							println("message received " + msg)
 							handle(msg.toString)
 						}
 						case MinaMessage.SessionClosed => 
 						{
-							println("session closed")
 							exit
 						}
 						case MinaMessage.SessionIdle(status) => 
 						{
-							println("session idle")
 							session.close
 						}
 						case MinaMessage.ExceptionCaught(cause) => 
 						{
-							println("exception caught " + cause)
-							
 							cause.getCause match 
 							{
-								case e3:Exception => send("502 Error: " + e3.getMessage + "\n")
+								// TODO, do something more intelligent here
+								case e:Exception => println("mina exception caught: " + e)
 							}
 							session.close
 						}
@@ -243,19 +234,19 @@ package org.xmpp
 					}
 					catch
 					{
-						// TODO, do something more intellegent here
+						// TODO, do something more intelligent here
 						case e:Exception => println("handhsake error " + e)
 					}
 				}
 				else if (message.indexOf("<handshake/>") >= 0)
 				{
 					// handlshake succeeded
-					// TODO, do something more intellegent here
+					// TODO, do something more intelligent here
 					println("connected to xmpp server")
 				}
 				else if (message.indexOf("<error") >= 0)
 				{
-					// TODO, do something more intellegent here
+					// TODO, do something more intelligent here
 					println("stream error " + message)
 				}
 				else
@@ -267,7 +258,7 @@ package org.xmpp
 					}
 					catch
 					{
-						// TODO, do something more intellegent here
+						// TODO, do something more intelligent here
 						case e:Exception => println("error parsing or handling stanza " + e + "\n" + message)
 					}
 				}
