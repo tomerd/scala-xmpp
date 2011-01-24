@@ -124,7 +124,6 @@ package org.xmpp
 				try
 				{
 					send(StreamTail())
-					//send("</stream:stream>")
 					if (null != _session) _session.getCloseFuture.awaitUninterruptibly
 					if (null != _connector) _connector.dispose
 					
@@ -183,9 +182,8 @@ package org.xmpp
 						case MinaMessage.SessionOpened => 
 						{
 							// open xmpp stream
-							val streamHead = StreamHead("jabber:component:accept", immutable.List("to" -> domain))
-							send(streamHead)
-							//send("<stream:stream xmlns=\"jabber:component:accept\" xmlns:stream=\"http://etherx.jabber.org/streams\" to=\"" + domain + "\">")							
+							val head = StreamHead("jabber:component:accept", immutable.List("to" -> domain))
+							send(head)							
 						}
 						case MinaMessage.MessageReceived(msg) => 
 						{
@@ -214,15 +212,10 @@ package org.xmpp
 			
   			private def handle(message:String) = 
 			{				
-				// TODO: use pattern matching here
-				//if (message.indexOf("<stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:component:accept'") >= 0)
   				if (StreamHead.qualifies(message))
 				{
 					try
 					{
-						// stream open succeeded, now hanshake
-						//val xml = XML.loadString(message + "</stream:stream>")
-						//val connectionId = (xml \ "@id").text
 						val head = StreamHead(message)
 						head.findAttribute("id") match
 						{
@@ -241,14 +234,12 @@ package org.xmpp
   					// ignore
   					println("tail")
   				}
-				//else if (message.indexOf("<handshake/>") >= 0)
 				else if (Handshake.qualifies(message))
 				{
 					// handlshake succeeded
 					// TODO, do something more intelligent here
 					println("connected to xmpp server")
 				}
-				//else if (message.indexOf("<error") >= 0)
   				else if (StreamError.qualifies(message))
 				{
   					val error = StreamError(message)
