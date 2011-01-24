@@ -231,13 +231,13 @@ package org.xmpp
 				}
   				else if (StreamTail.qualifies(message))
   				{
-  					// ignore
+  					// TODO, do something more intelligent here?
   					println("tail")
   				}
 				else if (Handshake.qualifies(message))
 				{
 					// handlshake succeeded
-					// TODO, do something more intelligent here
+					// TODO, do something more intelligent here?
 					println("connected to xmpp server")
 				}
   				else if (StreamError.qualifies(message))
