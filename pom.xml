@@ -74,7 +74,7 @@
 			<artifactId>specs_${scala.version}</artifactId>
 			<version>1.6.6-SNAPSHOT</version>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
 	</dependencies>
 	
 	<build>
