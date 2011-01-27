@@ -12,22 +12,7 @@ package org.xmpp
 		import org.xmpp.protocol.Protocol._
 		
 		object Stanza
-		{
-			// TODO: once XmppComponent removes all dependencies from dom4j need to remove this as well
-			// TODO: find a better way to do this
-			/*
-			def apply(element:org.dom4j.Element):Stanza =
-			{
-				import java.io._
-				import org.dom4j.io._
-		
-				val buffer:StringWriter = new StringWriter()
-				val writer:XMLWriter = new XMLWriter(buffer, OutputFormat.createPrettyPrint())
-				writer.write(element)
-				return apply(buffer.toString)
-			}
-			*/
-			
+		{			
 			def apply(xml:String):Stanza= apply(XML.loadString(xml))
 									
 			def apply(xml:Node):Stanza = 

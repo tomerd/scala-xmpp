@@ -37,119 +37,177 @@ package org.xmpp
 			}
 		}
 		
-		class XmppDecoder extends Decoder(readAll
-		{ buffer =>
-			{
-				val string = new String(buffer, "UTF-8")
-				
-				if (StreamHead.qualifies(string))
+		class XmppDecoder extends Decoder(XmppDecoder.decode)
+		
+		object XmppDecoder
+		{
+			def decode = readAll(buffer => parse(new String(buffer, "UTF-8")))
+
+			private def parse(input:String):Step = 
+			{ 			
+				if (StreamHead.qualifies(input))
 				{
-					state.out.write(StreamHead(string)) 
+					state.out.write(StreamHead(input)) 
 					End
 				}
-  				else if (StreamTail.qualifies(string))
-  				{
-  					state.out.write(StreamTail())
-  					End
-  				}
-  				else
-  				{
-  					try
-  					{
-						var level = 0
-						var children = new mutable.HashMap[Int, mutable.ListBuffer[Node]]
-						var attributes = new mutable.HashMap[Int, MetaData]
-						var scope = new mutable.HashMap[Int, NamespaceBinding]
-						
-						var result:Option[Tuple2[AnyRef, Option[Iterator[XMLEvent]]]] = None
-						val tokenizer = new XMLEventReader(scala.io.Source.fromString(string))
-						
-						while (tokenizer.hasNext && result.isEmpty) 
-						{			
-							tokenizer.next match
+				else if (StreamTail.qualifies(input))
+				{
+					state.out.write(StreamTail())
+					End
+				}
+				else
+				{
+					parseInternal(input)
+				}
+			}
+			
+			private def parseInternal(input:String):Step =
+			{
+				try
+				{
+					if (!state.data.contains("buffered")) state.data += "buffered" -> ""
+					
+					val buffered = state.data("buffered")
+					val candidate = buffered + input
+					
+					var level = 0
+					var children = new mutable.HashMap[Int, mutable.ListBuffer[Node]]
+					var attributes = new mutable.HashMap[Int, MetaData]
+					var scope = new mutable.HashMap[Int, NamespaceBinding]
+					
+					var result:Option[Tuple2[Node, Option[Int]]] = None
+					
+					//FIXME: XmlPull is buggy and crahses on bad (or partial!) xml
+					val tokenizer = new XMLEventReader(scala.io.Source.fromString(candidate))						
+					while (tokenizer.hasNext && result.isEmpty)
+					{			
+						tokenizer.next match
+						{
+							case tag:EvText => children(level) += new Text(tag.text)
+							case tag:EvProcInstr => children(level) += new ProcInstr(tag.target, tag.text)
+							case tag:EvComment => children(level) += new Comment(tag.text)
+							case tag:EvEntityRef => children(level) += new EntityRef(tag.entity)
+							case tag:EvElemStart => 
+							{			
+								level = level+1
+								if (!attributes.contains(level)) attributes += level -> tag.attrs else attributes(level) = tag.attrs
+								if (!scope.contains(level)) scope += level -> tag.scope else scope(level) = tag.scope
+								if (!children.contains(level)) children += level -> new mutable.ListBuffer[Node]() else children(level) = new mutable.ListBuffer[Node]()
+							}
+							case tag:EvElemEnd => 
 							{
-								case tag:EvText => children(level) += new Text(tag.text)
-								case tag:EvProcInstr => children(level) += new ProcInstr(tag.target, tag.text)
-								case tag:EvComment => children(level) += new Comment(tag.text)
-								case tag:EvEntityRef => children(level) += new EntityRef(tag.entity)
-								case tag:EvElemStart => 
-								{			
-									level = level+1
-									if (!attributes.contains(level)) attributes += level -> tag.attrs else attributes(level) = tag.attrs
-									if (!scope.contains(level)) scope += level -> tag.scope else scope(level) = tag.scope
-									if (!children.contains(level)) children += level -> new mutable.ListBuffer[Node]() else children(level) = new mutable.ListBuffer[Node]()
-								}
-								case tag:EvElemEnd => 
-								{									
-									val node = Elem(tag.pre, tag.label, attributes(level), scope(level), children(level):_*)
-									
-									level = level-1								
-									if (0 == level)
+								val node = Elem(tag.pre, tag.label, attributes(level), scope(level), children(level):_*)
+								
+								level = level-1
+								if (0 == level)
+								{
+									// deal with leftover
+									val leftover = tokenizer.hasNext match
 									{
-										// deal with leftover
-										val leftover = tokenizer.hasNext match
-										{
-											case true => Some(tokenizer.slice(tokenizer.indexOf(tag), tokenizer.length))
-											case false => None
-										}
-										
-										// parsed message
-										val message = node.label match
-										{
-											case StreamError.tag => StreamError(node)
-											case Handshake.tag => Handshake(node)
-											case _ => Stanza(node)
-										}
-										
-										result = Some(Tuple2(message, leftover))
+										case true => Some(tokenizer.indexOf(tag))
+										case false => None
 									}
-									else
-									{
-										children(level) += node		
-									}				
+									
+									result = Some(Tuple2(node, leftover))
 								}
+								else
+								{
+									children(level) += node		
+								}				
 							}
 						}
-						
-						result match
-						{
-  							case Some(tuple) =>
-  							{
-  								// deal with leftover
-  								if (!tuple._2.isEmpty)
-  								{
-	  								// FIXME: implement this
-	  								println("tail found")
-	  								val save = tuple._2.get
-  								}
-  								
-  								// write message out
-  								state.out.write(tuple._1)
-  								End
-  							}
-  							case None =>
-  							{
-  								// deal with parial
-  								// FIXME: implement this
-  								println("partial found")
-  								val save = tokenizer
-  								End
-  							}
-						}
-						
 					}
-					catch
+										
+					result match
 					{
-						case e:Exception =>
+						case Some(tuple) =>
 						{
-							// TODO: do something more intelligent here
-							println("internal error decoding packet " + string + "\nerror: " + e)
-							End
+							// clear buffer
+							state.data("buffered") = ""
+							// write message out
+							val ouput = tuple._1.label match
+							{
+								case StreamError.tag => StreamError(tuple._1)
+								case Handshake.tag => Handshake(tuple._1)
+								case _ => Stanza(tuple._1)
+							}								
+							state.out.write(ouput)
+							
+							// deal with leftover
+							if (!tuple._2.isEmpty)
+							{
+								// FIXME: implement this
+								val index = tuple._2.get
+								// FIXME, not sure why, but this is the only way i was able to get a stable copy of the iterator
+								val leftover = new XMLEventReader(scala.io.Source.fromString(candidate)).drop(index).mkString
+								println("leftover found: " + leftover)
+								End // this should be replaced with recursive call with the lefover itself
+							}
+							else
+							{
+								End
+							}
 						}
+						case None =>
+						{
+							// deal with parial xml
+							println("partial found: " + input) 
+							state.data("buffered") = candidate
+							decode
+						}
+					}
+					
+					/*
+					val buffered = state.data.getOrElse("buffered", "")
+					val candidate = buffered + input					
+					
+					if (candidate.substring(candidate.length-2, candidate.length-1) != ">")
+					{
+						// deal with partial xml
+						if (!state.data.contains("buffered")) state.data += "buffered" -> candidate else state.data("buffered") = candidate
+						decode						
+					}
+					else
+					{
+						if (!leftover.isEmpty)
+						{
+							// deal with leftover xml
+							// FIXME: implement this
+							println("leftover")
+						}
+						else
+						{
+							// parse message
+							val xml = XML.loadString(candidate)
+							val output = xml.label match
+							{
+								case StreamError.tag => StreamError(xml)
+								case Handshake.tag => Handshake(xml)
+								case _ => Stanza(xml)
+							}
+							
+							// clear buffer
+							if (state.data.contains("buffered")) state.data("buffered") = ""
+							// write message out
+							state.out.write(output)
+							End	
+						}
+					}
+					*/
+				}
+				catch
+				{
+					case e:Exception =>
+					{
+						// TODO: do something more intelligent here
+						println("internal error decoding packet " + input + "\nerror: " + e)
+						End
 					}
 				}
 			}
-		})
+		}
 		
+		
+			
 	}
 }
