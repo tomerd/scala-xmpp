@@ -228,23 +228,26 @@ package org.xmpp
 					// TODO, do something more intelligent here?
 					case handshake:Handshake => println("connected to xmpp server")
 					// TODO, do something more intelligent here
-					case error:StreamError => println("stream error " + error)
-					case stanza:Stanza =>
-					{
-						println("stanza recieved")
-						
-						try
-						{
-							stanzaHandler(stanza)
-						}
-						catch
-						{
-							// TODO, do something more intelligent here
-							case e:Exception => println("error handling stanza " + e + "\n" + message)
-						}
-					}
+					case error:StreamError => println("stream error " + error)			
+					case stanza:Stanza => handleStanza(stanza)
+					case stanzas:Seq[Stanza] => stanzas.foreach( stanza => handleStanza(stanza) )	
 				}
 			}
+  			
+  			private def handleStanza(stanza:Stanza)
+  			{
+  				println("stanza recieved")
+						
+				try
+				{
+					stanzaHandler(stanza)
+				}
+				catch
+				{
+					// TODO, do something more intelligent here
+					case e:Exception => println("error handling stanza " + e + "\n" + stanza)
+				}
+  			}
 			
 			private def send(content:String) = 
 			{
