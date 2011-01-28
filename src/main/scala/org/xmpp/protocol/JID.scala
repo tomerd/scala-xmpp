@@ -7,10 +7,13 @@ package org.xmpp
 			def apply(string:String):JID =
 			{
 				val array1 = string.split("@")
-				if (array1.length < 2) return JID(null, string, null)
-				var array2 = array1(1).split("/")
-				if (array2.length < 2) return JID(array1(0), array1(1), null)
-				return JID(array1(0), array2(0), array2(1)) 				
+				val array2 = if (2 == array1.length) array1(1).split("/") else string.split("/")
+				
+				val node = if (2 == array1.length) array1(0) else ""				
+				val resource = if (2 == array2.length) array2(1) else ""
+				val domain = if (2 == array2.length) array2(0) else array1(0)
+				
+				return JID(node, domain, resource)
 			}
 		}
 		
@@ -20,7 +23,7 @@ package org.xmpp
 			
 			def validate
 			{
-				// TODO: implement this accorind to XMPP spec
+				// TODO: implement this accoring to the XMPP spec
 			}
 			
 			override def toString:String =
@@ -31,9 +34,9 @@ package org.xmpp
 					case None =>
 					{
 						val builder = new StringBuilder()
-						if (null != node) builder.append(this.node).append("@")
+						if (!node.isEmpty) builder.append(this.node).append("@")
 						builder.append(this.domain)
-						if (null != resource) builder.append("/").append(this.resource)
+						if (!resource.isEmpty) builder.append("/").append(this.resource)
 						_display = Some(builder.toString)
 						return _display.get
 					}

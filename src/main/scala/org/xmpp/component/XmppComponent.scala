@@ -40,7 +40,6 @@ package org.xmpp
 		
 		trait XmppComponent 
 		{
-			// getters
 			private var _subdomain:String = _
 			def subdomain:String = _subdomain
 			
@@ -55,7 +54,7 @@ package org.xmpp
 			
 			private var _timeout:Int = _
 			def timeout:Int = _timeout
-						
+			
 			private var _connector:NioSocketConnector = _
 			private var _session:IoSession = _
 			
@@ -94,7 +93,7 @@ package org.xmpp
 				
 				// TODO: look into this
 				val domain = subdomain
-								
+				
 				// start a mina thread pool listening on server messages
 				_connector = new NioSocketConnector()
 				_connector.setConnectTimeout(timeout)
@@ -127,7 +126,6 @@ package org.xmpp
 					if (null != _session) _session.getCloseFuture.awaitUninterruptibly
 					if (null != _connector) _connector.dispose
 					
-					//_handler ! Disconnect
 					ScheduledJobsManager.stopAll
 				}
 				catch
@@ -153,7 +151,7 @@ package org.xmpp
 				}
 				catch
 				{
-					case e:IOException =>
+					case e:Exception =>
 					{
 						// TODO: do something here
 						println(e)
@@ -170,6 +168,7 @@ package org.xmpp
 		{
 			//session.getConfig.setReadBufferSize(2048)
 			IoHandlerActorAdapter.filter(session) -= classOf[MinaMessage.MessageSent]
+			IoHandlerActorAdapter.filter(session) -= classOf[MinaMessage.SessionIdle]
 			
 			start
 			
@@ -191,20 +190,14 @@ package org.xmpp
 						}
 						case MinaMessage.SessionClosed => 
 						{
+							// FIXME: should we try to re-connect?
 							exit
-						}
-						case MinaMessage.SessionIdle(status) => 
-						{
-							session.close
 						}
 						case MinaMessage.ExceptionCaught(cause) => 
 						{
-							cause.getCause match 
-							{
-								// TODO, do something more intelligent here
-								case e:Exception => println("mina exception caught: " + e)
-							}
-							session.close
+							// TODO, do something more intelligent here
+							println("mina exception caught: " + cause.getCause)
+							//session.close
 						}
 					}
 				}
@@ -236,8 +229,8 @@ package org.xmpp
   			
   			private def handleStanza(stanza:Stanza)
   			{
-  				println("stanza recieved")
-						
+  				println("stanza recieved, to: " + stanza.to.getOrElse("unknonw") + " from: " + stanza.from.getOrElse("unknonw"))
+				
 				try
 				{
 					stanzaHandler(stanza)
