@@ -11,7 +11,7 @@ package org.xmpp
 				
 				val node = if (2 == array1.length) array1(0) else ""				
 				val resource = if (2 == array2.length) array2(1) else ""
-				val domain = if (2 == array2.length) array2(0) else array1(0)
+				val domain = if (2 == array2.length) array2(0) else if (2 == array1.length) array1(1) else string
 				
 				return JID(node, domain, resource)
 			}
