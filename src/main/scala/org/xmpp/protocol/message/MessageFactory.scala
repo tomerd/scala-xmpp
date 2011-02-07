@@ -14,7 +14,7 @@ package org.xmpp
 		{
 			def create(xml:Node):Message = 
 			{		
-				require(Message.tag == xml.label)
+				require("message" == xml.label)
 				
 				(xml \ "@type").text match
 				{

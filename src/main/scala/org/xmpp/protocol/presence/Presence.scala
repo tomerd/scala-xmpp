@@ -8,7 +8,7 @@ package org.xmpp
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.Protocol._
 					
-		protected[protocol] object Presence
+		protected[xmpp] object Presence
 		{
 			val tag = "presence"
 			

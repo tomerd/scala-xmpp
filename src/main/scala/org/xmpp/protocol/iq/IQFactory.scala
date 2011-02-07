@@ -14,7 +14,7 @@ package org.xmpp
 		{
 			def create(xml:Node):IQ =
 			{
-				require(IQ.tag == xml.label)
+				require("iq" == xml.label)
 				
 				(xml \ "@type").text match
 				{

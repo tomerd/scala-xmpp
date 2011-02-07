@@ -8,7 +8,7 @@ package org.xmpp
 		import org.xmpp.protocol._
 		import org.xmpp.protocol.Protocol._
 		
-		protected[protocol] object IQ
+		protected[xmpp] object IQ
 		{
 			val tag = "iq"
 									

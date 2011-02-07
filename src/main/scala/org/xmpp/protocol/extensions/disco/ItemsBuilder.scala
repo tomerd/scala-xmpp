@@ -14,7 +14,7 @@ package org.xmpp
 		object ItemsBuilder extends ExtensionBuilder[Query]
 		{
 			val name = Query.name
-			val namespace = "http://jabber.org/protocol/disco#items"
+			val namespace = "http://jabber.org/protocol/disco#info"
 			
 			def apply(xml:Node):Query = 
 			{
