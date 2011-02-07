@@ -1,0 +1,4 @@
+.settings
+.scala_dependencies
+target
+*.tmproj
