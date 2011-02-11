@@ -18,7 +18,7 @@ package org.simbit.xmpp
 		}
 		
 		case class JID(node:String, domain:String, resource:String)
-		{
+		{						
 			private var _display:Option[String] = None
 			
 			def validate
@@ -34,13 +34,19 @@ package org.simbit.xmpp
 					case None =>
 					{
 						val builder = new StringBuilder()
-						if (!node.isEmpty) builder.append(this.node).append("@")
+						if (null != node && !node.isEmpty) builder.append(this.node).append("@")
 						builder.append(this.domain)
-						if (!resource.isEmpty) builder.append("/").append(this.resource)
+						if (null != resource && !resource.isEmpty) builder.append("/").append(this.resource)
 						_display = Some(builder.toString)
 						return _display.get
 					}
 				}
+			}
+			
+			override def equals(other:Any) = other match 
+			{
+				case jid:JID => jid.toString == this.toString 
+				case _ => false
 			}
 		}
 	}

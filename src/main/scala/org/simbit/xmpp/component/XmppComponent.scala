@@ -63,7 +63,7 @@ package org.simbit.xmpp
 			
 			def configure(subdomain:String, host:String, port:Int, secret:String, timeout:Int=0)
 			{
-				_jid = JID(subdomain, host, null)
+				_jid = JID(null, subdomain + "." + host, null)
 				_subdomain = subdomain
 				_host = host
 				_port = port
