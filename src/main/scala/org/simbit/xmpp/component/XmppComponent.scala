@@ -31,6 +31,11 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.codec._
 		import org.simbit.xmpp.protocol._
+		import org.simbit.xmpp.protocol.presence._		
+		import org.simbit.xmpp.protocol.iq._
+		import org.simbit.xmpp.protocol.message._
+		import org.simbit.xmpp.protocol.extensions._
+		
 		import org.simbit.xmpp.protocol.Protocol._
 		
 		object XmppComponent
@@ -40,6 +45,11 @@ package org.simbit.xmpp
 		
 		trait XmppComponent extends Logger
 		{
+			protected val identities:Seq[disco.Identity] = Nil		
+			protected val features:Seq[disco.Feature] = Nil
+			// TODO, not sure if i like this, perhaps need to leave it up to the component to decide if and when it wants to register the extension builders
+			protected val extensionsBuilders:Seq[ExtensionBuilder[_ <: Extension]] = Nil
+			
 			private var _jid:JID = _
 			def jid = _jid
 			
@@ -57,7 +67,7 @@ package org.simbit.xmpp
 			
 			private var _timeout:Int = _
 			def timeout = _timeout
-			
+						
 			private var _connector:NioSocketConnector = _
 			private var _session:IoSession = _
 			
@@ -75,6 +85,9 @@ package org.simbit.xmpp
 				require(this.port != 0)
 				require(this.secret != null)
 				require(this.timeout != 0)
+				
+				// TODO, not sure if i like this, perhaps need to leave it up to the component to decide if and when it wants to register the extension builders
+				extensionsBuilders.foreach( builder => ExtensionsManager.registerBuilder(builder) )
 			}
 			
 			def start
@@ -96,7 +109,7 @@ package org.simbit.xmpp
 				val future = _connector.connect(new InetSocketAddress(host, port))
 				future.awaitUninterruptibly
 				_session = future.getSession
-				
+								
 				// FIXME: interval should come from a configuration file
 				ScheduledJobsManager.registerJob("keeplalive_" + this.subdomain, this.keepalive, 60 * 1000)
 				ScheduledJobsManager.registerJob("cleanup_" + this.subdomain, this.cleanup, 10 * 60 * 1000)				
@@ -124,8 +137,6 @@ package org.simbit.xmpp
 					_session = null
 					_connector = null
 				}
-				
-				// TODO: add hook for implementations
 			}
 			
 			def send(content:String) 
@@ -147,10 +158,79 @@ package org.simbit.xmpp
 				}
 			}
 						
-			protected def handleStanza(stanza:Stanza)
+			protected def handleStanza(stanza:Stanza) 
+			{
+				//TODO, find a better way to do the disco match, ideally we would match on a well defined disco instead of matching on the extension
+				stanza match
+			 	{
+					case presence:Presence => handlePresence(presence)	
+					case get @ Get(_, _, _, Some(info:disco.Info)) => handleDiscoInfo(get, info)
+					case get @ Get(_, _, _, Some(items:disco.Items)) => handleDiscoItems(get, items)
+					case iq:IQ => handleIQ(iq)
+					case message:Message => handleMessage(message)
+				}
+			}
+			
+			protected def handlePresence(presence:Presence)
+			{	
+				// to be implemented by subclasses as required
+			}
+
+		    protected def handleIQ(iq:IQ)
+			{    	
+		    	// to be implemented by subclasses as required
+			}
+				
+			protected def handleMessage(message:Message)
+			{
+				// to be implemented by subclasses as required
+			}
+
+			private def handleDiscoInfo(request:Get, infoRequest:disco.Info)
+			{				
+				request.to match
+				{
+					case Some(jid) if jid == this.jid => 
+					{
+						send(request.result(infoRequest.result(this.identities, this.features)))
+					}
+					case _ => getChildDiscoInfo(request.to.get, infoRequest) match
+					{
+						case Some(info) => send(request.result(info))
+						case _ => // do nothing					
+					}
+				}
+			}
+			
+			// to be implemented by sub classes as required
+			protected def getChildDiscoInfo(jid:JID, request:disco.Info):Option[disco.InfoResult] = None
+			
+			private def handleDiscoItems(request:Get, itemsRequest:disco.Items)
+			{				
+				request.to match
+				{
+					case Some(jid) if jid == this.jid => getDiscoItems(itemsRequest) match 
+					{
+						case Some(items) => send(request.result(items))
+						case _ => // do nothing						
+					}
+					case _ => getChildDiscoItems(request.to.get, itemsRequest) match
+					{
+						case Some(items) => send(request.result(items))
+						case _ => // do nothing
+					}
+				}
+			}
+			
+			// to be implemented by sub classes as required	
+			protected def getDiscoItems(request:disco.Items):Option[disco.ItemsResult] = None
+			
+			// to be implemented by sub classes as required	
+			protected def getChildDiscoItems(jid:JID, request:disco.Items):Option[disco.ItemsResult] = None
 			
 			protected def cleanup()
 			{
+				// to be implemented by sub classes as required
 			}
 			
 			private def keepalive()
@@ -206,17 +286,17 @@ package org.simbit.xmpp
 					{
 						head.findAttribute("id") match
 						{
-							case Some(connectionId) => send(Handshake(connectionId, secret))
+							case Some(connectionId) => send(ComponentHandshake(connectionId, secret))
 							// TODO, do something more intelligent here
-							case None => error(this.subdomain + " invaild stream head, conection id not found")
+							case None => error(this.subdomain + " received an invaild stream head, conection id not found")
 						}
 					}
 					// TODO, do something more intelligent here?
 					case tail:StreamTail => debug(this.subdomain + " stream tail")
 					// TODO, do something more intelligent here?
-					case handshake:Handshake => debug(this.subdomain + " connected to xmpp server")
+					case handshake:Handshake => info(this.subdomain + " connected to xmpp server")
 					// TODO, do something more intelligent here
-					case error:StreamError => debug("stream error " + error)			
+					case error:StreamError => debug(this.subdomain + " received stream error " + error)			
 					case stanza:Stanza => handleStanza(stanza)
 					case stanzas:Seq[Stanza] => stanzas.foreach( stanza => handleStanza(stanza) )	
 				}
@@ -224,7 +304,7 @@ package org.simbit.xmpp
   			
   			private def handleStanza(stanza:Stanza)
   			{
-  				debug(this.subdomain +" stanza recieved, to: " + stanza.to.getOrElse("unknonw") + " from: " + stanza.from.getOrElse("unknonw"))
+  				debug(stanza.to.getOrElse(this.subdomain) + " recieved stanza from: " + stanza.from.getOrElse("unknown"))
 				
 				try
 				{
@@ -233,7 +313,7 @@ package org.simbit.xmpp
 				catch
 				{
 					// TODO, do something more intelligent here
-					case e:Exception => error(this.subdomain + " error handling stanza " + e + "\n" + stanza)
+					case e:Exception => error(this.subdomain + " failed handling stanza " + e + "\n" + stanza)
 				}
   			}
 			

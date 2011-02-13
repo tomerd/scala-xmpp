@@ -30,25 +30,27 @@ package org.simbit.xmpp
 				
 			def build(name:String, stanzaType:String, id:Option[String], to:Option[JID], from:Option[JID], children:Option[Seq[Node]]=None):Node = 
 			{
-				val kids:Seq[Node] = if (!children.isEmpty) children.get else null
+				val kids:Seq[Node] = if (!children.isEmpty) children.get else Nil
 				//if (!extension.isEmpty) children += extension.get
 				var metadata:MetaData = Null
+				if (null != stanzaType && !stanzaType.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(stanzaType), Null))
 				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
 				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
 				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
-				if (null != stanzaType && !stanzaType.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(stanzaType), Null))
 				
 				return Elem(null, name, metadata, TopScope, kids:_*)
 			}
-			
+						
+			/*
 			def error(name:String, id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Node =
 			{
 				var metadata:MetaData = new UnprefixedAttribute("type", Text("error"), Null)
 				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
 				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
 				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
-				return Elem(null, name, metadata, TopScope, Error(errorCondition, errorDescription))
-			}	
+				return Elem(null, name, metadata, TopScope, StanzaError(errorCondition, errorDescription))
+			}
+			*/
 		}
 		
 		abstract class Stanza(xml:Node) extends XmlWrapper(xml)
@@ -75,18 +77,7 @@ package org.simbit.xmpp
 					case Some(attribute) => if (attribute.value.text.isEmpty) None else Some(attribute.value.text)
 					case None => None
 				}
-			}
-			
-			val extension:Option[Extension] = ExtensionsManager.getExtension(this.xml)
-			
-			
-			/*
-			val error:Option[Error] = 
-			{
-				val errorNodes = (this.xml \ "error")
-				if (0 == errorNodes.length) None else Some(new Error(errorNodes(0)))
-			}
-			*/	
+			}	
 		}
 		
 	}

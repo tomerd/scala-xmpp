@@ -10,7 +10,7 @@ package org.simbit.xmpp
 		
 		object Query //extends ExtensionBuilder[Query]
 		{
-			def name = "query"
+			def tag = "query"
 			
 			/*
 			def apply(namespace:String):Query = apply(namespace, Null, Nil)

@@ -10,7 +10,7 @@ package org.simbit.xmpp
 		
 		object Event
 		{
-			def name = "event"
+			def tag = "event"
 			
 			/*
 			def apply(namespace:String):Query = apply(namespace, Null, Nil)

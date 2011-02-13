@@ -13,7 +13,7 @@ package org.simbit.xmpp
 		
 		object ItemsBuilder extends ExtensionBuilder[Query]
 		{
-			val name = Query.name
+			val tag = Query.tag
 			val namespace = "http://jabber.org/protocol/disco#items"
 			
 			def apply(xml:Node):Query = 

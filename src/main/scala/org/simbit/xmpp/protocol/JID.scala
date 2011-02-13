@@ -23,7 +23,7 @@ package org.simbit.xmpp
 			
 			def validate
 			{
-				// TODO: implement this accoring to the XMPP spec
+				// TODO: implement this according to the XMPP spec
 			}
 			
 			override def toString:String =

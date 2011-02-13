@@ -16,7 +16,7 @@ package org.simbit.xmpp
 		
 			object Builder extends ExtensionBuilder[Query]
 			{
-				val name = Query.name
+				val tag = Query.tag
 				val namespace = org.simbit.xmpp.protocol.extensions.muc.general.Builder.namespace + "#owner"
 				
 				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty
@@ -26,7 +26,7 @@ package org.simbit.xmpp
 					{
 						return Destroy(xml)
 					}
-					else if (1 == (xml \ forms.Builder.name).length)
+					else if (1 == (xml \ forms.Builder.tag).length)
 					{
 						return RoomConfiguration(xml)
 					}

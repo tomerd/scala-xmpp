@@ -11,7 +11,7 @@ package org.simbit.xmpp
 		object Subscribed
 		{
 			val presenceType = PresenceTypeEnumeration.Subscribed
-			val presenceTypeName = presenceType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val presenceTypeName = presenceType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reason
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Subscribed =
 			{
@@ -20,6 +20,8 @@ package org.simbit.xmpp
 			}
 			
 			def apply(xml:Node):Subscribed = new Subscribed(xml)
+			
+			def unapply(subscribed:Subscribed):Option[(Option[String], Option[JID], Option[JID], Option[Seq[Extension]])] = Some(subscribed.id, subscribed.to, subscribed.from, subscribed.extensions)
 		}
 		
 		class Subscribed(xml:Node) extends Presence(xml, Subscribed.presenceType)

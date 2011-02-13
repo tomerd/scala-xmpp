@@ -8,28 +8,16 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol._
 		
-		object Handshake
-		{
-			val tag = "handshake"
-			
+		protected object ComponentHandshake
+		{			
 			private val digest = MessageDigest.getInstance("SHA-1")
-			
-			def qualifies(string:String):Boolean = 
-			{
-				val xml = XML.loadString(string)
-				return tag == xml.label
-			}
-			
+					
 			def apply(connectionId:String, secret:String):Handshake =
 			{
 				val key = createHandshakeKey(connectionId, secret)
 				return new Handshake(<handshake>{ key }</handshake>)
 			}
-			
-			def apply(xml:Node):Handshake = new Handshake(xml)
-			
-			def apply():Handshake = apply(<handshake/>)
-			
+						
 			private def createHandshakeKey(connectionId:String, secret:String):String =
 			{
 				def bytes2Hex(bytes:Array[Byte]):String = 
@@ -40,11 +28,10 @@ package org.simbit.xmpp
 				}
 				
 				val key = connectionId + secret
-				Handshake.digest.update(key.getBytes("UTF-8"))
-				return bytes2Hex(Handshake.digest.digest)
+				digest.update(key.getBytes("UTF-8"))
+				return bytes2Hex(digest.digest)
 			}
 		}
 		
-		class Handshake(xml:Node) extends XmlWrapper(xml)
 	}
 }

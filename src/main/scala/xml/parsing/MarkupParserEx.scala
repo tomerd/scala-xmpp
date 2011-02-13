@@ -27,9 +27,9 @@ import Utility.Escapes.{ pairs => unescape }
  * @author  Burak Emir
  * @version 1.0
  */
-trait MarkupParser extends MarkupParserCommon with TokenTests
+trait MarkupParserEx extends MarkupParserCommon with TokenTests
 { 
-  self: MarkupParser with MarkupHandler =>
+  self: MarkupParserEx with MarkupHandler =>
   
   type PositionType = Int
   type InputType    = Source

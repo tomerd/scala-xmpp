@@ -12,7 +12,7 @@ package org.simbit.xmpp
 		
 		object Result extends ExtensionBuilder[Result]
 		{
-			val name = Request.name
+			val tag = Request.tag
 			val namespace = Request.namespace
 			
 			def apply[T](total:Int, first:Option[Tuple2[T, Int]], last:Option[T]):Result = 

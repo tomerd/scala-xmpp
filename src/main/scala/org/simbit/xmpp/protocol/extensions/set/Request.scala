@@ -12,7 +12,7 @@ package org.simbit.xmpp
 		
 		object Request extends ExtensionBuilder[Request]
 		{
-			val name = "set"
+			val tag = "set"
 			val namespace = "http://jabber.org/protocol/rsm"
 			
 			def apply[T](max:Int, before:Option[T], after:Option[T], index:Option[Int]):Request = 

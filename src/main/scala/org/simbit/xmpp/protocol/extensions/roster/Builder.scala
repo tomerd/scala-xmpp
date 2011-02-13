@@ -13,7 +13,7 @@ package org.simbit.xmpp
 		
 		object Builder extends ExtensionBuilder[Query]
 		{
-			val name = Query.name
+			val tag = Query.tag
 			val namespace = "jabber:iq:roster"
 			
 			def apply(xml:Node):Query = 

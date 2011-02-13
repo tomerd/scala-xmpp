@@ -27,23 +27,31 @@ package org.simbit.xmpp
 			
 			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID]):Node = build(presenceType, id, to, from, None, None)	
 				
-			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]):Node = build(presenceType, id, to, from, None, extension)		
+			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Node = build(presenceType, id, to, from, None, extensions)		
 			
-			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], children:Option[Seq[Node]], extension:Option[Extension]):Node =
+			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], children:Option[Seq[Node]], extensions:Option[Seq[Extension]]):Node =
 			{
 				val kids = mutable.ListBuffer[Node]()
 				if (!children.isEmpty) kids ++= children.get
-				if (!extension.isEmpty) kids ++= extension.get
+				if (!extensions.isEmpty) kids ++= extensions.get
 					
 				return Stanza.build(tag, presenceType.toString, id, to, from, kids)				
 			}
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(tag, id, to, from, condition, description)
+			def error(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]], condition:ErrorCondition.Value, description:Option[String]):Node = 
+			{
+				val children = mutable.ListBuffer[Node]()
+				if (!extensions.isEmpty) children ++= extensions.get
+				children += StanzaError(condition, description)
+				Stanza.build(tag, PresenceTypeEnumeration.Error.toString, id, to, from, children)
+			}
 		}
 		
 		abstract class Presence(xml:Node, val presenceType:PresenceTypeEnumeration.Value) extends Stanza(xml)
 		{
-			def error(condition:ErrorCondition.Value, description:Option[String]=None):Error = Error(this.id, this.from, this.to, condition, description)
+			val extensions:Option[Seq[Extension]] = ExtensionsManager.getExtensions(this.xml)
+			
+			def error(condition:ErrorCondition.Value, description:Option[String]):Node = Error(this, condition, description)
 		}
 		
 		protected  object PresenceTypeEnumeration extends Enumeration

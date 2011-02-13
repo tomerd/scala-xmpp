@@ -14,7 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.nio.channels.ClosedChannelException
 
 import scala.io.Source
-import scala.xml.parsing.{ ExternalSources, MarkupHandler, MarkupParser }
+import scala.xml.parsing.{ ExternalSourcesEx, MarkupHandler, MarkupParserEx }
 
 /** 
  * Main entry point into creating an event-based XML parser.  Treating this 
@@ -56,7 +56,7 @@ class XMLEventReaderEx(src: Source) extends ProducerConsumerIterator[XMLEvent]
     //parserThread.interrupt()
   }
   
-  private class Parser(val input: Source) extends MarkupHandler with MarkupParser with ExternalSources with Runnable {
+  private class Parser(val input: Source) extends MarkupHandler with MarkupParserEx with ExternalSourcesEx with Runnable {
     val preserveWS = XMLEventReaderEx.this.preserveWS
     // track level for elem memory usage optimization
     private var level = 0

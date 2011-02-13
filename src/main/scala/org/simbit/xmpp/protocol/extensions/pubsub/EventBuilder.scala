@@ -13,7 +13,7 @@ package org.simbit.xmpp
 		
 		object EventBuilder extends ExtensionBuilder[Event]
 		{
-			val name = Event.name
+			val tag = Event.tag
 			val namespace = Builder.namespace + "#event"
 			
 			// FIXME: implement this

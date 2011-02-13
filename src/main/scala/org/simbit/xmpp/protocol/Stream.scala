@@ -49,16 +49,5 @@ package org.simbit.xmpp
 			override def toString:String = StreamTail.tag
 		}
 		
-		object StreamError
-		{
-			val tag = "error"
-			
-			def apply(xml:Node):StreamError = new StreamError(xml)
-		}
-		
-		class StreamError(xml:Node) extends XmlWrapper(xml)
-		{
-			// FIXME: implement this
-		}
 	}
 }

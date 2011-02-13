@@ -13,7 +13,7 @@ package org.simbit.xmpp
 		
 		object Builder extends ExtensionBuilder[Form]
 		{
-			val name = X.name
+			val tag = X.tag
 			val namespace = "jabber:x:data"
 			
 			def apply(xml:Node):Form = 

@@ -11,7 +11,7 @@ package org.simbit.xmpp
 		object GroupChat
 		{
 			val messageType = MessageTypeEnumeration.GroupChat
-			val messageTypeName = messageType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val messageTypeName = messageType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reason
 			
 			def apply(to:Option[JID], from:Option[JID], body:Option[String]):GroupChat = apply(None, to, from, None, body, None, None)
 			
@@ -19,13 +19,15 @@ package org.simbit.xmpp
 				
 			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String]):GroupChat = apply(id, to, from, subject, body, None, None)
 					
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):GroupChat =
+			def apply(id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):GroupChat =
 			{
-				val xml = Message.build(messageType, id, to, from, subject, body, thread, extension)
+				val xml = Message.build(messageType, id, to, from, subject, body, thread, extensions)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):GroupChat = new GroupChat(xml)
+			
+			def unapply(groupchat:GroupChat):Option[(Option[String], Option[JID], Option[JID], Option[String], Option[String], Option[String], Option[Seq[Extension]])] = Some(groupchat.id, groupchat.to, groupchat.from, groupchat.subject, groupchat.body, groupchat.thread, groupchat.extensions)
 		}
 		
 		class GroupChat(xml:Node) extends Message(xml, GroupChat.messageType)

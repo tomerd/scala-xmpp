@@ -13,7 +13,7 @@ package org.simbit.xmpp
 		
 		object Builder extends ExtensionBuilder[Pubsub]
 		{
-			val name = Pubsub.name
+			val tag = Pubsub.tag
 			val namespace = "http://jabber.org/protocol/pubsub"
 			
 			// FIXME: implement this

@@ -16,7 +16,7 @@ package org.simbit.xmpp
 			
 			object Builder extends ExtensionBuilder[X]
 			{
-				val name = X.name
+				val tag = X.tag
 				val namespace = org.simbit.xmpp.protocol.extensions.muc.general.Builder.namespace + "#admin"
 					
 				// FIXME: try to find a nicer way to do this, MUC standard is quite dirty

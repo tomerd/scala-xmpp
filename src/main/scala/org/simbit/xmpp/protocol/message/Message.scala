@@ -16,26 +16,32 @@ package org.simbit.xmpp
 				
 			def apply(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String]):Message = apply(stanzaType, id, to, from, subject, body, None, None)
 					
-			def apply(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):Message =
+			def apply(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Message =
 			{
-				val xml = build(stanzaType, id, to, from, subject, body, thread, extension)
+				val xml = build(stanzaType, id, to, from, subject, body, thread, extensions)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Message = MessageFactory.create(xml)
 						
-			def build(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extension:Option[Extension]):Node =
+			def build(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Node =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!subject.isEmpty) children += <subject>{ subject.get }</subject>
 				if (!body.isEmpty) children += <body>{ body.get }</body>
 				if (!thread.isEmpty) children += <thread>{ thread.get }</thread>
-				if (!extension.isEmpty) children ++= extension.get	
+				if (!extensions.isEmpty) children ++= extensions.get
 				
 				return Stanza.build(tag, stanzaType.toString, id, to, from, children)
 			}
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], condition:ErrorCondition.Value, description:Option[String]):Node = Stanza.error(tag, id, to, from, condition, description)						
+			def error(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]], condition:ErrorCondition.Value, description:Option[String]):Node = 
+			{
+				val children = mutable.ListBuffer[Node]()
+				if (!extensions.isEmpty) children ++= extensions.get
+				children += StanzaError(condition, description)
+				Stanza.build(tag, MessageTypeEnumeration.Error.toString, id, to, from, children)
+			}						
 		}
 		
 		abstract class Message(xml:Node, val stanzaType:MessageTypeEnumeration.Value) extends Stanza(xml)
@@ -46,6 +52,8 @@ package org.simbit.xmpp
 			
 			val thread:Option[String] = (this.xml \ "thread").text
 			
+			val extensions:Option[Seq[Extension]] = ExtensionsManager.getExtensions(this.xml)
+			
 			// FIXME, need to handle extension here
 			def reply(body:String):Message = Message(this.stanzaType, this.id, this.from, this.to, this.subject, Some(body), this.thread, None)
 			
@@ -55,7 +63,7 @@ package org.simbit.xmpp
 			// FIXME, need to handle extension here			
 			def forward(to:JID):Message = Message(this.stanzaType, this.id, to, this.from, this.subject, this.body, this.thread, None)
 			
-			def error(condition:ErrorCondition.Value, description:Option[String]=None):Error = Error(this.id, this.from, this.to, condition, description)
+			def error(condition:ErrorCondition.Value, description:Option[String]):Node = Error(this, condition, description)
 		}
 		
 		protected object MessageTypeEnumeration extends Enumeration

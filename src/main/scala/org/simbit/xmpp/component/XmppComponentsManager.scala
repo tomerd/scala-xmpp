@@ -8,7 +8,7 @@ package org.simbit.xmpp
 		{
 			private var components:mutable.ListMap[String, XmppComponent] = null
 			
-			def registerComponent(subdomain:String, component:XmppComponent, host:String, port:Int, secret:String)
+			def register(subdomain:String, component:XmppComponent, host:String, port:Int, secret:String)
 			{
 				if (null == components) components = new mutable.ListMap[String, XmppComponent]()
 				if (components.contains(subdomain)) throw new IllegalArgumentException(subdomain + " is already in use by another component")
@@ -16,17 +16,21 @@ package org.simbit.xmpp
 				component.start(subdomain, host, port, secret)
 			}
 			
-			def unregisterComponent(subdomain:String)
+			def unregister(subdomain:String)
 			{
 				if (!components.contains(subdomain)) throw new IllegalArgumentException("unknown subdomain " + subdomain)
 				components.get(subdomain).get.shutdown
 				components - subdomain
 			}
 					
-			def shutdown()
+			def shutdown(callback:()=>Unit)
 			{
-				components.values.foreach( component => component.shutdown )
-				components.clear();
+				components.values.foreach( component => 
+				{ 
+					component.shutdown 
+					components - component.subdomain
+					if (0 == components.size) callback() 
+				})
 			}
 					
 		}

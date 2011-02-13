@@ -11,7 +11,7 @@ package org.simbit.xmpp
 		object Unsubscribe
 		{
 			val presenceType = PresenceTypeEnumeration.Unsubscribe
-			val presenceTypeName = presenceType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reson
+			val presenceTypeName = presenceType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reason
 			
 			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Unsubscribe =
 			{
@@ -20,6 +20,8 @@ package org.simbit.xmpp
 			}
 			
 			def apply(xml:Node):Unsubscribe = new Unsubscribe(xml)
+			
+			def unapply(unsubscribe:Unsubscribe):Option[(Option[String], Option[JID], Option[JID], Option[Seq[Extension]])] = Some(unsubscribe.id, unsubscribe.to, unsubscribe.from, unsubscribe.extensions)
 		}
 		
 		class Unsubscribe(xml:Node) extends Presence(xml, Unsubscribe.presenceType)

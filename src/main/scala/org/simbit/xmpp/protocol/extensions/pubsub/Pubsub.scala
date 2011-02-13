@@ -10,7 +10,7 @@ package org.simbit.xmpp
 		
 		object Pubsub
 		{
-			def name = "pubsub"
+			def tag = "pubsub"
 			
 			/*
 			def apply(namespace:String):Query = apply(namespace, Null, Nil)

@@ -5,6 +5,8 @@ package org.simbit.xmpp
 		import scala.collection._
 		import scala.xml._
 		
+		import org.simbit.util._
+		
 		import org.simbit.xmpp.protocol._
 		import org.simbit.xmpp.protocol.extensions._
 		
@@ -12,7 +14,7 @@ package org.simbit.xmpp
 		
 		trait ExtensionBuilder[T <: Extension]
 		{
-			val name:String
+			val tag:String
 			val namespace:String
 			
 			//def apply(xml:Node):T
@@ -38,37 +40,51 @@ package org.simbit.xmpp
 			def build(attributes:MetaData, children:Seq[Node]):Node =
 			{
 				val scope = new NamespaceBinding(null, this.namespace, TopScope)
-				return Elem(null, this.name, attributes, scope, children:_*)
+				return Elem(null, this.tag, attributes, scope, children:_*)
 			}
 		}
 		
-		object ExtensionsManager
+		object ExtensionsManager extends Logger
 		{
-			private val builders = mutable.ListBuffer[ExtensionBuilder[_]]()
+			private val builders = mutable.HashMap[String, ExtensionBuilder[_]]()
 			
-			final def registerExtensionBuilder[T <: Extension](builder:ExtensionBuilder[T])
+			final def registerBuilder[T <: Extension](builder:ExtensionBuilder[T])
 			{
-				builders += builder
+				val key = getKey(builder)
+				if (builders.contains(key)) 
+				{
+					warning("an extension builder for this tag and namespace already exists, ignoring")
+					return
+				}
+				builders += key -> builder
 			}
 			
-			final def getExtension[T <: Extension](xml:Node):Option[T] =
+			final def getExtensions[T <: Extension](xml:Node):Option[Seq[T]] =
 			{
 				try
 				{
-					if (0 == builders.length) return None
+					if (0 == builders.size) return None
+					val buffer = mutable.ListBuffer[T]()
 					
 					val iterator = xml.child.iterator
 					while (iterator.hasNext)
 					{
 						val node = iterator.next
-						builders.find( builder => node.label == builder.name && node.scope.uri == builder.namespace ) match
+						builders.get(getKey(node)) match
 						{
-							case Some(builder) => return Some(builder.apply(node).asInstanceOf[T])
+							case Some(builder) => 
+							{
+								builder.apply(node) match
+								{
+									case extension:T => buffer += extension
+									case _ => warning(builder + " returned invalid extension type for " + node.label + " " + node.scope.uri)
+								}
+							}
 							case None => // continue
 						}
 					}
 					
-					return None
+					return if (0 == buffer.length) None else Some(buffer)
 				}
 				catch
 				{
@@ -76,25 +92,28 @@ package org.simbit.xmpp
 				}
 			}
 			
+			private def getKey(builder:ExtensionBuilder[_]):String = getKey(builder.tag, builder.namespace)
+			private def getKey(node:Node):String = getKey(node.label, node.scope.uri)
+			private def getKey(tag:String, namespace:String):String = tag + "~" + namespace
+			
 			// well known extensions
 			
 			/* disco */
-			registerExtensionBuilder(disco.InfoBuilder)
-			registerExtensionBuilder(disco.ItemsBuilder)
+			registerBuilder(disco.InfoBuilder)
+			registerBuilder(disco.ItemsBuilder)
 			/* roster */
-			registerExtensionBuilder(roster.Builder)
+			registerBuilder(roster.Builder)
 			/* forms */
-			registerExtensionBuilder(forms.Builder)
+			registerBuilder(forms.Builder)
 			/* muc */
-			registerExtensionBuilder(muc.general.Builder)
-			registerExtensionBuilder(muc.user.Builder)
-			registerExtensionBuilder(muc.owner.Builder)
-			registerExtensionBuilder(muc.admin.Builder)
+			registerBuilder(muc.general.Builder)
+			registerBuilder(muc.user.Builder)
+			registerBuilder(muc.owner.Builder)
+			registerBuilder(muc.admin.Builder)
 			/* pubsub */
-			registerExtensionBuilder(pubsub.Builder)
-			registerExtensionBuilder(pubsub.EventBuilder)
-		}
-		
+			registerBuilder(pubsub.Builder)
+			registerBuilder(pubsub.EventBuilder)
+		}		
 		
 	}
 }
