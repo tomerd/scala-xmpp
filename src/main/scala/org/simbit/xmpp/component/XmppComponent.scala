@@ -41,6 +41,7 @@ package org.simbit.xmpp
 		object XmppComponent
 		{
 			val DEFAULT_TIMEOUT = 5 * 1000
+			val RECONNECT_ATTEMPTS = 3
 		}
 		
 		trait XmppComponent extends Logger
@@ -50,26 +51,29 @@ package org.simbit.xmpp
 			// TODO, not sure if i like this, perhaps need to leave it up to the component to decide if and when it wants to register the extension builders
 			protected val extensionsBuilders:Seq[ExtensionBuilder[_ <: Extension]] = Nil
 			
-			private var _jid:JID = _
+			private var _jid:JID = null
 			def jid = _jid
 			
-			private var _subdomain:String = _
+			private var _subdomain:String = null
 			def subdomain = _subdomain
 			
-			private var _host:String = _
+			private var _host:String = null
 			def host = _host
 			
-			private var _port:Int = _
+			private var _port:Int = 0
 			def port = _port
 			
-			private var _secret:String = _
+			private var _secret:String = null
 			def secret = _secret
 			
-			private var _timeout:Int = _
+			private var _timeout:Int = XmppComponent.DEFAULT_TIMEOUT
 			def timeout = _timeout
 						
-			private var _connector:NioSocketConnector = _
-			private var _session:IoSession = _
+			private var _connector:NioSocketConnector = null
+			private var _session:IoSession = null
+			
+			private var _shuttingdown = false
+			private var _reconnectAttampts = 0
 			
 			def configure(subdomain:String, host:String, port:Int, secret:String, timeout:Int=0)
 			{
@@ -98,30 +102,39 @@ package org.simbit.xmpp
 			def start(subdomain:String, host:String, port:Int, secret:String, timeout:Int=0)
 			{
 				configure(subdomain, host, port, secret, timeout)
-								
+				connect
+				startJobs
+				
+				// TODO: add hook for implementations
+			}
+			
+			private def connect
+			{
 				// start a mina thread pool listening on server messages
 				_connector = new NioSocketConnector()
 				_connector.setConnectTimeout(timeout)
 				_connector.getFilterChain.addLast("codec", new ProtocolCodecFilter(Codec.encoder, Codec.decoder))
 				_connector.getFilterChain.addLast("logger", new LoggingFilter())
-				_connector.setHandler(new IoHandlerActorAdapter(session => new XmppHandler(session, this.subdomain, this.secret, this.handleStanza)))
+				_connector.setHandler(new IoHandlerActorAdapter(session => new XmppHandler(session, this.jid, this.secret, this.handleConnect, this.handleDisconnect, this.handleStanza)))
 				
 				val future = _connector.connect(new InetSocketAddress(host, port))
 				future.awaitUninterruptibly
 				_session = future.getSession
-								
+			}
+			
+			private def startJobs
+			{
 				// FIXME: interval should come from a configuration file
 				ScheduledJobsManager.registerJob("keeplalive_" + this.subdomain, this.keepalive, 60 * 1000)
 				ScheduledJobsManager.registerJob("cleanup_" + this.subdomain, this.cleanup, 10 * 60 * 1000)				
 				ScheduledJobsManager.startAll
-					
-				// TODO: add hook for implementations
 			}
 			
 			def shutdown
 			{
 				try
-				{
+				{					
+					_shuttingdown = true
 					send(StreamTail())
 					if (null != _session) _session.getCloseFuture.awaitUninterruptibly
 					if (null != _connector) _connector.dispose
@@ -155,6 +168,28 @@ package org.simbit.xmpp
 						error(e)
 						//if (!shutdown) reconnect
 					}
+				}
+			}
+
+			private def handleConnect()
+			{
+				_reconnectAttampts = 0
+				info(this.jid + " is connected to xmpp server");
+			}
+						
+			private def handleDisconnect()
+			{
+				if (_shuttingdown) return
+				if (_reconnectAttampts < XmppComponent.RECONNECT_ATTEMPTS)
+				{
+					error(this.jid + " is was disconnected, attmepting to reconnect (attempt #" + (_reconnectAttampts+1) + ")")
+					_reconnectAttampts = _reconnectAttampts+1
+					connect
+					
+				}
+				else
+				{
+					error(this.jid + " is was disconnected " + XmppComponent.RECONNECT_ATTEMPTS + " times in a row, shutting down")
 				}
 			}
 						
@@ -239,7 +274,7 @@ package org.simbit.xmpp
 			}
 		}
 				
-		private class XmppHandler(val session:IoSession, val subdomain:String, val secret:String, val stanzaHandler:(Stanza) => Unit) extends Actor with Logger
+		private class XmppHandler(val session:IoSession, val jid:JID, val secret:String, val connectHandler:() => Unit, val disconnectHandler:() => Unit, val stanzaHandler:(Stanza) => Unit) extends Actor with Logger
 		{
 			//session.getConfig.setReadBufferSize(2048)
 			IoHandlerActorAdapter.filter(session) -= classOf[MinaMessage.MessageSent]
@@ -256,7 +291,7 @@ package org.simbit.xmpp
 						case MinaMessage.SessionOpened => 
 						{
 							// open xmpp stream
-							val head = StreamHead("jabber:component:accept", immutable.List("to" -> this.subdomain))
+							val head = StreamHead("jabber:component:accept", immutable.List("to" -> this.jid))
 							send(head)
 						}
 						case MinaMessage.MessageReceived(message) => 
@@ -265,14 +300,13 @@ package org.simbit.xmpp
 						}
 						case MinaMessage.SessionClosed => 
 						{
-							// FIXME: should we try to re-connect?
+							disconnectHandler()
 							exit
 						}
 						case MinaMessage.ExceptionCaught(cause) => 
 						{
 							// TODO, do something more intelligent here
-							error(this.subdomain + " mina exception caught: " + cause.getCause)
-							//session.close
+							error(this.jid + " mina exception caught: " + cause.getCause)
 						}
 					}
 				}
@@ -280,31 +314,40 @@ package org.simbit.xmpp
 			
   			private def handle(message:AnyRef) = 
 			{
-				message match
-				{
-  					case head:StreamHead =>
+  				try
+  				{
+					message match
 					{
-						head.findAttribute("id") match
+	  					case head:StreamHead =>
 						{
-							case Some(connectionId) => send(ComponentHandshake(connectionId, secret))
-							// TODO, do something more intelligent here
-							case None => error(this.subdomain + " received an invaild stream head, conection id not found")
+							head.findAttribute("id") match
+							{
+								case Some(connectionId) => send(ComponentHandshake(connectionId, secret))
+								case None => throw new Exception("invaild stream head, connection id not found")
+							}
 						}
+						// TODO, do something more intelligent here?
+						case tail:StreamTail => debug(this.jid + " received stream tail")
+						case handshake:Handshake => connectHandler()
+						case error:StreamError => throw new Exception("stream error: " + error.condition + ", " + error.description.getOrElse(""))			
+						case stanza:Stanza => handleStanza(stanza)
+						case stanzas:Seq[Stanza] => stanzas.foreach( stanza => handleStanza(stanza) )
+						case _ => throw new Exception("unknown message")
 					}
-					// TODO, do something more intelligent here?
-					case tail:StreamTail => debug(this.subdomain + " stream tail")
-					// TODO, do something more intelligent here?
-					case handshake:Handshake => info(this.subdomain + " connected to xmpp server")
-					// TODO, do something more intelligent here
-					case error:StreamError => debug(this.subdomain + " received stream error " + error)			
-					case stanza:Stanza => handleStanza(stanza)
-					case stanzas:Seq[Stanza] => stanzas.foreach( stanza => handleStanza(stanza) )	
-				}
+  				}
+  				catch
+  				{
+  					case e:Exception => 
+  					{
+  						this.error(this.jid + " error: " + e)
+  						session.close(false)
+  					}
+  				}
 			}
   			
   			private def handleStanza(stanza:Stanza)
   			{
-  				debug(stanza.to.getOrElse(this.subdomain) + " recieved stanza from: " + stanza.from.getOrElse("unknown"))
+  				debug(stanza.to.getOrElse(this.jid) + " recieved stanza from: " + stanza.from.getOrElse("unknown"))
 				
 				try
 				{
@@ -313,7 +356,7 @@ package org.simbit.xmpp
 				catch
 				{
 					// TODO, do something more intelligent here
-					case e:Exception => error(this.subdomain + " failed handling stanza " + e + "\n" + stanza)
+					case e:Exception => error(this.jid + " failed handling stanza " + e + "\n" + stanza)
 				}
   			}
 			

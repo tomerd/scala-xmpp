@@ -12,16 +12,16 @@ package org.simbit.xmpp
 			val tag = "error"
 			val namespace:String = "urn:ietf:params:xml:ns:xmpp-stanzas"
 			
-			def apply(condition:ErrorCondition.Value, description:Option[String]=None, otherConditions:Option[Seq[String]]=None):StanzaError =
+			def apply(condition:StanzaErrorCondition.Value, description:Option[String]=None, otherConditions:Option[Seq[String]]=None):StanzaError =
 			{
-				import org.simbit.xmpp.protocol.ErrorCondition._
+				import org.simbit.xmpp.protocol.StanzaErrorCondition._
 				
 				val children = mutable.ListBuffer[Node]()
 				// TODO: test the namespace
 				children += Elem(null, condition.toString, Null, new NamespaceBinding(null, namespace, TopScope))				
 				if (!otherConditions.isEmpty) otherConditions.foreach( condition => { children += Elem(null, condition.toString, Null, TopScope) } )
 				if (!description.isEmpty) children += <text xmlns={ namespace } xml:lang="en">{ description.get }</text>
-				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.errorType.toString), Null)
+				var attributes:MetaData = new UnprefixedAttribute("type", Text(condition.action.toString), Null)
 						
 				return new StanzaError(Elem(null, tag, attributes, TopScope, children:_*))
 			}
@@ -31,31 +31,30 @@ package org.simbit.xmpp
 		
 		protected class StanzaError(xml:Node) extends XmlWrapper(xml)
 		{
-			// getters
-			val errorType:Option[ErrorType.Value] = 
+			val errorType:Option[StanzaErrorAction.Value] = 
 			{
 				val errorType = (this.xml \ "@type").text
-				if (errorType.isEmpty) None else Some(ErrorType.withName(errorType))
+				if (errorType.isEmpty) None else Some(StanzaErrorAction.withName(errorType))
 			}
 			
-			val condition:ErrorCondition.Value = 
+			val condition:StanzaErrorCondition.Value = 
 			{
 				this.xml.child.find( (child) => StanzaError.namespace == child.namespace && "text" != child.label ) match
 				{
 					case Some(node) => 
 					{
-						ErrorCondition.fromString(node.label) match
+						StanzaErrorCondition.fromString(node.label) match
 						{
 							case Some(condition) => condition
-							case None => throw new Exception("unknown error condition " + this.xml)
+							case _ => throw new Exception("unknown error condition " + this.xml)
 						}
 					}
-					case None =>
+					case _ =>
 					{
-						ErrorCondition.fromLegacyCode((this.xml \ "@code").text.toInt) match
+						StanzaErrorCondition.fromLegacyCode((this.xml \ "@code").text.toInt) match
 						{
 							case Some(condition) => condition
-							case None => throw new Exception("unknown error condition " + this.xml)
+							case _ => throw new Exception("unknown error condition " + this.xml)
 						}
 					}
 				}
@@ -72,43 +71,43 @@ package org.simbit.xmpp
 			
 		}
 
-		object ErrorCondition extends Enumeration
+		object StanzaErrorCondition extends Enumeration
 		{
 			type condition = Value
 			
-			val BadRequest = Condition("bad-request", ErrorType.Modify, 400)
-			val Conflict = Condition("conflict", ErrorType.Cancel, 409)
-			val NotImplemented = Condition("feature-not-implemented", ErrorType.Cancel, 501)
-			val Forbidden = Condition("forbidden", ErrorType.Auth, 403)
-			val Gone = Condition("gone", ErrorType.Modify, 302)
-			val InternalServerError = Condition("internal-server-error", ErrorType.Wait, 500)
-			val NotFound = Condition("item-not-found", ErrorType.Cancel, 404)
-			val BadJid = Condition("jid-malformed", ErrorType.Modify, 400)
-			val NotAcceptable = Condition("not-acceptable", ErrorType.Modify, 406)
-			val NotAllowed = Condition("not-allowed", ErrorType.Cancel, 405)
-			val NotAuthorized = Condition("not-authorized", ErrorType.Auth, 401)
-			val PaymentRequired = Condition("payment-required", ErrorType.Auth, 402)
-			val RecipientUnavailable = Condition("recipient-unavailable", ErrorType.Wait, 404)
-			val Redirect = Condition("redirect", ErrorType.Modify, 302)
-			val RegistrationRequired = Condition("registration-required", ErrorType.Auth, 407)
-			val RemoteServerNotFound = Condition("remote_server_not_found", ErrorType.Cancel, 404)
-			val RemoteServerTimeout = Condition("remote-server-timeout", ErrorType.Wait, 504)		
-			val ResourceConstraint = Condition("resource-constraint", ErrorType.Wait, 500)
-			val ServiceUnavailable = Condition("service-unavailable", ErrorType.Cancel, 503)
-			val SubscriptionRequired = Condition("subscription-required", ErrorType.Auth, 407)		
-			val UndefinedCondition = Condition("undefined-condition", ErrorType.Cancel, 500) // default behavior is not by specification
-			val UnexpectedRequest = Condition("unexpected-request", ErrorType.Wait, 400)			
-			val Unknown = Condition("unknown", ErrorType.Cancel, 0) // internal use, outside of spec!
+			val BadRequest = Condition("bad-request", StanzaErrorAction.Modify, 400)
+			val Conflict = Condition("conflict", StanzaErrorAction.Cancel, 409)
+			val NotImplemented = Condition("feature-not-implemented", StanzaErrorAction.Cancel, 501)
+			val Forbidden = Condition("forbidden", StanzaErrorAction.Auth, 403)
+			val Gone = Condition("gone", StanzaErrorAction.Modify, 302)
+			val InternalServerError = Condition("internal-server-error", StanzaErrorAction.Wait, 500)
+			val NotFound = Condition("item-not-found", StanzaErrorAction.Cancel, 404)
+			val BadJid = Condition("jid-malformed", StanzaErrorAction.Modify, 400)
+			val NotAcceptable = Condition("not-acceptable", StanzaErrorAction.Modify, 406)
+			val NotAllowed = Condition("not-allowed", StanzaErrorAction.Cancel, 405)
+			val NotAuthorized = Condition("not-authorized", StanzaErrorAction.Auth, 401)
+			val PaymentRequired = Condition("payment-required", StanzaErrorAction.Auth, 402)
+			val RecipientUnavailable = Condition("recipient-unavailable", StanzaErrorAction.Wait, 404)
+			val Redirect = Condition("redirect", StanzaErrorAction.Modify, 302)
+			val RegistrationRequired = Condition("registration-required", StanzaErrorAction.Auth, 407)
+			val RemoteServerNotFound = Condition("remote_server_not_found", StanzaErrorAction.Cancel, 404)
+			val RemoteServerTimeout = Condition("remote-server-timeout", StanzaErrorAction.Wait, 504)		
+			val ResourceConstraint = Condition("resource-constraint", StanzaErrorAction.Wait, 500)
+			val ServiceUnavailable = Condition("service-unavailable", StanzaErrorAction.Cancel, 503)
+			val SubscriptionRequired = Condition("subscription-required", StanzaErrorAction.Auth, 407)		
+			val UndefinedCondition = Condition("undefined-condition", StanzaErrorAction.Cancel, 500) // default behavior is not by specification
+			val UnexpectedRequest = Condition("unexpected-request", StanzaErrorAction.Wait, 400)			
+			val Unknown = Condition("unknown", StanzaErrorAction.Cancel, 0) // internal use, outside of spec!
 			
-			def fromString(string:String):Option[ErrorCondition.Value] = values.find((value) => value.name.equals(string.toLowerCase))
-			def fromLegacyCode(code:Int):Option[ErrorCondition.Value] = values.find((value) => value.legacyCode.equals(code))
+			def fromString(string:String):Option[StanzaErrorCondition.Value] = values.find((value) => value.name.equals(string.toLowerCase))
+			def fromLegacyCode(code:Int):Option[StanzaErrorCondition.Value] = values.find((value) => value.legacyCode.equals(code))
 			
-			case class Condition(name:String, val errorType:ErrorType.Value, val legacyCode:Int) extends Val(name)
+			protected case class Condition(name:String, val action:StanzaErrorAction.Value, val legacyCode:Int) extends Val(name)
 			
 			implicit def valueToCondition(value:Value):Condition = value.asInstanceOf[Condition]
 		}
 				
-		object ErrorType extends Enumeration
+		object StanzaErrorAction extends Enumeration
 		{
 			type action = Value
 

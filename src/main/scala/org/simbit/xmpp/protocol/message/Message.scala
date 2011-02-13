@@ -35,7 +35,7 @@ package org.simbit.xmpp
 				return Stanza.build(tag, stanzaType.toString, id, to, from, children)
 			}
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]], condition:ErrorCondition.Value, description:Option[String]):Node = 
+			def error(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Node = 
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!extensions.isEmpty) children ++= extensions.get
@@ -63,7 +63,7 @@ package org.simbit.xmpp
 			// FIXME, need to handle extension here			
 			def forward(to:JID):Message = Message(this.stanzaType, this.id, to, this.from, this.subject, this.body, this.thread, None)
 			
-			def error(condition:ErrorCondition.Value, description:Option[String]):Node = Error(this, condition, description)
+			def error(condition:StanzaErrorCondition.Value, description:Option[String]):Node = Error(this, condition, description)
 		}
 		
 		protected object MessageTypeEnumeration extends Enumeration

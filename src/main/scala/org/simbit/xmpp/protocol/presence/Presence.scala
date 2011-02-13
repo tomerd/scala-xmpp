@@ -38,7 +38,7 @@ package org.simbit.xmpp
 				return Stanza.build(tag, presenceType.toString, id, to, from, kids)				
 			}
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]], condition:ErrorCondition.Value, description:Option[String]):Node = 
+			def error(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Node = 
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!extensions.isEmpty) children ++= extensions.get
@@ -51,7 +51,7 @@ package org.simbit.xmpp
 		{
 			val extensions:Option[Seq[Extension]] = ExtensionsManager.getExtensions(this.xml)
 			
-			def error(condition:ErrorCondition.Value, description:Option[String]):Node = Error(this, condition, description)
+			def error(condition:StanzaErrorCondition.Value, description:Option[String]):Node = Error(this, condition, description)
 		}
 		
 		protected  object PresenceTypeEnumeration extends Enumeration
