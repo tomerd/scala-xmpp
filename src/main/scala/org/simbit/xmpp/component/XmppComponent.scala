@@ -315,14 +315,13 @@ package org.simbit.xmpp
 							if (_errors < XmppHandler.MAX_ERRORS)
 							{
 								_errors = _errors+1
-								error(this.jid + " mina exception caught: " + cause.getCause)								
+								error(this.jid + " suffered internal error: " + cause.getCause)								
 							}
 							else
 							{
-								error(this.jid + " suffered " + XmppHandler.MAX_ERRORS + " exceptions in a row, disconnecting")
+								error(this.jid + " suffered " + XmppHandler.MAX_ERRORS + " internal error in a row, disconnecting")
 								session.close(false)
 							}
-
 						}
 					}
 				}
@@ -371,7 +370,7 @@ package org.simbit.xmpp
 				}
 				catch
 				{
-					// TODO, do something more intelligent here
+					// TODO, do something more intelligent here?
 					case e:Exception => error(this.jid + " failed handling stanza " + e + "\n" + stanza)
 				}
   			}
