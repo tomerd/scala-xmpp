@@ -276,13 +276,14 @@ package org.simbit.xmpp
 		{
 			// TODO: this should come from a configuration file
 			val MAX_ERRORS = 10
+			val READ_BUFFER_SIZE = 2048
 		}
 				
 		private class XmppHandler(val session:IoSession, val jid:JID, val secret:String, val connectHandler:() => Unit, val disconnectHandler:() => Unit, val stanzaHandler:(Stanza) => Unit) extends Actor with Logger
 		{
 			private var _errors = 0
 			
-			//session.getConfig.setReadBufferSize(2048)
+			session.getConfig.setReadBufferSize(XmppHandler.READ_BUFFER_SIZE)
 			IoHandlerActorAdapter.filter(session) -= classOf[MinaMessage.MessageSent]
 			IoHandlerActorAdapter.filter(session) -= classOf[MinaMessage.SessionIdle]
 			
