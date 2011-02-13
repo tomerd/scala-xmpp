@@ -300,16 +300,16 @@ package org.simbit.xmpp
 							val head = StreamHead("jabber:component:accept", immutable.List("to" -> this.jid))
 							send(head)
 						}
-						case MinaMessage.MessageReceived(message) => 
-						{
-							_errors = 0
-							handle(message)
-						}
 						case MinaMessage.SessionClosed => 
 						{
 							disconnectHandler()
 							exit
 						}
+						case MinaMessage.MessageReceived(message) => 
+						{
+							_errors = 0
+							handle(message)
+						}						
 						case MinaMessage.ExceptionCaught(cause) => 
 						{
 							if (_errors < XmppHandler.MAX_ERRORS)
