@@ -40,8 +40,11 @@ package org.simbit.xmpp
 		
 		object XmppComponent
 		{
+			// TOSO: these should come from a configuration file
 			val DEFAULT_TIMEOUT = 5 * 1000
 			val RECONNECT_ATTEMPTS = 3
+			val KEEPALIVE_INTERVAL =  60 * 1000
+			val CLEANUP_INTERVAL = 5 * 60 * 1000
 		}
 		
 		trait XmppComponent extends Logger
@@ -124,9 +127,8 @@ package org.simbit.xmpp
 			
 			private def startJobs
 			{
-				// FIXME: interval should come from a configuration file
-				ScheduledJobsManager.registerJob("keeplalive_" + this.subdomain, this.keepalive, 60 * 1000)
-				ScheduledJobsManager.registerJob("cleanup_" + this.subdomain, this.cleanup, 10 * 60 * 1000)				
+				ScheduledJobsManager.registerJob("keeplalive_" + this.subdomain, this.keepalive, XmppComponent.KEEPALIVE_INTERVAL)
+				ScheduledJobsManager.registerJob("cleanup_" + this.subdomain, this.cleanup, XmppComponent.CLEANUP_INTERVAL)				
 				ScheduledJobsManager.startAll
 			}
 			
@@ -143,7 +145,8 @@ package org.simbit.xmpp
 				}
 				catch
 				{
-					case e:Exception => error("disconnect error " + e) // TODO: do something intelligent here
+					// TODO: do something intelligent here
+					case e:Exception => error(this.jid + " disconnect error " + e) 
 				}
 				finally
 				{
@@ -162,12 +165,8 @@ package org.simbit.xmpp
 				}
 				catch
 				{
-					case e:Exception =>
-					{
-						// TODO: do something more intelligent here
-						error(e)
-						//if (!shutdown) reconnect
-					}
+					// TODO: do something intelligent here
+					case e:Exception => error(this.jid + " failed sending message to xmpp server");
 				}
 			}
 
@@ -206,20 +205,14 @@ package org.simbit.xmpp
 				}
 			}
 			
-			protected def handlePresence(presence:Presence)
-			{	
-				// to be implemented by subclasses as required
-			}
+			// to be implemented by subclasses as required
+			protected def handlePresence(presence:Presence)  = Unit
 
-		    protected def handleIQ(iq:IQ)
-			{    	
-		    	// to be implemented by subclasses as required
-			}
-				
-			protected def handleMessage(message:Message)
-			{
-				// to be implemented by subclasses as required
-			}
+			// to be implemented by subclasses as required
+		    protected def handleIQ(iq:IQ)  = Unit
+
+		    // to be implemented by subclasses as required
+			protected def handleMessage(message:Message)  = Unit
 
 			private def handleDiscoInfo(request:Get, infoRequest:disco.Info)
 			{				
@@ -263,10 +256,8 @@ package org.simbit.xmpp
 			// to be implemented by sub classes as required	
 			protected def getChildDiscoItems(jid:JID, request:disco.Items):Option[disco.ItemsResult] = None
 			
-			protected def cleanup()
-			{
-				// to be implemented by sub classes as required
-			}
+			// to be implemented by sub classes as required
+			protected def cleanup() = Unit
 			
 			private def keepalive()
 			{
@@ -339,7 +330,7 @@ package org.simbit.xmpp
   				{
   					case e:Exception => 
   					{
-  						this.error(this.jid + " error: " + e)
+  						error(this.jid + " error: " + e)
   						session.close(false)
   					}
   				}
