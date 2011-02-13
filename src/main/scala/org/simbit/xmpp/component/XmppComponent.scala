@@ -40,11 +40,11 @@ package org.simbit.xmpp
 		
 		object XmppComponent
 		{
-			// TOSO: these should come from a configuration file
+			// TODO: these should come from a configuration file
 			val DEFAULT_TIMEOUT = 5 * 1000
-			val RECONNECT_ATTEMPTS = 3
-			val KEEPALIVE_INTERVAL =  60 * 1000
+			val KEEPALIVE_INTERVAL = 60 * 1000
 			val CLEANUP_INTERVAL = 5 * 60 * 1000
+			val MAX_RECONNECT_ATTEMPTS = 5
 		}
 		
 		trait XmppComponent extends Logger
@@ -85,13 +85,12 @@ package org.simbit.xmpp
 				_host = host
 				_port = port
 				_secret = secret
-				_timeout = if (null == timeout) timeout else XmppComponent.DEFAULT_TIMEOUT
+				_timeout = if (0 == timeout) timeout else XmppComponent.DEFAULT_TIMEOUT
 								
-				require(this.subdomain != null)
-				require(this.host != null)
-				require(this.port != 0)
-				require(this.secret != null)
-				require(this.timeout != 0)
+				require(null != this.subdomain)
+				require(null != this.host)
+				require(0 != this.port)
+				require(null != this.secret)
 				
 				// TODO, not sure if i like this, perhaps need to leave it up to the component to decide if and when it wants to register the extension builders
 				extensionsBuilders.foreach( builder => ExtensionsManager.registerBuilder(builder) )
@@ -179,7 +178,7 @@ package org.simbit.xmpp
 			private def handleDisconnect()
 			{
 				if (_shuttingdown) return
-				if (_reconnectAttampts < XmppComponent.RECONNECT_ATTEMPTS)
+				if (_reconnectAttampts < XmppComponent.MAX_RECONNECT_ATTEMPTS)
 				{
 					error(this.jid + " is was disconnected, attmepting to reconnect (attempt #" + (_reconnectAttampts+1) + ")")
 					_reconnectAttampts = _reconnectAttampts+1
@@ -188,7 +187,7 @@ package org.simbit.xmpp
 				}
 				else
 				{
-					error(this.jid + " is was disconnected " + XmppComponent.RECONNECT_ATTEMPTS + " times in a row, shutting down")
+					error(this.jid + " is was disconnected " + XmppComponent.MAX_RECONNECT_ATTEMPTS + " times in a row, shutting down")
 				}
 			}
 						
@@ -206,13 +205,19 @@ package org.simbit.xmpp
 			}
 			
 			// to be implemented by subclasses as required
-			protected def handlePresence(presence:Presence)  = Unit
+			protected def handlePresence(presence:Presence) 
+			{
+			}
 
 			// to be implemented by subclasses as required
-		    protected def handleIQ(iq:IQ)  = Unit
+		    protected def handleIQ(iq:IQ)
+		    {
+		    }
 
 		    // to be implemented by subclasses as required
-			protected def handleMessage(message:Message)  = Unit
+			protected def handleMessage(message:Message) 
+			{
+			}
 
 			private def handleDiscoInfo(request:Get, infoRequest:disco.Info)
 			{				
@@ -257,16 +262,26 @@ package org.simbit.xmpp
 			protected def getChildDiscoItems(jid:JID, request:disco.Items):Option[disco.ItemsResult] = None
 			
 			// to be implemented by sub classes as required
-			protected def cleanup() = Unit
+			protected def cleanup()
+			{
+			}
 			
 			private def keepalive()
 			{
 				send(" ")
 			}
 		}
+		
+		private object XmppHandler
+		{
+			// TODO: this should come from a configuration file
+			val MAX_ERRORS = 10
+		}
 				
 		private class XmppHandler(val session:IoSession, val jid:JID, val secret:String, val connectHandler:() => Unit, val disconnectHandler:() => Unit, val stanzaHandler:(Stanza) => Unit) extends Actor with Logger
 		{
+			private var _errors = 0
+			
 			//session.getConfig.setReadBufferSize(2048)
 			IoHandlerActorAdapter.filter(session) -= classOf[MinaMessage.MessageSent]
 			IoHandlerActorAdapter.filter(session) -= classOf[MinaMessage.SessionIdle]
@@ -287,6 +302,7 @@ package org.simbit.xmpp
 						}
 						case MinaMessage.MessageReceived(message) => 
 						{
+							_errors = 0
 							handle(message)
 						}
 						case MinaMessage.SessionClosed => 
@@ -296,8 +312,17 @@ package org.simbit.xmpp
 						}
 						case MinaMessage.ExceptionCaught(cause) => 
 						{
-							// TODO, do something more intelligent here
-							error(this.jid + " mina exception caught: " + cause.getCause)
+							if (_errors < XmppHandler.MAX_ERRORS)
+							{
+								_errors = _errors+1
+								error(this.jid + " mina exception caught: " + cause.getCause)								
+							}
+							else
+							{
+								error(this.jid + " suffered " + XmppHandler.MAX_ERRORS + " exceptions in a row, disconnecting")
+								session.close(false)
+							}
+
 						}
 					}
 				}
