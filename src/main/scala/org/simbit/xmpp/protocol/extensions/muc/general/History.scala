@@ -9,14 +9,14 @@ package org.simbit.xmpp
 			import scala.collection._
 			import scala.xml._
 			
+			import org.simbit.xmpp.util._
+			
 			import org.simbit.xmpp.protocol._
 			import org.simbit.xmpp.protocol.presence._
 			import org.simbit.xmpp.protocol.extensions._
 			import org.simbit.xmpp.protocol.extensions.muc._
 			
 			import org.simbit.xmpp.protocol.Protocol._
-			
-			import org.simbit.util.DateUtil
 					
 			object History 
 			{

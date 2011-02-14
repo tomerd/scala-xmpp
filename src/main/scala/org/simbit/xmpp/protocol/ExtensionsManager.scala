@@ -5,7 +5,7 @@ package org.simbit.xmpp
 		import scala.collection._
 		import scala.xml._
 		
-		import org.simbit.util._
+		import org.simbit.xmpp.util._
 		
 		import org.simbit.xmpp.protocol._
 		import org.simbit.xmpp.protocol.extensions._
@@ -53,7 +53,7 @@ package org.simbit.xmpp
 				val key = getKey(builder)
 				if (builders.contains(key)) 
 				{
-					warning("an extension builder for this tag and namespace already exists, ignoring")
+					warn("an extension builder for this tag and namespace already exists, ignoring")
 					return
 				}
 				builders += key -> builder
@@ -77,7 +77,7 @@ package org.simbit.xmpp
 								builder.apply(node) match
 								{
 									case extension:T => buffer += extension
-									case _ => warning(builder + " returned invalid extension type for " + node.label + " " + node.scope.uri)
+									case _ => warn(builder + " returned invalid extension type for " + node.label + " " + node.scope.uri)
 								}
 							}
 							case None => // continue

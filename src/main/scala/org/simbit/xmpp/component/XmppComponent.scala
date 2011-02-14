@@ -27,7 +27,7 @@ package org.simbit.xmpp
 		import com.twitter.actors.Actor
 		import com.twitter.actors.Actor._
 		
-		import org.simbit.util._
+		import org.simbit.xmpp.util._
 		
 		import org.simbit.xmpp.codec._
 		import org.simbit.xmpp.protocol._

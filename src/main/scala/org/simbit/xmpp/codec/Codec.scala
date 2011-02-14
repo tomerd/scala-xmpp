@@ -14,7 +14,7 @@ package org.simbit.xmpp
 		import net.lag.naggati._
 		import net.lag.naggati.Steps._
 		
-		import org.simbit.util._
+		import org.simbit.xmpp.util._
 		
 		import org.simbit.xmpp.protocol._
 		import org.simbit.xmpp.component.Handshake

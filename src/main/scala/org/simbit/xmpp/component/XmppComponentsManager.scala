@@ -23,14 +23,10 @@ package org.simbit.xmpp
 				components - subdomain
 			}
 					
-			def shutdown(callback:()=>Unit)
+			def shutdown()
 			{
-				components.values.foreach( component => 
-				{ 
-					component.shutdown 
-					components - component.subdomain
-					if (0 == components.size) callback() 
-				})
+				components.values.foreach( component => component.shutdown )  
+				components.clear
 			}
 					
 		}
