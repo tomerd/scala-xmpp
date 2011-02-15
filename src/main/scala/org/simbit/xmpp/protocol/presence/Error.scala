@@ -15,7 +15,7 @@ package org.simbit.xmpp
 			
 			def apply(presence:Presence, condition:StanzaErrorCondition.Value, description:Option[String]=None):Error = apply(presence.id, presence.to, presence.from, presence.extensions, condition, description) 
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Error =
+			def apply(id:Option[String], to:JID, from:JID, extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Error =
 			{
 				val xml = Presence.error(id, to, from, extensions, condition, description)
 				return apply(xml)
@@ -23,7 +23,7 @@ package org.simbit.xmpp
 			
 			def apply(xml:Node):Error = new Error(xml)
 			
-			def unapply(error:Error):Option[(Option[String], Option[JID], Option[JID], StanzaErrorCondition.Value, Option[String])] = Some(error.id, error.to, error.from, error.condition, error.description)
+			def unapply(error:Error):Option[(Option[String], JID, JID, StanzaErrorCondition.Value, Option[String])] = Some(error.id, error.to, error.from, error.condition, error.description)
 		}
 		
 		class Error(xml:Node) extends Presence(xml, Error.presenceType)

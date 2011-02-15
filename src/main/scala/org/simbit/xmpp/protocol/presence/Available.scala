@@ -8,24 +8,50 @@ package org.simbit.xmpp
 		import org.simbit.xmpp.protocol._
 		import org.simbit.xmpp.protocol.Protocol._
 			
+		protected object AvailableBuilder
+		{
+			def build(xml:Node):Available = 
+			{
+				val show = (xml \ "show").text	
+				if (show.isEmpty) return Available(xml)
+				
+				Show.withName(show) match
+				{
+					case Show.Chat => Chat(xml)
+					case Show.Away => Away(xml)
+					case Show.XA => ExtendedAway(xml)
+					case Show.DND => DoNotDisturb(xml)
+					case _ => throw new Exception("unknown available presence stanza") // TODO, give a more detailed error message here
+				}
+			}
+		}
+		
 		object Available
 		{
 			val presenceType = PresenceTypeEnumeration.Available
 			val presenceTypeName = presenceType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reason
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID]):Available = apply(id, to, from, None, None, None, None)
+			def apply(id:Option[String], to:JID, from:JID):Available = apply(id, to, from, None, None, None, None)
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Available = apply(id, to, from, None, None, None, extensions)
+			def apply(id:Option[String], to:JID, from:JID, extensions:Seq[Extension]):Available = apply(id, to, from, None, None, None, extensions)
 			
-			def apply(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Available = apply(build(id, to, from, show, status, priority, extensions))
+			def apply(id:Option[String], to:JID, from:JID, show:Show.Value):Available = apply(id, to, from, Some(show), None, None, None)
 			
-			def apply(xml:Node):Available = new Available(xml)
+			def apply(id:Option[String], to:JID, from:JID, show:Show.Value, extensions:Seq[Extension]):Available = apply(id, to, from, Some(show), None, None, extensions)
 			
-			def build(id:Option[String], to:Option[JID], from:Option[JID]):Node = build(id, to, from, None, None, None, None)
+			def apply(id:Option[String], to:JID, from:JID, show:Show.Value, status:String):Available = apply(id, to, from, Some(show), Some(status), None, None)
 			
-			def build(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Node = build(id, to, from, None, None, None, extensions)
+			def apply(id:Option[String], to:JID, from:JID, show:Show.Value, status:String, extensions:Seq[Extension]):Available = apply(id, to, from, Some(show), Some(status), None, extensions)
 			
-			def build(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Node = 
+			def apply(id:Option[String], to:JID, from:JID, show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Available = apply(build(id, to, from, show, status, priority, extensions))
+			
+			def apply(xml:Node, show:Option[Show.Value]=None):Available = new Available(xml, show)
+			
+			def build(id:Option[String], to:JID, from:JID):Node = build(id, to, from, None, None, None, None)
+			
+			def build(id:Option[String], to:JID, from:JID, extensions:Option[Seq[Extension]]):Node = build(id, to, from, None, None, None, extensions)
+			
+			def build(id:Option[String], to:JID, from:JID, show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Node = 
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!show.isEmpty) children += <show>{ show.get }</show>
@@ -34,19 +60,12 @@ package org.simbit.xmpp
 				Presence.build(presenceType, id, to, from, children, extensions)				
 			}
 			
-			def unapply(available:Available):Option[(Option[String], Option[JID], Option[JID], Option[Show.Value], Option[String], Option[Int], Option[Seq[Extension]])] = Some(available.id, available.to, available.from, available.show, available.status, available.priority, available.extensions)
+			def unapply(available:Available):Option[(Option[String], JID, JID, Option[Show.Value], Option[String], Option[Int], Option[Seq[Extension]])] = Some(available.id, available.to, available.from, available.show, available.status, available.priority, available.extensions)
 
 		}
 		
-		class Available(xml:Node) extends Presence(xml, Available.presenceType)
+		class Available(xml:Node, val show:Option[Show.Value]) extends Presence(xml, Available.presenceType)
 		{
-			// getters
-			val show:Option[Show.Value] = 
-			{
-				val show = (this.xml \ "show").text
-				if (show.isEmpty) None else Some(Show.withName(show))				
-			}
-			
 			val status:Option[String] = 
 			{
 				val status = (this.xml \ "status").text
@@ -65,10 +84,11 @@ package org.simbit.xmpp
 			type Reason = Value
 			
 			val Unknown = Value("unknown") // internal use
+			val None = Value("") // not in spec
 			val Chat = Value("chat")
 			val Away = Value("away")
 			val XA = Value("xa")
-			val DND = Value("dnd")
+			val DND = Value("dnd")		
 		}		
 	}
 }

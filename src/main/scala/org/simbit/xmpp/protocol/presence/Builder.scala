@@ -8,16 +8,16 @@ package org.simbit.xmpp
 		import org.simbit.xmpp.protocol._
 		import org.simbit.xmpp.protocol.Protocol._
 			
-		object PresenceFactory
+		object Builder
 		{
-			def create(xml:Node):Presence = 
+			def build(xml:Node):Presence = 
 			{
 				require("presence" == xml.label)
 				
 				(xml \ "@type").text match
 				{
-					// FIXME, use the enum values (attribute stanzaType) instead of presenceTypeName, getting compilation error even with implicict cast
-					case Available.presenceTypeName => Available(xml) // PresenceTypeEnumeration.Available
+					// FIXME, use the enum values (attribute stanzaType) instead of presenceTypeName, getting compilation error even with implicit cast
+					case Available.presenceTypeName => AvailableBuilder.build(xml) // PresenceTypeEnumeration.Available
 					case Unavailable.presenceTypeName => Unavailable(xml) // PresenceTypeEnumeration.Unavailable					
 					case Subscribe.presenceTypeName => Subscribe(xml) // PresenceTypeEnumeration.Subscribe
 					case Subscribed.presenceTypeName => Subscribed(xml) // PresenceTypeEnumeration.Subscribed					

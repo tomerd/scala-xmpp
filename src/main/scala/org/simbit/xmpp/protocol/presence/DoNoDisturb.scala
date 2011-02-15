@@ -10,16 +10,16 @@ package org.simbit.xmpp
 			
 		object DoNotDisturb
 		{
-			def apply():DoNotDisturb =
+			def apply(id:Option[String], to:JID, from:JID, status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):DoNotDisturb =
 			{
-				val xml = Stanza.build(Presence.tag)
+				val xml = Available.build(id, to, from, Some(Show.DND), status, priority, extensions)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):DoNotDisturb = new DoNotDisturb(xml)
 		}
 		
-		class DoNotDisturb(xml:Node) extends Available(xml)
+		class DoNotDisturb(xml:Node) extends Available(xml, Some(Show.DND))
 		{
 		}
 	}

@@ -20,6 +20,7 @@ package org.simbit.xmpp
 			val Moderator = Value("moderator") 
 			val Participant = Value("participant")
 			val Visitor = Value("visitor")
+			val None = Value("none")
 		}		
 	}
 	

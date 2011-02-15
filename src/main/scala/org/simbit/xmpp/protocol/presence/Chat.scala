@@ -10,16 +10,16 @@ package org.simbit.xmpp
 			
 		object Chat
 		{
-			def apply():Chat =
+			def apply(id:Option[String], to:JID, from:JID, status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Chat =
 			{
-				val xml = Stanza.build(Presence.tag)
+				val xml = Available.build(id, to, from, Some(Show.Chat), status, priority, extensions)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Chat = new Chat(xml)
 		}
 		
-		class Chat(xml:Node) extends Available(xml)
+		class Chat(xml:Node) extends Available(xml, Some(Show.Chat))
 		{
 		}
 	}

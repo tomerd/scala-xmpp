@@ -19,55 +19,36 @@ package org.simbit.xmpp
 			{
 				xml.label match
 				{
-					case IQ.tag => IQFactory.create(xml)
-					case Presence.tag => PresenceFactory.create(xml)
-					case Message.tag => MessageFactory.create(xml)
+					case IQ.tag => iq.Builder.build(xml)
+					case Presence.tag => presence.Builder.build(xml)
+					case Message.tag => message.Builder.build(xml)
 					case _ => throw new Exception("unknown stanza type, expected iq, presence or message")
-				}				
+				}
 			}
-								
-			def build(name:String):Node = build(name, null, None, None, None)
+			
+			//def build(name:String):Node = build(name, null, None, None, None)
 				
-			def build(name:String, stanzaType:String, id:Option[String], to:Option[JID], from:Option[JID], children:Option[Seq[Node]]=None):Node = 
+			def build(name:String, stanzaType:String, id:Option[String], to:JID, from:JID, children:Option[Seq[Node]]=None):Node = 
 			{
 				val kids:Seq[Node] = if (!children.isEmpty) children.get else Nil
 				//if (!extension.isEmpty) children += extension.get
 				var metadata:MetaData = Null
 				if (null != stanzaType && !stanzaType.isEmpty) metadata = metadata.append(new UnprefixedAttribute("type", Text(stanzaType), Null))
 				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
-				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
-				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
+				metadata = metadata.append(new UnprefixedAttribute("to", Text(to), Null))
+				metadata = metadata.append(new UnprefixedAttribute("from", Text(from), Null))
 				
 				return Elem(null, name, metadata, TopScope, kids:_*)
 			}
-						
-			/*
-			def error(name:String, id:Option[String], to:Option[JID], from:Option[JID], errorCondition:ErrorCondition.Value, errorDescription:Option[String]=None):Node =
-			{
-				var metadata:MetaData = new UnprefixedAttribute("type", Text("error"), Null)
-				if (!id.isEmpty) metadata = metadata.append(new UnprefixedAttribute("id", Text(id.get), Null))
-				if (!to.isEmpty) metadata = metadata.append(new UnprefixedAttribute("to", Text(to.get), Null))
-				if (!from.isEmpty) metadata = metadata.append(new UnprefixedAttribute("from", Text(from.get), Null))
-				return Elem(null, name, metadata, TopScope, StanzaError(errorCondition, errorDescription))
-			}
-			*/
 		}
 		
 		abstract class Stanza(xml:Node) extends XmlWrapper(xml)
 		{
 			val id:Option[String] = (this.xml \ "@id").text 
 								
-			val to:Option[JID] = 
-			{
-				val to = (this.xml \ "@to").text
-				if (to.isEmpty) None else Some(JID(to))
-			}
+			val to:JID = JID((this.xml \ "@to").text)
 			
-			val from:Option[JID] = 
-			{
-				val from = (this.xml \ "@from").text
-				if (from.isEmpty) None else Some(JID(from))
-			}
+			val from:JID = JID((this.xml \ "@from").text)
 			
 			val language:Option[String] = 
 			{

@@ -11,25 +11,12 @@ package org.simbit.xmpp
 		protected[xmpp] object Presence
 		{
 			val tag = "presence"
-			
-			/*
-			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extension:Option[Extension]):Node =
-			{
-				val children = mutable.ListBuffer[Node]()
-				if (!show.isEmpty) children += <show>{ show.get }</show>
-				if (!status.isEmpty) children += <status>{ status.get }</status>
-				if (!priority.isEmpty) children += <priority>{ priority.get }</priority>
-				if (!extension.isEmpty) children ++= extension.get
-					
-				return Stanza.build(tag, presenceType.toString, id, to, from, children)
-			}
-			*/
-			
-			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID]):Node = build(presenceType, id, to, from, None, None)	
 				
-			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]]):Node = build(presenceType, id, to, from, None, extensions)		
+			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:JID, from:JID):Node = build(presenceType, id, to, from, None, None)	
+				
+			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:JID, from:JID, extensions:Option[Seq[Extension]]):Node = build(presenceType, id, to, from, None, extensions)		
 			
-			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], children:Option[Seq[Node]], extensions:Option[Seq[Extension]]):Node =
+			def build(presenceType:PresenceTypeEnumeration.Value, id:Option[String], to:JID, from:JID, children:Option[Seq[Node]], extensions:Option[Seq[Extension]]):Node =
 			{
 				val kids = mutable.ListBuffer[Node]()
 				if (!children.isEmpty) kids ++= children.get
@@ -38,7 +25,7 @@ package org.simbit.xmpp
 				return Stanza.build(tag, presenceType.toString, id, to, from, kids)				
 			}
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Node = 
+			def error(id:Option[String], to:JID, from:JID, extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Node = 
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!extensions.isEmpty) children ++= extensions.get
@@ -47,7 +34,7 @@ package org.simbit.xmpp
 			}
 		}
 		
-		abstract class Presence(xml:Node, val presenceType:PresenceTypeEnumeration.Value) extends Stanza(xml)
+		abstract class Presence(xml:Node, presenceType:PresenceTypeEnumeration.Value) extends Stanza(xml)
 		{
 			val extensions:Option[Seq[Extension]] = ExtensionsManager.getExtensions(this.xml)
 			

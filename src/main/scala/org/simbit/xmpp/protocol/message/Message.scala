@@ -12,19 +12,19 @@ package org.simbit.xmpp
 		{
 			val tag = "message"
 			
-			def apply(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], body:Option[String]):Message = apply(stanzaType, id, to, from, None, body, None, None)
+			def apply(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:JID, from:JID, body:Option[String]):Message = apply(stanzaType, id, to, from, None, body, None, None)
 				
-			def apply(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String]):Message = apply(stanzaType, id, to, from, subject, body, None, None)
+			def apply(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:JID, from:JID, subject:Option[String], body:Option[String]):Message = apply(stanzaType, id, to, from, subject, body, None, None)
 					
-			def apply(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Message =
+			def apply(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:JID, from:JID, subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Message =
 			{
 				val xml = build(stanzaType, id, to, from, subject, body, thread, extensions)
 				return apply(xml)
 			}
 			
-			def apply(xml:Node):Message = MessageFactory.create(xml)
+			def apply(xml:Node):Message = Builder.build(xml)
 						
-			def build(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Node =
+			def build(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:JID, from:JID, subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Node =
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!subject.isEmpty) children += <subject>{ subject.get }</subject>
@@ -35,7 +35,7 @@ package org.simbit.xmpp
 				return Stanza.build(tag, stanzaType.toString, id, to, from, children)
 			}
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Node = 
+			def error(id:Option[String], to:JID, from:JID, extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Node = 
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!extensions.isEmpty) children ++= extensions.get
@@ -44,7 +44,7 @@ package org.simbit.xmpp
 			}						
 		}
 		
-		abstract class Message(xml:Node, val stanzaType:MessageTypeEnumeration.Value) extends Stanza(xml)
+		abstract class Message(xml:Node, messageType:MessageTypeEnumeration.Value) extends Stanza(xml)
 		{			
 			val subject:Option[String] = (this.xml \ "subject").text
 			
@@ -55,13 +55,13 @@ package org.simbit.xmpp
 			val extensions:Option[Seq[Extension]] = ExtensionsManager.getExtensions(this.xml)
 			
 			// FIXME, need to handle extension here
-			def reply(body:String):Message = Message(this.stanzaType, this.id, this.from, this.to, this.subject, Some(body), this.thread, None)
+			def reply(body:String):Message = Message(this.messageType, this.id, this.from, this.to, this.subject, Some(body), this.thread, None)
 			
 			// FIXME, need to handle extension here			
-			def reply(subject:String, body:String):Message = Message(this.stanzaType, this.id, this.from, this.to, Some(subject), Some(body), this.thread, None)
+			def reply(subject:String, body:String):Message = Message(this.messageType, this.id, this.from, this.to, Some(subject), Some(body), this.thread, None)
 			
 			// FIXME, need to handle extension here			
-			def forward(to:JID):Message = Message(this.stanzaType, this.id, to, this.from, this.subject, this.body, this.thread, None)
+			def forward(to:JID):Message = Message(this.messageType, this.id, to, this.from, this.subject, this.body, this.thread, None)
 			
 			def error(condition:StanzaErrorCondition.Value, description:Option[String]):Node = Error(this, condition, description)
 		}

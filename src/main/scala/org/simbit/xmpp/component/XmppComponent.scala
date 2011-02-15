@@ -221,6 +221,16 @@ package org.simbit.xmpp
 
 			private def handleDiscoInfo(request:Get, infoRequest:disco.Info)
 			{				
+				if (request.to == this.jid)
+				{
+					send(request.result(infoRequest.result(this.identities, this.features)))
+				}
+				else getChildDiscoInfo(request.to, infoRequest) match
+				{
+					case Some(info) => send(request.result(info))
+					case _ => // do nothing					
+				}
+				/*
 				request.to match
 				{
 					case Some(jid) if jid == this.jid => 
@@ -233,13 +243,25 @@ package org.simbit.xmpp
 						case _ => // do nothing					
 					}
 				}
+				*/
 			}
 			
 			// to be implemented by sub classes as required
 			protected def getChildDiscoInfo(jid:JID, request:disco.Info):Option[disco.InfoResult] = None
 			
 			private def handleDiscoItems(request:Get, itemsRequest:disco.Items)
-			{				
+			{	
+				if (request.to == this.jid) getDiscoItems(itemsRequest) match 
+				{
+					case Some(items) => send(request.result(items))
+					case _ => // do nothing						
+				}
+				else getChildDiscoItems(request.to, itemsRequest) match
+				{
+					case Some(items) => send(request.result(items))
+					case _ => // do nothing
+				}
+				/*
 				request.to match
 				{
 					case Some(jid) if jid == this.jid => getDiscoItems(itemsRequest) match 
@@ -253,6 +275,7 @@ package org.simbit.xmpp
 						case _ => // do nothing
 					}
 				}
+				*/
 			}
 			
 			// to be implemented by sub classes as required	
@@ -363,7 +386,7 @@ package org.simbit.xmpp
   			
   			private def handleStanza(stanza:Stanza)
   			{
-  				debug(stanza.to.getOrElse(this.jid) + " recieved stanza from: " + stanza.from.getOrElse("unknown"))
+  				debug(stanza.to + " recieved stanza from: " + stanza.from)
 				
 				try
 				{

@@ -10,16 +10,16 @@ package org.simbit.xmpp
 			
 		object Away
 		{
-			def apply():Away =
+			def apply(id:Option[String], to:JID, from:JID, status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Away =
 			{
-				val xml = Stanza.build(Presence.tag)
+				val xml = Available.build(id, to, from, Some(Show.Away), status, priority, extensions)
 				return apply(xml)
 			}
 			
 			def apply(xml:Node):Away = new Away(xml)
 		}
 		
-		class Away(xml:Node) extends Available(xml)
+		class Away(xml:Node) extends Available(xml, Some(Show.Away))
 		{
 		}
 	}

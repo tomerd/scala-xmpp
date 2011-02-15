@@ -10,10 +10,10 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		object MessageFactory //extends StanzaFactory[Message]
+		object Builder
 		{
-			def create(xml:Node):Message = 
-			{		
+			def build(xml:Node):Message = 
+			{
 				require("message" == xml.label)
 				
 				(xml \ "@type").text match

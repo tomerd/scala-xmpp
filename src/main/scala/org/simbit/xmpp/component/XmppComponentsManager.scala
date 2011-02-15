@@ -8,7 +8,7 @@ package org.simbit.xmpp
 		{
 			private var components:mutable.ListMap[String, XmppComponent] = null
 			
-			def register(subdomain:String, component:XmppComponent, host:String, port:Int, secret:String)
+			def register(component:XmppComponent, subdomain:String, host:String, port:Int, secret:String)
 			{
 				if (null == components) components = new mutable.ListMap[String, XmppComponent]()
 				if (components.contains(subdomain)) throw new IllegalArgumentException(subdomain + " is already in use by another component")

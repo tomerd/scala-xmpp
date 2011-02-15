@@ -12,9 +12,9 @@ package org.simbit.xmpp
 		{
 			val tag = "iq"
 									
-			def build(stanzaType:IQTypeEnumeration.Value, id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension]):Node = Stanza.build(tag, stanzaType.toString, id, to, from, extension)
+			def build(stanzaType:IQTypeEnumeration.Value, id:Option[String], to:JID, from:JID, extension:Option[Extension]):Node = Stanza.build(tag, stanzaType.toString, id, to, from, extension)
 			
-			def error(id:Option[String], to:Option[JID], from:Option[JID], extension:Option[Extension], condition:StanzaErrorCondition.Value, description:Option[String]):Node = 
+			def error(id:Option[String], to:JID, from:JID, extension:Option[Extension], condition:StanzaErrorCondition.Value, description:Option[String]):Node = 
 			{
 				val children = mutable.ListBuffer[Node]()
 				if (!extension.isEmpty) children += extension.get
@@ -23,7 +23,7 @@ package org.simbit.xmpp
 			}
 		}
 		
-		abstract class IQ(xml:Node, val stanzaType:IQTypeEnumeration.Value) extends Stanza(xml)
+		abstract class IQ(xml:Node, iqType:IQTypeEnumeration.Value) extends Stanza(xml)
 		{			
 			val extension:Option[Extension] = ExtensionsManager.getExtensions(this.xml) match
 			{

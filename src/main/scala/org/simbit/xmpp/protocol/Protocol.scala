@@ -76,8 +76,9 @@ package org.simbit.xmpp
 				return metadata
 			}			
 						
-			// TODO: not sure why these are required and the wrapper is not enough
+			// TODO: not sure why these are required and the wrapper is not enough			
 			implicit def ext2optext(ext:Extension):Option[Extension] = if (null != ext) Some(ext) else None
+			implicit def ext2seq(ext:Extension):Seq[Extension] = List(ext)
 			implicit def ext2seqoptext(ext:Extension):Option[Seq[Extension]] = if (null != ext) Some(List(ext)) else None
 			implicit def seqext2optseqext(seq:Seq[Extension]):Option[Seq[Extension]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None	
 			

@@ -10,15 +10,15 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		object IQFactory //extends StanzaFactory[IQ]
+		object Builder
 		{
-			def create(xml:Node):IQ =
+			def build(xml:Node):IQ =
 			{
 				require("iq" == xml.label)
 				
 				(xml \ "@type").text match
 				{
-					// FIXME, use the enum values (attribute iqType) instead of iqTypeName, getting compilation error even with implicict cast
+					// FIXME, use the enum values (attribute iqType) instead of iqTypeName, getting compilation error even with implicit cast
 					case Get.iqTypeName => Get(xml) 
 					case Set.iqTypeName => Set(xml)
 					case Result.iqTypeName => Result(xml) 
