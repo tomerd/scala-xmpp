@@ -10,9 +10,9 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		object Builder
+		private[xmpp] object Builder
 		{
-			def build(xml:Node):Message = 
+			def apply(xml:Node):Message = 
 			{
 				require("message" == xml.label)
 				

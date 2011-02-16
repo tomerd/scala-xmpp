@@ -11,7 +11,7 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		object InfoBuilder extends ExtensionBuilder[Query]
+		private[xmpp] object InfoBuilder extends ExtensionBuilder[Query]
 		{
 			val tag = Query.tag
 			val namespace = "http://jabber.org/protocol/disco#info"

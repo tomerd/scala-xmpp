@@ -11,7 +11,7 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		object Builder extends ExtensionBuilder[Form]
+		private[xmpp] object Builder extends ExtensionBuilder[Form]
 		{
 			val tag = X.tag
 			val namespace = "jabber:x:data"

@@ -8,7 +8,7 @@ package org.simbit.xmpp
 		import org.simbit.xmpp.protocol._
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		protected[xmpp] object IQ
+		private[xmpp] object IQ
 		{
 			val tag = "iq"
 									

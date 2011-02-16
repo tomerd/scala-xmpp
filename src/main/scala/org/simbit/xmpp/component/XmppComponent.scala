@@ -78,6 +78,8 @@ package org.simbit.xmpp
 			private var _shuttingdown = false
 			private var _reconnectAttampts = 0
 			
+			private var _lastActive:Long = 0
+			
 			def configure(subdomain:String, host:String, port:Int, secret:String, timeout:Int=0)
 			{
 				_jid = JID(null, subdomain + "." + host, null)
@@ -160,6 +162,7 @@ package org.simbit.xmpp
 				
 				try 
 				{
+					touch
 					_session.write(content)
 				}
 				catch
@@ -193,6 +196,7 @@ package org.simbit.xmpp
 						
 			protected def handleStanza(stanza:Stanza) 
 			{
+				touch
 				//TODO, find a better way to do the disco match, ideally we would match on a well defined disco instead of matching on the extension
 				stanza match
 			 	{
@@ -201,7 +205,7 @@ package org.simbit.xmpp
 					case get @ Get(_, _, _, Some(items:disco.Items)) => handleDiscoItems(get, items)
 					case iq:IQ => handleIQ(iq)
 					case message:Message => handleMessage(message)
-				}
+				}				
 			}
 			
 			// to be implemented by subclasses as required
@@ -289,8 +293,15 @@ package org.simbit.xmpp
 			{
 			}
 			
+			private def touch
+			{
+				_lastActive = new Date().getTime
+			}
+			
 			private def keepalive()
 			{
+				// dont over do it
+				if (new Date().getTime - _lastActive < XmppComponent.KEEPALIVE_INTERVAL/2) return
 				send(" ")
 			}
 		}
@@ -364,9 +375,8 @@ package org.simbit.xmpp
 								case Some(connectionId) => send(ComponentHandshake(connectionId, secret))
 								case None => throw new Exception("invaild stream head, connection id not found")
 							}
-						}
-						// TODO, do something more intelligent here?
-						case tail:StreamTail => debug(this.jid + " received stream tail")
+						}					
+						case tail:StreamTail => debug(this.jid + " received stream tail") // TODO, do something more intelligent here?
 						case handshake:Handshake => connectHandler()
 						case error:StreamError => throw new Exception("stream error: " + error.condition + ", " + error.description.getOrElse(""))			
 						case stanza:Stanza => handleStanza(stanza)

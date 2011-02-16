@@ -14,7 +14,7 @@ package org.simbit.xmpp
 		
 			import org.simbit.xmpp.protocol.Protocol._
 		
-			object Builder extends ExtensionBuilder[Query]
+			private[xmpp] object Builder extends ExtensionBuilder[Query]
 			{
 				val tag = Query.tag
 				val namespace = org.simbit.xmpp.protocol.extensions.muc.general.Builder.namespace + "#owner"

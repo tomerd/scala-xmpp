@@ -11,7 +11,7 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		object Builder extends ExtensionBuilder[Pubsub]
+		private[xmpp] object Builder extends ExtensionBuilder[Pubsub]
 		{
 			val tag = Pubsub.tag
 			val namespace = "http://jabber.org/protocol/pubsub"

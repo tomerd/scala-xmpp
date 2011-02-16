@@ -10,9 +10,9 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		object Builder
+		private[xmpp] object Builder
 		{
-			def build(xml:Node):IQ =
+			def apply(xml:Node):IQ =
 			{
 				require("iq" == xml.label)
 				

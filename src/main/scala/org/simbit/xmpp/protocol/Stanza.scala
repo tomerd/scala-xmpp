@@ -19,9 +19,9 @@ package org.simbit.xmpp
 			{
 				xml.label match
 				{
-					case IQ.tag => iq.Builder.build(xml)
-					case Presence.tag => presence.Builder.build(xml)
-					case Message.tag => message.Builder.build(xml)
+					case IQ.tag => iq.Builder(xml)
+					case Presence.tag => presence.Builder(xml)
+					case Message.tag => message.Builder(xml)
 					case _ => throw new Exception("unknown stanza type, expected iq, presence or message")
 				}
 			}

@@ -8,9 +8,9 @@ package org.simbit.xmpp
 		import org.simbit.xmpp.protocol._
 		import org.simbit.xmpp.protocol.Protocol._
 			
-		object Builder
+		private[xmpp] object Builder
 		{
-			def build(xml:Node):Presence = 
+			def apply(xml:Node):Presence = 
 			{
 				require("presence" == xml.label)
 				

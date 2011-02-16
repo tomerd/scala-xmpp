@@ -8,7 +8,7 @@ package org.simbit.xmpp
 		import org.simbit.xmpp.protocol._
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		protected[xmpp] object Message
+		private[xmpp] object Message
 		{
 			val tag = "message"
 			
@@ -22,7 +22,7 @@ package org.simbit.xmpp
 				return apply(xml)
 			}
 			
-			def apply(xml:Node):Message = Builder.build(xml)
+			def apply(xml:Node):Message = Builder(xml)
 						
 			def build(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:JID, from:JID, subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Node =
 			{
