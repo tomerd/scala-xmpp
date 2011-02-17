@@ -9,7 +9,7 @@ package org.simbit.xmpp
 		
 		abstract class Extension(xml:Node) extends XmlWrapper(xml)
 		{
-			val name:String =  this.xml.label
+			val tag:String =  this.xml.label
 			
 			val namespace:Option[String] = this.xml.scope.uri
 		}

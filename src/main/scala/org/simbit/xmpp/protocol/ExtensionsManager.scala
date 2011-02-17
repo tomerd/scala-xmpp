@@ -113,6 +113,8 @@ package org.simbit.xmpp
 			/* pubsub */
 			registerBuilder(pubsub.Builder)
 			registerBuilder(pubsub.EventBuilder)
+			/* rpc */
+			registerBuilder(rpc.Builder)
 		}		
 		
 	}
