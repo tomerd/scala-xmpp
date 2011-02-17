@@ -47,12 +47,7 @@ package org.simbit.xmpp
 									
 			implicit def seqoptjid2seqoptstring(seqoptjid:Option[Seq[JID]]):Option[Seq[String]] = if (!seqoptjid.isEmpty) seqoptjid.get.map( jid => jid.toString ) else None
 			
-			implicit def seqwrapper2seqnode(seq:Seq[XmlWrapper]):Seq[Node] = 
-			{
-				val nodes = new mutable.ListBuffer[Node]()
-				seq.foreach( node => nodes += node )
-				return nodes
-			}
+			implicit def seqwrapper2seqnode(seq:Seq[XmlWrapper]):Seq[Node] = seq.map( item => item.xml )
 			
 			implicit def optseqwrapper2optseqnode(optseq:Option[Seq[XmlWrapper]]):Option[Seq[Node]] = 
 			{
@@ -76,12 +71,12 @@ package org.simbit.xmpp
 				return metadata
 			}			
 						
-			// TODO: not sure why these are required and the wrapper is not enough			
+			// TODO: not sure why these are required and the xmlwrapper is not enough			
 			implicit def ext2optext(ext:Extension):Option[Extension] = if (null != ext) Some(ext) else None
 			implicit def ext2seq(ext:Extension):Seq[Extension] = List(ext)
 			implicit def ext2seqoptext(ext:Extension):Option[Seq[Extension]] = if (null != ext) Some(List(ext)) else None
-			implicit def seqext2optseqext(seq:Seq[Extension]):Option[Seq[Extension]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None	
-			
+			implicit def seqext2optseqext(seq:Seq[Extension]):Option[Seq[Extension]] = if ((null != seq) && (!seq.isEmpty)) Some(seq) else None
+					
 			implicit def string2stanza(xml:String):Stanza = Stanza(xml)
 			implicit def node2stanza(xml:Node):Stanza = Stanza(xml)
 			

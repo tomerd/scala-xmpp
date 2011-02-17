@@ -15,14 +15,13 @@ package org.simbit.xmpp
 		{
 			val tag = "methodCall"
 			
-			// TODO: implement various data types here
-			def apply(name:String, parameters:Seq[String]):MethodCall = 
+			def apply(name:String, parameters:Seq[Parameter]):MethodCall = 
 			{
 				val children = mutable.ListBuffer[Node]()
 				children += <methodName>{ name }</methodName>
 				
-				val parametersNodes = parameters.map( parameter => <param><value>{ parameter }</value></param> )
-				val parametersNode = Elem(null, "params", Null, TopScope, parametersNodes:_*)
+				// TODO: not sure why i can t just pass the parameters as is, the implicit cast of xmlwrapper is not picking up.
+				val parametersNode = Elem(null, "params", Null, TopScope, parameters.map(parameter => parameter.xml):_*)
 				children += parametersNode
 				
 				apply(Builder.build(Elem(null, tag, Null, TopScope, children:_*)))

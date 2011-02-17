@@ -6,23 +6,37 @@ package org.simbit.xmpp
 		import scala.collection._
 		
 		import org.simbit.xmpp.protocol._
-		
-		// TODO: implement xml-rpc datatype serializing / deserialzing instead of using simple string
-		
+				
 		object Parameter
 		{
 			val tag = "param"
+			
+			// stupid, but required when coming from java
+			def apply(value:java.lang.Object):Parameter = 
+			{
+				value match
+				{
+					case value:java.lang.String => apply("string", value)
+					case value:java.lang.Integer => apply("int", value.toString)
+					case value:java.lang.Double => apply("double", value.toString)
+					case value:java.lang.Boolean => apply("boolean", value.toString)
+					// TODO, finish these (float, date, array, map, etc)
+					
+					case _ => throw new Exception("cant or dont know how to cast " + value + " to an xml-rpc parameter")
+				}
+			}
 			
 			def apply(value:String):Parameter = apply("string", value)
 			def apply(value:Int):Parameter = apply("int", value.toString)
 			def apply(value:Double):Parameter = apply("double", value.toString)
 			def apply(value:Boolean):Parameter = apply("boolean", value.toString)
+			// TODO, finish these (float, date, array, map, etc)
 			
 			def apply(dataType:String, value:String):Parameter = 
 			{
 				val dataTypeNode = Elem(null, dataType, Null, TopScope, Text(value))
 				val valueNode = Elem(null, "value", Null, TopScope, dataTypeNode)
-				apply(Builder.build(Elem(null, tag, Null, TopScope, valueNode)))
+				apply(Elem(null, tag, Null, TopScope, valueNode))
 			}
 			
 			def apply(xml:Node) = new Parameter(xml)
