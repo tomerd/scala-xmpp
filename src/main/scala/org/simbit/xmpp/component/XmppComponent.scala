@@ -201,8 +201,8 @@ package org.simbit.xmpp
 				stanza match
 			 	{
 					case presence:Presence => handlePresence(presence)	
-					case get @ Get(_, _, _, Some(info:disco.Info)) => handleDiscoInfo(get, info)
-					case get @ Get(_, _, _, Some(items:disco.Items)) => handleDiscoItems(get, items)
+					case get @ Get(_, _, _, Some(info:disco.InfoRequest)) => handleDiscoInfo(get, info)
+					case get @ Get(_, _, _, Some(items:disco.ItemsRequest)) => handleDiscoItems(get, items)
 					case iq:IQ => handleIQ(iq)
 					case message:Message => handleMessage(message)
 				}				
@@ -223,7 +223,7 @@ package org.simbit.xmpp
 			{
 			}
 
-			private def handleDiscoInfo(request:Get, infoRequest:disco.Info)
+			private def handleDiscoInfo(request:Get, infoRequest:disco.InfoRequest)
 			{				
 				if (request.to == this.jid)
 				{
@@ -251,9 +251,9 @@ package org.simbit.xmpp
 			}
 			
 			// to be implemented by sub classes as required
-			protected def getChildDiscoInfo(jid:JID, request:disco.Info):Option[disco.InfoResult] = None
+			protected def getChildDiscoInfo(jid:JID, request:disco.InfoRequest):Option[disco.InfoResult] = None
 			
-			private def handleDiscoItems(request:Get, itemsRequest:disco.Items)
+			private def handleDiscoItems(request:Get, itemsRequest:disco.ItemsRequest)
 			{	
 				if (request.to == this.jid) getDiscoItems(itemsRequest) match 
 				{
@@ -283,10 +283,10 @@ package org.simbit.xmpp
 			}
 			
 			// to be implemented by sub classes as required	
-			protected def getDiscoItems(request:disco.Items):Option[disco.ItemsResult] = None
+			protected def getDiscoItems(request:disco.ItemsRequest):Option[disco.ItemsResult] = None
 			
 			// to be implemented by sub classes as required	
-			protected def getChildDiscoItems(jid:JID, request:disco.Items):Option[disco.ItemsResult] = None
+			protected def getChildDiscoItems(jid:JID, request:disco.ItemsRequest):Option[disco.ItemsResult] = None
 			
 			// to be implemented by sub classes as required
 			protected def cleanup()

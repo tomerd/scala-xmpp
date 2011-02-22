@@ -13,7 +13,7 @@ package org.simbit.xmpp
 			val iqType = IQTypeEnumeration.Error
 			val iqTypeName = iqType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reason
 			
-			def apply(iq:IQ, condition:StanzaErrorCondition.Value, description:Option[String]=None):Error = apply(iq.id, iq.to, iq.from, iq.extension, condition, description) 
+			def apply(iq:IQ, condition:StanzaErrorCondition.Value, description:Option[String]=None):Error = apply(iq.id, iq.from, iq.to, iq.extension, condition, description) 
 			
 			def apply(id:Option[String], to:JID, from:JID, extension:Option[Extension], condition:StanzaErrorCondition.Value, description:Option[String]):Error =
 			{

@@ -20,7 +20,7 @@ package org.simbit.xmpp
 			{
 				(xml \ "item").length match
 				{
-					case 0 => Items(xml)
+					case 0 => ItemsRequest(xml)
 					case _ => ItemsResult(xml)
 				}
 			}

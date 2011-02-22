@@ -20,7 +20,7 @@ package org.simbit.xmpp
 			{
 				(xml \ "item").length match
 				{
-					case 0 => Roster(xml)
+					case 0 => RosterRequest(xml)
 					case _ => RosterResult(xml)
 				}
 			}

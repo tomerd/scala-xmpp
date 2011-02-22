@@ -41,7 +41,7 @@ package org.simbit.xmpp
 				if (!extensions.isEmpty) children ++= extensions.get
 				children += StanzaError(condition, description)
 				Stanza.build(tag, MessageTypeEnumeration.Error.toString, id, to, from, children)
-			}						
+			}
 		}
 		
 		abstract class Message(xml:Node, messageType:MessageTypeEnumeration.Value) extends Stanza(xml)
@@ -57,10 +57,10 @@ package org.simbit.xmpp
 			// FIXME, need to handle extension here
 			def reply(body:String):Message = Message(this.messageType, this.id, this.from, this.to, this.subject, Some(body), this.thread, None)
 			
-			// FIXME, need to handle extension here			
+			// FIXME, need to handle extension here
 			def reply(subject:String, body:String):Message = Message(this.messageType, this.id, this.from, this.to, Some(subject), Some(body), this.thread, None)
 			
-			// FIXME, need to handle extension here			
+			// FIXME, need to handle extension here
 			def forward(to:JID):Message = Message(this.messageType, this.id, to, this.from, this.subject, this.body, this.thread, None)
 			
 			def error(condition:StanzaErrorCondition.Value, description:Option[String]):Node = Error(this, condition, description)

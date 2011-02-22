@@ -20,7 +20,7 @@ package org.simbit.xmpp
 			{
 				(xml \ "feature").length match
 				{
-					case 0 => Info(xml)
+					case 0 => InfoRequest(xml)
 					case _ => InfoResult(xml)
 				}
 			}

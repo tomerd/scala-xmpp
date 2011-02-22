@@ -11,18 +11,18 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		object Items 
+		object ItemsRequest 
 		{
-			def apply(node:Option[String]=None):Items = 
+			def apply(node:Option[String]=None):ItemsRequest = 
 			{
 				val attributes:MetaData = if (!node.isEmpty) new UnprefixedAttribute("node", Text(node.get), Null) else Null
 				return apply(ItemsBuilder.build(attributes))
 			}
 			
-			def apply(xml:Node):Items = new Items(xml)
+			def apply(xml:Node):ItemsRequest = new ItemsRequest(xml)
 		}
 		
-		class Items(xml:Node) extends Query(xml)
+		class ItemsRequest(xml:Node) extends Query(xml)
 		{
 			val node:Option[String] = (this.xml \ "@node").text
 			

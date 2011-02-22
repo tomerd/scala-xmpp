@@ -13,7 +13,7 @@ package org.simbit.xmpp
 			val presenceType = PresenceTypeEnumeration.Error
 			val presenceTypeName = presenceType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reason
 			
-			def apply(presence:Presence, condition:StanzaErrorCondition.Value, description:Option[String]=None):Error = apply(presence.id, presence.to, presence.from, presence.extensions, condition, description) 
+			def apply(presence:Presence, condition:StanzaErrorCondition.Value, description:Option[String]=None):Error = apply(presence.id, presence.from, presence.to, presence.extensions, condition, description) 
 			
 			def apply(id:Option[String], to:JID, from:JID, extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Error =
 			{
@@ -37,7 +37,7 @@ package org.simbit.xmpp
 			
 			val description:Option[String] = error.description
 			
-			val otherConditions:Option[Seq[String]] = error.otherConditions			
+			val otherConditions:Option[Seq[String]] = error.otherConditions	
 		}
 	}
 }

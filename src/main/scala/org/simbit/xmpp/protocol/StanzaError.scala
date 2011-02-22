@@ -91,12 +91,12 @@ package org.simbit.xmpp
 			val Redirect = Condition("redirect", StanzaErrorAction.Modify, 302)
 			val RegistrationRequired = Condition("registration-required", StanzaErrorAction.Auth, 407)
 			val RemoteServerNotFound = Condition("remote_server_not_found", StanzaErrorAction.Cancel, 404)
-			val RemoteServerTimeout = Condition("remote-server-timeout", StanzaErrorAction.Wait, 504)		
+			val RemoteServerTimeout = Condition("remote-server-timeout", StanzaErrorAction.Wait, 504)
 			val ResourceConstraint = Condition("resource-constraint", StanzaErrorAction.Wait, 500)
 			val ServiceUnavailable = Condition("service-unavailable", StanzaErrorAction.Cancel, 503)
-			val SubscriptionRequired = Condition("subscription-required", StanzaErrorAction.Auth, 407)		
-			val UndefinedCondition = Condition("undefined-condition", StanzaErrorAction.Cancel, 500) // default behavior is not by specification
-			val UnexpectedRequest = Condition("unexpected-request", StanzaErrorAction.Wait, 400)			
+			val SubscriptionRequired = Condition("subscription-required", StanzaErrorAction.Auth, 407)
+			val UndefinedCondition = Condition("undefined-condition", StanzaErrorAction.Cancel, 500) // default behavior is not specified
+			val UnexpectedRequest = Condition("unexpected-request", StanzaErrorAction.Wait, 400)
 			val Unknown = Condition("unknown", StanzaErrorAction.Cancel, 0) // internal use, outside of spec!
 			
 			def fromString(string:String):Option[StanzaErrorCondition.Value] = values.find((value) => value.name.equals(string.toLowerCase))
@@ -106,7 +106,7 @@ package org.simbit.xmpp
 			
 			implicit def valueToCondition(value:Value):Condition = value.asInstanceOf[Condition]
 		}
-				
+		
 		object StanzaErrorAction extends Enumeration
 		{
 			type action = Value

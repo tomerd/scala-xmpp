@@ -13,7 +13,7 @@ package org.simbit.xmpp
 			val messageType = MessageTypeEnumeration.Error
 			val messageTypeName = messageType.toString // FIXME, this should be done automatically via implicit def, but does not work for enum values for some reason
 			
-			def apply(message:Message, condition:StanzaErrorCondition.Value, description:Option[String]=None):Error = apply(message.id, message.to, message.from, message.extensions, condition, description) 
+			def apply(message:Message, condition:StanzaErrorCondition.Value, description:Option[String]=None):Error = apply(message.id, message.from, message.to, message.extensions, condition, description) 
 			
 			def apply(id:Option[String], to:JID, from:JID, extensions:Option[Seq[Extension]], condition:StanzaErrorCondition.Value, description:Option[String]):Error =
 			{
@@ -37,7 +37,7 @@ package org.simbit.xmpp
 			
 			val description:Option[String] = error.description
 			
-			val otherConditions:Option[Seq[String]] = error.otherConditions			
+			val otherConditions:Option[Seq[String]] = error.otherConditions	
 		}
 	}
 }

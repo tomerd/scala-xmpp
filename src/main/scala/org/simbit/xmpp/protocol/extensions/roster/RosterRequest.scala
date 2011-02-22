@@ -11,12 +11,12 @@ package org.simbit.xmpp
 		
 		import org.simbit.xmpp.protocol.Protocol._
 		
-		object Roster extends
+		object RosterRequest extends
 		{
-			def apply(xml:Node):Roster = new Roster(xml)
+			def apply(xml:Node):RosterRequest = new RosterRequest(xml)
 		}
 		
-		class Roster(xml:Node) extends Query(xml)
+		class RosterRequest(xml:Node) extends Query(xml)
 		{
 			def result(items:Seq[RosterItem]):RosterResult = RosterResult(items)
 		}

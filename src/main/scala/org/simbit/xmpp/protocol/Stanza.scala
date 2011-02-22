@@ -26,8 +26,6 @@ package org.simbit.xmpp
 				}
 			}
 			
-			//def build(name:String):Node = build(name, null, None, None, None)
-				
 			def build(name:String, stanzaType:String, id:Option[String], to:JID, from:JID, children:Option[Seq[Node]]=None):Node = 
 			{
 				val kids:Seq[Node] = if (!children.isEmpty) children.get else Nil
