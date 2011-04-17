@@ -71,7 +71,7 @@ package org.simbit.xmpp
 			type value = Value
 			
 			val Unknown = Value("unknown") // internal use
-			val None = Value("") // internal use
+			val Extended = Value("") // internal use
 			val Normal = Value("normal")
 			val Chat = Value("chat")
 			val GroupChat = Value("groupchat")

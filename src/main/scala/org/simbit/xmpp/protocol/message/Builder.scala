@@ -23,6 +23,7 @@ package org.simbit.xmpp
 					case Chat.messageTypeName => Chat(xml) 
 					case GroupChat.messageTypeName => GroupChat(xml) 
 					case Headline.messageTypeName => Headline(xml) 
+					case Extended.messageTypeName => Extended(xml)
 					case Error.messageTypeName => Error(xml) 
 					case _ => throw new Exception("unknown message stanza") // TODO, give a more detailed error message here
 				}
