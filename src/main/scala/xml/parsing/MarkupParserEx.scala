@@ -885,7 +885,8 @@ trait MarkupParserEx extends MarkupParserCommon with TokenTests
     handle.notationDecl(notat, extID)
   }
 
-  def reportSyntaxError(pos: Int, str: String): Unit = curInput.reportError(pos, str)
+  // tomer: muting xml syntax error reporting, as we constantly evaluating partial xml documents
+  def reportSyntaxError(pos: Int, str: String): Unit = Unit //curInput.reportError(pos, str)
   def reportSyntaxError(str: String): Unit = reportSyntaxError(pos, str)
   def reportValidationError(pos: Int, str: String): Unit = reportSyntaxError(pos, str)
 
