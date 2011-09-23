@@ -1,24 +1,25 @@
+/*
+*** copied from net.liftweb.common
+*/
+
 package org.simbit.xmpp
 {
 	package util
-	{		
-		/*
-		*** copied from net.liftweb.common
-		*/
+	{
 		import org.slf4j.{Marker, Logger => SLF4JLogger, LoggerFactory}
-
+		
 		trait Logger 
-		{		
+		{
 			private lazy val logger:SLF4JLogger = LoggerFactory.getLogger(loggerNameFor(this.getClass))
-  
+			
 			private def loggerNameFor(cls:Class[_]) = 
 			{
-		    	val className = cls.getName
-		    	if (className endsWith "$") className.substring(0, className.length - 1) else className
+				val className = cls.getName
+				if (className endsWith "$") className.substring(0, className.length - 1) else className
 		  	}
 			
 			def assertLog(assertion: Boolean, msg: => String) = if (assertion) info(msg)
-
+			
 			/**
 			 * Log the value of v with trace and return v. Useful for tracing values in expressions
 			 */

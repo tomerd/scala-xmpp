@@ -29,7 +29,7 @@ package org.simbit.xmpp
 			def apply(xml:Node):StanzaError = new StanzaError(xml)
 		}
 		
-		protected class StanzaError(xml:Node) extends XmlWrapper(xml)
+		protected class StanzaError(xml:Node) extends XmlWrapper(xml) 
 		{
 			val errorType:Option[StanzaErrorAction.Value] = 
 			{

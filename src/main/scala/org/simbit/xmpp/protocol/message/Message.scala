@@ -21,7 +21,7 @@ package org.simbit.xmpp
 				val xml = build(stanzaType, id, to, from, subject, body, thread, extensions)
 				return apply(xml)
 			}
-			
+						
 			def apply(xml:Node):Message = Builder(xml)
 						
 			def build(stanzaType:MessageTypeEnumeration.Value, id:Option[String], to:JID, from:JID, subject:Option[String], body:Option[String], thread:Option[String], extensions:Option[Seq[Extension]]):Node =
@@ -55,7 +55,13 @@ package org.simbit.xmpp
 			val extensions:Option[Seq[Extension]] = ExtensionsManager.getExtensions(this.xml)
 			
 			// FIXME, need to handle extension here
+			def reply(body:Option[String]):Message = Message(this.messageType, this.id, this.from, this.to, this.subject, body, this.thread, None)
+			  
+			// FIXME, need to handle extension here
 			def reply(body:String):Message = Message(this.messageType, this.id, this.from, this.to, this.subject, Some(body), this.thread, None)
+			
+			// FIXME, need to handle extension here
+			def reply(subject:Option[String], body:Option[String]):Message = Message(this.messageType, this.id, this.from, this.to, subject, body, this.thread, None)
 			
 			// FIXME, need to handle extension here
 			def reply(subject:String, body:String):Message = Message(this.messageType, this.id, this.from, this.to, Some(subject), Some(body), this.thread, None)

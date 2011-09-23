@@ -22,7 +22,7 @@ package org.simbit.xmpp
 			def apply():Handshake = apply(<handshake/>)		
 		}
 		
-		class Handshake(xml:Node) extends XmlWrapper(xml)
+		class Handshake(xml:Node) extends XmlWrapper(xml) with Packet
 		{
 			val key:String =  this.xml.text
 		}

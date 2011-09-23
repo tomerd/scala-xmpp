@@ -18,7 +18,7 @@ package org.simbit.xmpp
 		}
 		
 		case class JID(node:String, domain:String, resource:String)
-		{									
+		{
 			def validate
 			{
 				// TODO: implement this according to the XMPP spec

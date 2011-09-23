@@ -5,7 +5,7 @@ package org.simbit.xmpp
 		import scala.collection._
 		import scala.xml._
 		
-		object StreamHead
+		object StreamHead 
 		{
 			protected[protocol] val tag = "<stream:stream"
 			
@@ -21,7 +21,7 @@ package org.simbit.xmpp
 			def apply(namespace:String, attributes:Iterable[Tuple2[String, String]]):StreamHead = new StreamHead(namespace, attributes)
 		}
 		
-		class StreamHead(val namespace:String, val attributes:Iterable[Tuple2[String, String]])
+		class StreamHead(val namespace:String, val attributes:Iterable[Tuple2[String, String]]) extends Packet
 		{
 			def findAttribute(name:String):Option[String] = 
 			{
@@ -44,7 +44,7 @@ package org.simbit.xmpp
 			def apply():StreamTail = new StreamTail()
 		}
 		
-		class StreamTail 
+		class StreamTail extends Packet
 		{
 			override def toString:String = StreamTail.tag
 		}

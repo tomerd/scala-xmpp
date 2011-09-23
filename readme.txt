@@ -8,6 +8,41 @@ THIS PROJECT IS IN INCUBATION
 
 TODO: add helpful project information here
 
+
+simple component implementation
+-------------------------------
+
+package org.simbit.element
+{
+	package services.echo
+	{		
+		import org.simbit.xmpp.component.XmppComponent
+		
+		import org.simbit.xmpp.protocol.extensions._
+				
+		import org.simbit.xmpp.protocol._
+		import org.simbit.xmpp.protocol.message._
+		
+		import org.simbit.xmpp.protocol.Protocol._
+		
+		class Echo extends XmppComponent 
+		{
+			override val identities = List(disco.Identity("component", "c2s", "echo server"))
+			override val extensionsBuilders = Nil
+			
+			override def handleMessage(message:Message)			
+			{
+				send(Chat(message.from, message.to, message.subject, message.body))
+			}
+		}
+		
+	}
+}
+
+
+
+
+
 see license.txt for license info
 
 

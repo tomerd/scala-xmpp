@@ -26,7 +26,7 @@ package org.simbit.xmpp
 			def apply(xml:Node):StreamError = new StreamError(xml)
 		}
 		
-		class StreamError(xml:Node) extends XmlWrapper(xml)
+		class StreamError(xml:Node) extends XmlWrapper(xml) with Packet
 		{			
 			val condition:StreamErrorCondition.Value = 
 			{

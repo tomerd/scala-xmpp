@@ -4,16 +4,20 @@ package org.simbit.xmpp
 	{
 		import scala.collection._
 		import scala.xml._
-
-		abstract class XmlWrapper(val xml:Node)
-		{				
-			override def toString = xml.toString			
+		
+		trait Packet
+		{
 		}
-			
+		
+		abstract class XmlWrapper(val xml:Node)
+		{
+			override def toString = xml.toString
+		}
+		
 		object Protocol
 		{			
 			implicit def string2opt(string:String):Option[String] = if ((null != string) && (!string.isEmpty)) Some(string) else None
-			implicit def jid2opt(jid:JID):Option[JID] = if (null != jid) Some(jid) else None		
+			implicit def jid2opt(jid:JID):Option[JID] = if (null != jid) Some(jid) else None
 
 			implicit def string2seqstring(string:String):Seq[String] = List(string)
 			implicit def int2seqint(int:Int):Seq[Int] = List(int)

@@ -12,9 +12,9 @@ package org.simbit.xmpp
 		import org.simbit.xmpp.protocol.Protocol._
 		
 		object Stanza
-		{			
-			def apply(xml:String):Stanza= apply(XML.loadString(xml))
-									
+		{
+			def apply(xml:String):Stanza = apply(XML.loadString(xml))
+			
 			def apply(xml:Node):Stanza = 
 			{
 				xml.label match
@@ -40,10 +40,10 @@ package org.simbit.xmpp
 			}
 		}
 		
-		abstract class Stanza(xml:Node) extends XmlWrapper(xml)
+		abstract class Stanza(xml:Node) extends XmlWrapper(xml) with Packet
 		{
 			val id:Option[String] = (this.xml \ "@id").text 
-								
+			
 			val to:JID = JID((this.xml \ "@to").text)
 			
 			val from:JID = JID((this.xml \ "@from").text)
