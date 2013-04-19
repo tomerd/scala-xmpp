@@ -49,6 +49,10 @@ abstract class Message(xml:Node, messageType:MessageTypeEnumeration.Value) exten
 
     val body:Option[String] = (this.xml \ "body").text
 
+    val rawSubject:NodeSeq = this.xml \ "subject"
+
+    val rawBody:NodeSeq = this.xml \ "body"
+
     val thread:Option[String] = (this.xml \ "thread").text
 
     val extensions:Option[Seq[Extension]] = ExtensionsManager.getExtensions(this.xml)

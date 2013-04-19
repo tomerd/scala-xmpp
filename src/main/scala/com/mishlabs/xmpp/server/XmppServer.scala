@@ -285,6 +285,7 @@ trait XmppServer extends NettyXmppServer[Long]
                             case AuthenticationResult.NotAuthorized => throw new SaslAuthenticationError(SaslErrorCondition.NotAuthorized)
                             case AuthenticationResult.CredentialsExpired => throw new SaslAuthenticationError(SaslErrorCondition.CredentialsExpired)
                             case AuthenticationResult.AccountDisabled => throw new SaslAuthenticationError(SaslErrorCondition.AccountDisabled)
+                            case AuthenticationResult.MalformedRequest => throw new SaslAuthenticationError(SaslErrorCondition.MalformedRequest)
                             case _ => throw new SaslAuthenticationError(SaslErrorCondition.NotAuthorized)
                         }
                     }
@@ -372,12 +373,6 @@ trait XmppServer extends NettyXmppServer[Long]
                         case RegistrationResult.Unknown => send(set.error(StanzaErrorCondition.UndefinedCondition, Some("Unknown registration error")))
                     }
                 }
-                // http://xmpp.org/extensions/xep-0144.html
-                case get @ Get(_, _, _, Some(request:roster.RosterRequest)) =>
-                {
-                    val roster = this.delegate.get.getRoster.toSeq
-                    send(get.result(Some(request.result(roster))))
-                }
                 case _ => next(iq)
             }
         }
@@ -400,13 +395,14 @@ trait ClientConnection
     var delegate:Option[ClientConnectionDelegate] = None
 
     def send(packet:Packet)
+
+    def close()
 }
 
 trait ClientConnectionDelegate
 {
     def authenticate(request:AuthenticationRequest):AuthenticationResult.Value = AuthenticationResult.Unknown
     def register(request:RegistrationRequest):RegistrationResult.Value = RegistrationResult.Unknown
-    def getRoster:Iterable[roster.RosterItem] = Iterable.empty[roster.RosterItem]
     def onStanza(stanza:Stanza):Unit = Unit
     def onOnline(jid:JID):Unit = Unit
     def onOffline():Unit = Unit
@@ -418,7 +414,7 @@ class AuthenticationRequest(val username:String, val password:String)
 object AuthenticationResult extends Enumeration
 {
     type result = Value
-    val Success, NotAuthorized, CredentialsExpired, AccountDisabled, Unknown = Value
+    val Success, NotAuthorized, CredentialsExpired, AccountDisabled, MalformedRequest, Unknown = Value
 }
 
 class RegistrationRequest(val username:String, val password:String, val email:String)
