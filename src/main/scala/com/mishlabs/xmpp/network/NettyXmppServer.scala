@@ -6,7 +6,7 @@ import java.security.{KeyStore, SecureRandom}
 import java.net.InetSocketAddress
 import java.util.concurrent.{Executors, ExecutorService, TimeUnit}
 
-import javax.net.ssl.{SSLContext, KeyManagerFactory}
+import javax.net.ssl.{SSLEngine, SSLContext, KeyManagerFactory}
 
 import org.jboss.netty.bootstrap.ServerBootstrap
 import org.jboss.netty.channel._

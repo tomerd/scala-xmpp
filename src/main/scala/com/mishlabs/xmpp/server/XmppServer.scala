@@ -16,7 +16,6 @@ import util.Logger
 import scala.Some
 import sun.misc.BASE64Decoder
 
-
 class DefaultXmppServerConfig extends NettyXmppServerConfig
 {
     val clientTimeout = 5*60*1000
@@ -33,7 +32,10 @@ trait XmppServer extends NettyXmppServer[Long]
 
     private val logger = new Logger
 
-    def startup(domain:String, host:String, keystore:KeyStore, keystorePassword:String):Unit = startup(domain, host, DEFAULT_PORT, keystore, keystorePassword)
+    def startup(domain:String, host:String, keystore:KeyStore, keystorePassword:String)
+    {
+        startup(domain, host, DEFAULT_PORT, keystore, keystorePassword)
+    }
 
     def startup(domain:String, host:String, port:Int, keystore:KeyStore, keystorePassword:String)
     {
@@ -63,7 +65,7 @@ trait XmppServer extends NettyXmppServer[Long]
 
     final protected def handleNewConnection(connectionId:Long, nettyConnection:NettyXmppServerClientConnection)
     {
-        logger.warn("new xmpp connection %s".format(connectionId))    //FIXME: trace
+        logger.trace("new xmpp connection %s".format(connectionId))
         val connection = new ClientConnectionImpl(connectionId, nettyConnection)
         ConnectionsManager.add(connectionId, connection)
         onClientConnected(connection)
@@ -71,7 +73,7 @@ trait XmppServer extends NettyXmppServer[Long]
 
     final protected def handleDisconnect(connectionId:Long)
     {
-        logger.warn("xmpp connection %s disconnected".format(connectionId)) //FIXME: trace
+        logger.trace("xmpp connection %s disconnected".format(connectionId))
         ConnectionsManager.get(connectionId) match
         {
             case Some(client) =>
@@ -120,7 +122,7 @@ trait XmppServer extends NettyXmppServer[Long]
         }
     }
 
-    // delegate
+    // subclass delegates
 
     protected def onClientConnected(connection:ClientConnection)
 
@@ -159,15 +161,10 @@ trait XmppServer extends NettyXmppServer[Long]
         private var _username:Option[String] = None
         private var _jid:Option[JID] = None
 
-        private var authenticateDelegate:Option[(AuthenticationRequest) => AuthenticationResult.Value] = None
-        private var registerDelegate:Option[(RegistrationRequest) => RegistrationResult.Value] = None
-        private var rosterDelegate:Option[() => Iterable[roster.RosterItem]] = None
-        private var stanzaDelegate:Option[(Stanza) => Unit] = None
-        private var onlineDelegate:Option[(JID) => Unit] = None
-        private var offlineDelegate:Option[() => Unit] = None
-        private var errorDelegate:Option[(Throwable) => Unit] = None
-
         def jid = _jid
+
+        // make sure some delegate is in place
+        delegate = Some(new ClientConnectionDelegate {})
 
         def handlePacket(packet:Packet)
         {
@@ -188,7 +185,7 @@ trait XmppServer extends NettyXmppServer[Long]
 
         def handleError(e:Throwable)
         {
-            delegateError(e)
+            this.delegate.get.onError(e)
         }
 
         def send(packet:Packet)
@@ -282,7 +279,7 @@ trait XmppServer extends NettyXmppServer[Long]
                         val decoded = new String(new sun.misc.BASE64Decoder().decodeBuffer(sasl.value), "UTF8")
                         val parts = decoded.split("\0")
                         if (3 != parts.length) throw new SaslAuthenticationError(SaslErrorCondition.MalformedRequest)
-                        delegateAuthentication(new AuthenticationRequest(parts(1), parts(2))) match
+                        this.delegate.get.authenticate(new AuthenticationRequest(parts(1), parts(2))) match
                         {
                             case AuthenticationResult.Success => _username = Some(parts(1)); send(SaslSuccess())
                             case AuthenticationResult.NotAuthorized => throw new SaslAuthenticationError(SaslErrorCondition.NotAuthorized)
@@ -306,8 +303,8 @@ trait XmppServer extends NettyXmppServer[Long]
             val normalizedStanza = if (stanza.from.isEmpty && this.jid.isDefined) Stanza.withFrom(stanza, this.jid.get) else stanza
             normalizedStanza match
             {
-                case iq:IQ => handleIQ(iq, delegateStanza)
-                case _ => delegateStanza(normalizedStanza)
+                case iq:IQ => handleIQ(iq, this.delegate.get.onStanza)
+                case _ => this.delegate.get.onStanza(normalizedStanza)
             }
         }
 
@@ -318,68 +315,68 @@ trait XmppServer extends NettyXmppServer[Long]
                 // http://xmpp.org/extensions/xep-0078.html
                 case get @ Get(_, _, _, Some(request:auth.AuthenticationRequest)) =>
                 {
-                    state = 11 // legacy mode (xep-0078)
-                    send(Result(iq, Some(auth.AuthenticationRequest("", "" , Some(""), None)) ))
+                    state = 101
+                    send(get.result(Some(auth.AuthenticationRequest("", "" , Some(""), None))))
                 }
                 // http://xmpp.org/extensions/xep-0078.html
                 case set @ protocol.iq.Set(_, _, _, Some(request:auth.AuthenticationRequest)) =>
                 {
-                    state = 12 // legacy mode (xep-0078)
+                    state = 102
                     // not sure if this is the right place to do the JId binding under 0078
                     _jid = Some(JID(request.username, domain, request.resource))
-                    delegateAuthentication(new AuthenticationRequest(request.username, request.password.getOrElse(""))) match
+                    this.delegate.get.authenticate(new AuthenticationRequest(request.username, request.password.getOrElse(""))) match
                     {
-                        case AuthenticationResult.Success => send(Result(iq)); delegateOnline(this.jid.get)
-                        case AuthenticationResult.NotAuthorized => send(iq.error(StanzaErrorCondition.NotAuthorized, Some("Invalid username or password")))
-                        case AuthenticationResult.CredentialsExpired => send(iq.error(StanzaErrorCondition.NotAuthorized, Some("Credential Expired")))
-                        case AuthenticationResult.AccountDisabled => send(iq.error(StanzaErrorCondition.NotAuthorized, Some("Account Disabled")))
-                        case _ => send(iq.error(StanzaErrorCondition.UndefinedCondition, Some("Unknown authentication error")))
+                        case AuthenticationResult.Success => send(set.result()); this.delegate.get.onOnline(this.jid.get)
+                        case AuthenticationResult.NotAuthorized => send(set.error(StanzaErrorCondition.NotAuthorized, Some("Invalid username or password")))
+                        case AuthenticationResult.CredentialsExpired => send(set.error(StanzaErrorCondition.NotAuthorized, Some("Credential Expired")))
+                        case AuthenticationResult.AccountDisabled => send(set.error(StanzaErrorCondition.NotAuthorized, Some("Account Disabled")))
+                        case _ => send(set.error(StanzaErrorCondition.UndefinedCondition, Some("Unknown authentication error")))
                     }
                 }
-                // ???
+                // xep-???
                 case set @ protocol.iq.Set(_, _, _, Some(request:bind.BindRequest)) =>
                 {
                     state = 3
                     _jid = Some(JID(_username.getOrElse(""), domain, request.resource.getOrElse(id.toString)))
                     // TODO: add hooks for subclasses to control binding behavior
-                    send(Result(iq, Some(bind.BindResult(this.jid.get))))
-                    delegateOnline(this.jid.get)
+                    send(set.result(Some(bind.BindResult(this.jid.get))))
+                    this.delegate.get.onOnline(this.jid.get)
                 }
                 case set @ protocol.iq.Set(_, _, _, Some(request:bind.UnbindRequest)) =>
                 {
                     // TODO: add hooks for subclasses to control unbinding behavior
-                    send(Result(iq, Some(session.Session())))
+                    send(set.result(Some(session.Session())))
                 }
-                // ???
+                // xep-???
                 case set @ protocol.iq.Set(_, _, _, Some(request:session.Session)) =>
                 {
                     state = 4
-                    send(Result(iq, Some(session.Session())))
+                    send(set.result(Some(session.Session())))
                 }
                 // http://xmpp.org/extensions/xep-0077.html
                 case get @ Get(_, _, _, Some(request:register.RegistrationRequest)) =>
                 {
                     // TODO: add hooks for subclasses to control registration behavior
-                    send(Result(iq, Some(register.RegistrationRequest("", "" , "")) ))
+                    send(get.result(Some(register.RegistrationRequest("", "" , "")) ))
                 }
                 // http://xmpp.org/extensions/xep-0077.html
                 case set @ protocol.iq.Set(_, _, _, Some(request:register.RegistrationRequest)) =>
                 {
                     // TODO: add hooks for subclasses to control registration behavior
-                    delegateRegistration(new RegistrationRequest(request.username, request.password, request.email)) match
+                    this.delegate.get.register(new RegistrationRequest(request.username, request.password, request.email)) match
                     {
-                        case RegistrationResult.Success => send(Result(iq))
-                        case RegistrationResult.NotAcceptable => send(iq.error(StanzaErrorCondition.NotAcceptable, Some("Request bot acceptable")))
-                        case RegistrationResult.Conflict => send(iq.error(StanzaErrorCondition.Conflict, Some("Username conflict")))
-                        case RegistrationResult.NotImplemented => send(iq.error(StanzaErrorCondition.NotImplemented, Some("Registration not supported")))
-                        case RegistrationResult.Unknown => send(iq.error(StanzaErrorCondition.UndefinedCondition, Some("Unknown registration error")))
+                        case RegistrationResult.Success => send(set.result())
+                        case RegistrationResult.NotAcceptable => send(set.error(StanzaErrorCondition.NotAcceptable, Some("Request bot acceptable")))
+                        case RegistrationResult.Conflict => send(set.error(StanzaErrorCondition.Conflict, Some("Username conflict")))
+                        case RegistrationResult.NotImplemented => send(set.error(StanzaErrorCondition.NotImplemented, Some("Registration not supported")))
+                        case RegistrationResult.Unknown => send(set.error(StanzaErrorCondition.UndefinedCondition, Some("Unknown registration error")))
                     }
                 }
                 // http://xmpp.org/extensions/xep-0144.html
                 case get @ Get(_, _, _, Some(request:roster.RosterRequest)) =>
                 {
-                    val roster = delegateRoster().toSeq
-                    send(Result(iq, Some(request.result(roster))))
+                    val roster = this.delegate.get.getRoster.toSeq
+                    send(get.result(Some(request.result(roster))))
                 }
                 case _ => next(iq)
             }
@@ -391,129 +388,6 @@ trait XmppServer extends NettyXmppServer[Long]
             logger.error("stream error on xmpp connection %s %s".format(this.id, error))
         }
 
-        // delegates
-
-        private def delegateAuthentication(request:AuthenticationRequest):AuthenticationResult.Value =
-        {
-            try
-            {
-                if (authenticateDelegate.isDefined) authenticateDelegate.get.apply(request) else AuthenticationResult.Unknown
-            }
-            catch
-            {
-                case e => logger.error("xmpp connection %s delegate authentication handler error".format(id), e); AuthenticationResult.Unknown
-            }
-        }
-
-        private def delegateRegistration(request:RegistrationRequest):RegistrationResult.Value =
-        {
-            try
-            {
-                if (registerDelegate.isDefined) registerDelegate.get.apply(request) else RegistrationResult.Unknown
-            }
-            catch
-            {
-                case e => logger.error("xmpp connection %s delegate registration handler error".format(id), e); RegistrationResult.Unknown
-            }
-        }
-
-        private def delegateRoster():Iterable[roster.RosterItem] =
-        {
-            try
-            {
-                if (rosterDelegate.isDefined) rosterDelegate.get.apply() else Iterable.empty[roster.RosterItem]
-            }
-            catch
-            {
-                case e => logger.error("xmpp connection %s delegate roster handler error".format(id), e); Iterable.empty[roster.RosterItem]
-            }
-        }
-
-        private def delegateStanza(stanza:Stanza)
-        {
-            try
-            {
-                if (stanzaDelegate.isDefined) stanzaDelegate.get.apply(stanza)
-            }
-            catch
-            {
-                case e => logger.error("xmpp connection %s delegate stanza handler error".format(id), e)
-            }
-        }
-
-        private def delegateOnline(jid:JID)
-        {
-            try
-            {
-                if (onlineDelegate.isDefined) onlineDelegate.get.apply(jid)
-            }
-            catch
-            {
-                case e => logger.error("xmpp connection %s delegate online handler error".format(id), e)
-            }
-        }
-
-        private def delegateOffline()
-        {
-            try
-            {
-                if (offlineDelegate.isEmpty) offlineDelegate.get.apply()
-            }
-            catch
-            {
-                case e => logger.error("xmpp connection %s delegate offline handler error".format(id), e)
-            }
-        }
-
-        private def delegateError(e:Throwable)
-        {
-            try
-            {
-                if (errorDelegate.isDefined) errorDelegate.get.apply(e)
-            }
-            catch
-            {
-                case e => logger.error("xmpp connection %s delegate error handler error".format(id), e)
-            }
-        }
-
-        // ClientConnection
-
-        def onAuthenticationRequest(delegate:(AuthenticationRequest) => AuthenticationResult.Value)
-        {
-            authenticateDelegate = Some(delegate)
-        }
-
-        def onRegistrationRequest(delegate:(RegistrationRequest) => RegistrationResult.Value)
-        {
-            registerDelegate = Some(delegate)
-        }
-
-        def onRosterRequest(delegate:() => Iterable[roster.RosterItem])
-        {
-            rosterDelegate = Some(delegate)
-        }
-
-        def onStanza(delegate:(Stanza) => Unit)
-        {
-            stanzaDelegate = Some(delegate)
-        }
-
-        def onOnline(delegate:(JID) => Unit)
-        {
-            onlineDelegate = Some(delegate)
-        }
-
-        def onOffline(delegate:() => Unit)
-        {
-            offlineDelegate = Some(delegate)
-        }
-
-        def onError(delegate:(Throwable) => Unit)
-        {
-            errorDelegate = Some(delegate)
-        }
-
         private class SaslAuthenticationError(val reason:SaslErrorCondition.Value) extends Exception
     }
 }
@@ -521,18 +395,22 @@ trait XmppServer extends NettyXmppServer[Long]
 trait ClientConnection
 {
     val id:Long
-
     def jid:Option[JID]
 
-    def send(packet:Packet)
+    var delegate:Option[ClientConnectionDelegate] = None
 
-    def onAuthenticationRequest(delegate:(AuthenticationRequest) => AuthenticationResult.Value)
-    def onRegistrationRequest(delegate:(RegistrationRequest) => RegistrationResult.Value)
-    def onRosterRequest(delegate:() => Iterable[roster.RosterItem])
-    def onStanza(delegate:(Stanza) => Unit)
-    def onOnline(delegate:(JID) => Unit)
-    def onOffline(delegate:() => Unit)
-    def onError(delegate:(Throwable) => Unit)
+    def send(packet:Packet)
+}
+
+trait ClientConnectionDelegate
+{
+    def authenticate(request:AuthenticationRequest):AuthenticationResult.Value = AuthenticationResult.Unknown
+    def register(request:RegistrationRequest):RegistrationResult.Value = RegistrationResult.Unknown
+    def getRoster:Iterable[roster.RosterItem] = Iterable.empty[roster.RosterItem]
+    def onStanza(stanza:Stanza):Unit = Unit
+    def onOnline(jid:JID):Unit = Unit
+    def onOffline():Unit = Unit
+    def onError(e:Throwable):Unit = Unit
 }
 
 class AuthenticationRequest(val username:String, val password:String)
@@ -543,10 +421,8 @@ object AuthenticationResult extends Enumeration
     val Success, NotAuthorized, CredentialsExpired, AccountDisabled, Unknown = Value
 }
 
-// TODO: implement this
 class RegistrationRequest(val username:String, val password:String, val email:String)
 
-// TODO: implement this
 object RegistrationResult extends Enumeration
 {
     type result = Value

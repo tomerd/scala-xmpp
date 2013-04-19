@@ -29,8 +29,6 @@ abstract class IQ(xml:Node, iqType:IQTypeEnumeration.Value) extends Stanza(xml)
         case Some(extensions) if (1 == extensions.length) => Some(extensions(0))
         case _ => None
     }
-
-    def error(condition:StanzaErrorCondition.Value, description:Option[String]):Error = Error(this, condition, description)
 }
 
 object IQTypeEnumeration extends Enumeration

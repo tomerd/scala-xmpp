@@ -22,5 +22,7 @@ object Get
 
 class Get(xml:Node) extends IQ(xml, Get.iqType)
 {
-    def result(extension:Option[Extension]=None):Result = Result(this.id, this.from, this.to, extension)
+    def result(extension:Option[Extension]=None):Result = Result(this, extension)
+
+    def error(condition:StanzaErrorCondition.Value, description:Option[String]):Error = Error(this, condition, description)
 }

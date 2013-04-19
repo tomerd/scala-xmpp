@@ -22,6 +22,8 @@ object Set
 
 class Set(xml:Node) extends IQ(xml, Set.iqType)
 {
-    def result(extension:Option[Extension]=None):Result = Result(this.id, this.from, this.to, extension)
+    def result(extension:Option[Extension]=None):Result = Result(this, extension)
+
+    def error(condition:StanzaErrorCondition.Value, description:Option[String]):Error = Error(this, condition, description)
 }
 
