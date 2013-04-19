@@ -2,19 +2,10 @@ scala-xmpp is a scala based xmpp framework providing implementations of core xmp
 
 scala-xmpp is similar to ejabbered's exmpp and openfire's tinder/whack libraries but is a native scala implementation. it utilizes scala's concurrency features, java nio sockets (via netty and naggati) and brings a fresh approach on stanza encoding/decoding. 
 
-simple external component implementation
-----------------------------------------
+simple external component
+-------------------------
 
-import org.simbit.xmpp.component.XmppComponent
-		
-import org.simbit.xmpp.protocol.extensions._
-		
-import org.simbit.xmpp.protocol._
-import org.simbit.xmpp.protocol.message._
-
-import org.simbit.xmpp.protocol.Protocol._
-
-class Echo extends XmppComponent 
+class Echo extends XmppComponent
 {
 	override val identities = List(disco.Identity("component", "c2s", "echo server"))
 	override val extensionsBuilders = Nil
