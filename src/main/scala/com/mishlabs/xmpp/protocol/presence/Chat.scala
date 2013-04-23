@@ -18,6 +18,6 @@ object Chat
     def apply(xml:Node):Chat = new Chat(xml)
 }
 
-class Chat(xml:Node) extends Available(xml, Some(Show.Chat))
+class Chat(xml:Node) extends Available(xml/*, Some(Show.Chat)*/)
 {
 }

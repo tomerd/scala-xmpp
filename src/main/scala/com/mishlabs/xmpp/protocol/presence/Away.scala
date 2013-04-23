@@ -18,6 +18,6 @@ object Away
     def apply(xml:Node):Away = new Away(xml)
 }
 
-class Away(xml:Node) extends Available(xml, Some(Show.Away))
+class Away(xml:Node) extends Available(xml/*, Some(Show.Away)*/)
 {
 }

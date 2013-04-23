@@ -18,6 +18,6 @@ object DoNotDisturb
     def apply(xml:Node):DoNotDisturb = new DoNotDisturb(xml)
 }
 
-class DoNotDisturb(xml:Node) extends Available(xml, Some(Show.DND))
+class DoNotDisturb(xml:Node) extends Available(xml/*, Some(Show.DND)*/)
 {
 }

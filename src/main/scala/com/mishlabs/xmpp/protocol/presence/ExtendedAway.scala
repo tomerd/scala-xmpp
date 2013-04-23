@@ -18,6 +18,6 @@ object ExtendedAway
     def apply(xml:Node):ExtendedAway = new ExtendedAway(xml)
 }
 
-class ExtendedAway(xml:Node) extends Available(xml, Some(Show.XA))
+class ExtendedAway(xml:Node) extends Available(xml/*, Some(Show.XA)*/)
 {
 }

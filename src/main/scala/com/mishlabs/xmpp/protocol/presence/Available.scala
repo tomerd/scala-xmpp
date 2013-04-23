@@ -43,7 +43,8 @@ object Available
 
     def apply(id:Option[String], to:Option[JID], from:Option[JID], show:Option[Show.Value], status:Option[String], priority:Option[Int], extensions:Option[Seq[Extension]]):Available = apply(build(id, to, from, show, status, priority, extensions))
 
-    def apply(xml:Node, show:Option[Show.Value]=None):Available = new Available(xml, show)
+    //def apply(xml:Node, show:Option[Show.Value]=None):Available = new Available(xml, show)
+    def apply(xml:Node):Available = new Available(xml)
 
     def build(id:Option[String], to:Option[JID], from:Option[JID]):Node = build(id, to, from, None, None, None, None)
 
@@ -62,8 +63,14 @@ object Available
 
 }
 
-class Available(xml:Node, val show:Option[Show.Value]) extends Presence(xml, Available.presenceType)
+class Available(xml:Node/*, val show:Option[Show.Value]*/) extends Presence(xml, Available.presenceType)
 {
+    val show:Option[Show.Value] =
+    {
+        val show = (this.xml \ "show").text
+        if (show.isEmpty) None else Some(Show.withName(show))
+    }
+
     val status:Option[String] =
     {
         val status = (this.xml \ "status").text
@@ -81,10 +88,11 @@ object Show extends Enumeration
 {
     type Reason = Value
 
-    val Unknown = Value("unknown") // internal use
-    val None = Value("") // not in spec
+    //val Unknown = Value("unknown") // internal use
+    //val None = Value("") // not in spec
     val Chat = Value("chat")
     val Away = Value("away")
     val XA = Value("xa")
     val DND = Value("dnd")
+
 }

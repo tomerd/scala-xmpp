@@ -28,8 +28,6 @@ trait XmppServer extends NettyXmppServer[Long]
     private var _domain:String = null
     def domain = _domain
 
-    private var state = 0
-
     private val logger = new Logger
 
     def startup(domain:String, host:String, keystore:KeyStore, keystorePassword:String)
@@ -160,6 +158,7 @@ trait XmppServer extends NettyXmppServer[Long]
     {
         private var _username:Option[String] = None
         private var _jid:Option[JID] = None
+        private var state = 0
 
         def jid = _jid
 
@@ -295,7 +294,7 @@ trait XmppServer extends NettyXmppServer[Long]
             catch
             {
                 case e:SaslAuthenticationError => send(SaslError(e.reason))
-                case e => throw e
+                case e => send(SaslError(SaslErrorCondition.TemporaryAuthFailure)); throw e
             }
         }
 

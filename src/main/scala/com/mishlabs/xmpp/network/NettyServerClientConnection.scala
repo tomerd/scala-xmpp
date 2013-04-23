@@ -34,7 +34,10 @@ abstract class NettyServerClientConnection[M](channelGroup:ChannelGroup, timer:H
                     case e:javax.net.ssl.SSLException => handleCommunicationError(e)
                     case e:java.io.IOException =>
                     {
-                        logger.error("netty connection exception. disconnecting.", e)
+                        if ("Connection reset by peer" != e.getMessage)
+                        {
+                            logger.error("netty connection exception. disconnecting.", e)
+                        }
                         disconnected()
                     }
                     case e => handleCommunicationError(e)
