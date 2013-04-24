@@ -81,8 +81,8 @@ Stanza manipulation is based on pattern matching instead of xml literals.
 
 ***************************************************************************************
 
-This project is still work in progress. if you are interested in contributing, have comments
-or want to share how you use it please touch base via github
+This project is work in progress. if you are interested in contributing, have comments
+or want to share how you are using it please touch base via github
 
 ***************************************************************************************
 
