@@ -1,9 +1,13 @@
-scala-xmpp is a an xmpp framework in scala. it provides core xmpp stanza encoding/decoding and a framework for building servers, external components and clients.
+### about
 
-scala-xmpp is similar to ejabbered's exmpp and openfire's tinder/whack libraries but is a native scala implementation. As such it is optimized for high concurrency utilizing scala's actors and java nio sockets via netty and naggati and Stanza manipulation is based on pattern matching instead of xml literals.
+scala-xmpp is a an xmpp framework in scala. it provides core xmpp stanza encoding/decoding and a framework for building servers,
+external components and clients.
 
-a simple server
----------------
+scala-xmpp is similar to ejabbered's exmpp and openfire's tinder/whack libraries but is a native scala implementation.
+As such it is optimized for high concurrency utilizing scala's actors and java nio sockets via netty and naggati.
+Stanza manipulation is based on pattern matching instead of xml literals.
+
+### a simple server
 
     class MyServer extends XmppServer
     {
@@ -67,8 +71,7 @@ a simple server
     }
 
 
-a simple external component
----------------------------
+### a simple external component
 
     class Echo extends XmppComponent
     {
@@ -84,9 +87,8 @@ a simple external component
 
 ***************************************************************************************
 
-THIS PROJECT IS STILL WORK IN PROGRESS
-
-if you are interested in contributing, please touch base
+This project is still work in progress. if you are interested in contributing, have comments
+or want to share how you use it please touch base via github
 
 ***************************************************************************************
 
