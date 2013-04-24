@@ -85,7 +85,7 @@ Stanza manipulation is based on pattern matching instead of xml literals.
 * unit tests
 * implement more common extensions
 
-###
+
 
 ***************************************************************************************
 
@@ -94,6 +94,6 @@ or want to share how you are using it please touch base via github
 
 ***************************************************************************************
 
-see license.txt for license info
+Licensed under the Apache License, see license.txt
 
 

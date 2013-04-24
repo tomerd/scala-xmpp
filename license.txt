@@ -1,6 +1,6 @@
 scala-xmpp, a scala based xmpp framework
-Copyright (C) 2010 simbit 
-www.simbit.org
+Copyright (C) 2010 mishlabs
+www.mishlabs.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
