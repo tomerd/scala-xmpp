@@ -83,13 +83,6 @@ Stanza manipulation is based on pattern matching instead of xml literals.
 * unit tests
 * implement more common extensions
 
-***************************************************************************************
-
-This project is work in progress. if you are interested in contributing, have comments
-or want to share how you are using it please touch base via github
-
-***************************************************************************************
-
 ### license
 
 scala-xmpp, a scala based xmpp framework
@@ -106,4 +99,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+***************************************************************************************
 
+This project is work in progress. if you are interested in contributing, have comments
+or want to share how you are using it please touch base via github
+
+***************************************************************************************
