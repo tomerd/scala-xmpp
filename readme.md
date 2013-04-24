@@ -80,9 +80,12 @@ Stanza manipulation is based on pattern matching instead of xml literals.
 
 
 ### todo
+
 * client implementation
 * unit tests
 * implement more common extensions
+
+
 
 ***************************************************************************************
 
