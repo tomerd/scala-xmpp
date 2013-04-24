@@ -36,12 +36,6 @@ Stanza manipulation is based on pattern matching instead of xml literals.
                     RegistrationResult.Unknown
                 }
 
-                override def getRoster =
-                {
-                    debug("xmpp client %s requested roster".format(client.id))
-                    Iterable.empty[roster.RosterItem]
-                }
-
                 override def onStanza(stanza:Stanza)
                 {
                     debug("xmpp client %s received '%s'".format(client.id, stanza))
