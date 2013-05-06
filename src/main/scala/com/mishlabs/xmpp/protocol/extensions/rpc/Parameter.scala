@@ -163,7 +163,7 @@ class Parameter(xml:Node) extends XmlWrapper(xml)
     {
         try
         {
-            if (value.length() != 17) throw new Exception("invalid length, expected 17 charchters")
+            if (value.length() != 17) throw new Exception("invalid length, expected 17 characters")
             val date = new java.util.Date()
             date.setYear(value.substring(0, 4).toInt-1900)
             date.setMonth(value.substring(4, 6).toInt-1)
