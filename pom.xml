@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>com.mishlabs</groupId>
 	<artifactId>scala-xmpp_${scala.version}</artifactId>
 	<version>0.0.3</version>
@@ -52,6 +52,11 @@
 	</pluginRepositories>
 	
 	<dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
 		<!-- naggati -->
         <dependency>
             <groupId>org.jboss.netty</groupId>
@@ -69,19 +74,6 @@
 		  <artifactId>slf4j-api</artifactId>
 		  <version>${slf4j-api.version}</version>
 		</dependency>
-		<!-- testing -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.7</version>
-			<scope>test</scope>
-		</dependency>
-		<!-- dependency>
-			<groupId>org.scala-tools.testing</groupId>
-			<artifactId>specs_${scala.version}</artifactId>
-			<version>1.6.7.1</version>
-			<scope>test</scope>
-		</dependency -->
 	</dependencies>
 	
 	<build>
@@ -90,6 +82,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
