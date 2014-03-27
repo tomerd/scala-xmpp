@@ -6,15 +6,15 @@
 
 	<groupId>com.mishlabs</groupId>
 	<artifactId>scala-xmpp_${scala.version}</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>xmpp library for scala</name>
 	<inceptionYear>2010</inceptionYear>
 	
 	<properties>
-		<scala.version>2.9.2</scala.version>
-		<naggati.version>4.1.0</naggati.version>
-		<slf4j-api.version>1.6.2</slf4j-api.version>
+		<scala.version>2.10.2</scala.version>
+		<naggati.version>4.1.2-SNAPSHOT</naggati.version>
+		<slf4j-api.version>1.7.6</slf4j-api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
 	</properties>
@@ -31,12 +31,7 @@
 		  	<url>http://scala-tools.org/repo-snapshots</url>
 		  	<snapshots/>
 		</repository>
-		<repository> 
-			<id>sonatype-releases</id> 
-			<name>Sonatype Releases Repository</name> 
-			<url>http://oss.sonatype.org/content/repositories/releases/</url> 
-		</repository>
-		<repository> 
+		<repository>
 			<id>twittercom</id> 
 			<name>twitter.com</name> 
 			<url>http://maven.twttr.com/</url> 
@@ -65,16 +60,25 @@
         </dependency>
 		<dependency>
 			<groupId>com.twitter</groupId>
-			<artifactId>naggati_${scala.version}</artifactId>
+			<artifactId>naggati_2.10</artifactId>
 			<version>${naggati.version}</version>
 		</dependency>
-		<!-- slf4j -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.10</artifactId>
+            <version>2.3.0</version>
+        </dependency><!-- slf4j -->
 		<dependency>
 		  <groupId>org.slf4j</groupId>
 		  <artifactId>slf4j-api</artifactId>
 		  <version>${slf4j-api.version}</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j-api.version}</version>
+        </dependency>
+    </dependencies>
 	
 	<build>
 		<sourceDirectory>src/main/scala</sourceDirectory>

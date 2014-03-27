@@ -28,7 +28,7 @@ trait XmppServer extends NettyXmppServer[Long]
     private var _domain:String = null
     def domain = _domain
 
-    private val logger = new Logger
+    protected val logger = new Logger
 
     def startup(domain:String, host:String, keystore:KeyStore, keystorePassword:String)
     {

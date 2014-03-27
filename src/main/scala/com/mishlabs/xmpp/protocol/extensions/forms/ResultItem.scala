@@ -14,11 +14,11 @@ object ResultItem
 {
     val tag = "item"
 
-    def apply(fields:Seq[Field]):ResultItem = apply(build(fields))
+    def apply(fields:Seq[Node]):ResultItem = apply(build(fields))
 
     def apply(xml:Node):ResultItem = new ResultItem(xml)
 
-    def build(fields:Seq[Field]):Node =
+    def build(fields:Seq[Node]):Node =
     {
         Elem(null, tag, Null, TopScope, fields:_*)
     }

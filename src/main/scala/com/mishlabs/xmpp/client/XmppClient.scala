@@ -91,7 +91,7 @@ trait XmppClient extends NettyXmppClient
         }
         catch
         {
-            case e =>
+            case e: Throwable =>
             {
                 logger.error(this.jid + " error handling packet: " + e)
                 disconnect()
