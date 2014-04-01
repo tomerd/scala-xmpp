@@ -10,11 +10,11 @@
     </parent>
 
 	<groupId>com.mishlabs</groupId>
-	<artifactId>scala-xmpp_${scala.version}</artifactId>
+	<artifactId>scala-xmpp-parent</artifactId>
 	<version>0.0.4-SNAPSHOT</version>
-	<packaging>jar</packaging>
 	<name>xmpp library for scala</name>
 	<inceptionYear>2010</inceptionYear>
+    <packaging>pom</packaging>
 	
 	<properties>
 		<scala.version>2.10.2</scala.version>
@@ -23,19 +23,83 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
 	</properties>
-		
+
+    <modules>
+        <module>xmpp-core</module>
+        <module>xmpp-parser</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.scala-tools</groupId>
+                    <artifactId>maven-scala-plugin</artifactId>
+                    <version>2.14.1</version>
+                    <configuration>
+                        <charset>${project.build.sourceEncoding}</charset>
+                        <jvmArgs>
+                            <jvmArg>-Xmx1024m</jvmArg>
+                            <!--jvmArg>-DpackageLinkDefs=file://${project.build.directory}/packageLinkDefs.properties</jvmArg-->
+                        </jvmArgs>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>2.4.0</version>
+                    <extensions>true</extensions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>2.14.1</version>
+                <configuration>
+                    <charset>${project.build.sourceEncoding}</charset>
+                    <jvmArgs>
+                        <jvmArg>-Xmx1024m</jvmArg>
+                        <!--jvmArg>-DpackageLinkDefs=file://${project.build.directory}/packageLinkDefs.properties</jvmArg-->
+                    </jvmArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
 	<repositories>
-		<repository>
-		  	<id>scala-tools.releases</id>
-		  	<name>Scala-Tools Dependencies Repository for Releases</name>
-		  	<url>http://scala-tools.org/repo-releases</url>
-		</repository>
-		<repository>
-		  	<id>scala-tools.snapshots</id>
-		  	<name>Scala-Tools Dependencies Repository for Snapshots</name>
-		  	<url>http://scala-tools.org/repo-snapshots</url>
-		  	<snapshots/>
-		</repository>
 		<repository>
 			<id>twittercom</id> 
 			<name>twitter.com</name> 
@@ -50,92 +114,6 @@
 			<url>http://scala-tools.org/repo-releases</url>
 		</pluginRepository>
 	</pluginRepositories>
-	
-	<dependencies>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
-		<!-- naggati -->
-        <dependency>
-            <groupId>org.jboss.netty</groupId>
-            <artifactId>netty</artifactId>
-            <version>3.2.9.Final</version>
-        </dependency>
-		<dependency>
-			<groupId>com.twitter</groupId>
-			<artifactId>naggati_2.10</artifactId>
-			<version>${naggati.version}</version>
-		</dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.10</artifactId>
-            <version>2.3.0</version>
-        </dependency><!-- slf4j -->
-		<dependency>
-		  <groupId>org.slf4j</groupId>
-		  <artifactId>slf4j-api</artifactId>
-		  <version>${slf4j-api.version}</version>
-		</dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j-api.version}</version>
-        </dependency>
-    </dependencies>
-	
-	<build>
-		<sourceDirectory>src/main/scala</sourceDirectory>
-		<testSourceDirectory>src/test/scala</testSourceDirectory>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>2.14.1</version>
-                <configuration>
-                    <charset>${project.build.sourceEncoding}</charset>
-                    <jvmArgs>
-                        <jvmArg>-Xmx1024m</jvmArg>
-                        <!--jvmArg>-DpackageLinkDefs=file://${project.build.directory}/packageLinkDefs.properties</jvmArg-->
-                    </jvmArgs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-	</build>
-
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.scala-tools</groupId>
-				<artifactId>maven-scala-plugin</artifactId>
-				<version>2.14.1</version>
-				<configuration>
-					<charset>${project.build.sourceEncoding}</charset>
-					<jvmArgs>
-						<jvmArg>-Xmx1024m</jvmArg>
-						<!--jvmArg>-DpackageLinkDefs=file://${project.build.directory}/packageLinkDefs.properties</jvmArg-->
-					</jvmArgs>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
 
     <scm>
         <connection>scm:git:git@github.com:tomerd/scala-xmpp.git</connection>
