@@ -4,3 +4,6 @@
 .scala_dependencies
 target
 *.tmproj
+*.idea
+*.iml
+*.ipr

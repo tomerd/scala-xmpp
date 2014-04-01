@@ -14,11 +14,11 @@ object ResultHeader
 {
     val tag = "reported"
 
-    def apply(fields:Seq[Field]):ResultHeader = apply(build(fields))
+    def apply(fields:Seq[Node]):ResultHeader = apply(build(fields))
 
     def apply(xml:Node):ResultHeader = new ResultHeader(xml)
 
-    def build(fields:Seq[Field]):Node =
+    def build(fields:Seq[Node]):Node =
     {
         Elem(null, tag, Null, TopScope, fields:_*)
     }
